@@ -468,11 +468,7 @@
     }
 
     orderButton.addEventListener('click', () => {
-      if (orderButton.disabled) return;
-      orderSection.classList.add('open');
-      orderButton.setAttribute('aria-expanded', 'true');
-      orderButton.textContent = 'די באשטעלונג איז אפן';
-      setTimeout(() => orderSection.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+      if (!orderButton.disabled) window.location.assign('order.html');
     });
     document.getElementById('decreaseQuantity').addEventListener('click', () => {
       quantity = Math.max(1, quantity - 1);
