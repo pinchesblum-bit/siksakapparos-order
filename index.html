@@ -144,9 +144,9 @@
           <div class="form-section">
             <h3>Your information</h3>
             <div class="fields">
-              <div class="field full"><label for="customerName">Full name</label><input id="customerName" autocomplete="name" placeholder="Full name" required /></div>
-              <div class="field"><label for="customerPhone">Phone number</label><input id="customerPhone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="845-641-5637" pattern="[0-9() +.-]{10,20}" required /></div>
-              <div class="field"><label for="customerEmail">Email</label><input id="customerEmail" type="email" autocomplete="email" placeholder="name@example.com" required /></div>
+              <div class="field full"><label for="customerName">Full name</label><input id="customerName" autocomplete="off" placeholder="" required /></div>
+              <div class="field"><label for="customerPhone">Phone number</label><input id="customerPhone" type="tel" inputmode="numeric" autocomplete="off" placeholder="" pattern="[0-9() +.-]{10,20}" required /></div>
+              <div class="field"><label for="customerEmail">Email</label><input id="customerEmail" type="email" autocomplete="off" placeholder="" required /></div>
             </div>
           </div>
           <div class="form-section">
@@ -183,12 +183,12 @@
         <div class="demo-order-line"><span>Order total</span><strong id="demoPaymentTotal">$36.00</strong></div>
         <div class="demo-card-preview" aria-hidden="true"><span class="demo-card-chip"></span><span class="demo-card-number-preview" id="demoCardPreview">•••• •••• •••• ••••</span><span class="demo-card-brand">VISA</span></div>
         <div class="demo-fields">
-          <div class="field full"><label for="demoCardName">Name on card</label><input id="demoCardName" autocomplete="cc-name" required /></div>
-          <div class="field full"><label for="demoCardNumber">Card number</label><input id="demoCardNumber" inputmode="numeric" autocomplete="cc-number" maxlength="19" placeholder="4111 1111 1111 1111" required /><div class="demo-test-hint">Demo card: <strong>4111 1111 1111 1111</strong></div></div>
-          <div class="field"><label for="demoExpiry">Expiration</label><input id="demoExpiry" inputmode="numeric" autocomplete="cc-exp" maxlength="5" placeholder="12/30" pattern="(0[1-9]|1[0-2])/[0-9]{2}" required /></div>
-          <div class="field"><label for="demoCvv">CVV</label><input id="demoCvv" type="password" inputmode="numeric" autocomplete="cc-csc" maxlength="4" placeholder="123" pattern="[0-9]{3,4}" required /></div>
-          <div class="field full"><label for="demoZip">Billing ZIP code</label><input id="demoZip" inputmode="numeric" autocomplete="postal-code" maxlength="10" placeholder="10952" pattern="[0-9-]{5,10}" required /></div>
-          <div class="field full"><label for="demoAccessCode">Private demo code</label><input id="demoAccessCode" type="password" autocomplete="off" maxlength="40" placeholder="Enter your private demo code" required /><div class="demo-test-hint">Required only while the website is using fake test payments.</div></div>
+          <div class="field full"><label for="demoCardName">Name on card</label><input id="demoCardName" autocomplete="off" required /></div>
+          <div class="field full"><label for="demoCardNumber">Card number</label><input id="demoCardNumber" inputmode="numeric" autocomplete="off" maxlength="19" placeholder="" required /></div>
+          <div class="field"><label for="demoExpiry">Expiration</label><input id="demoExpiry" inputmode="numeric" autocomplete="off" maxlength="5" placeholder="" pattern="(0[1-9]|1[0-2])/[0-9]{2}" required /></div>
+          <div class="field"><label for="demoCvv">CVV</label><input id="demoCvv" type="password" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="" pattern="[0-9]{3,4}" required /></div>
+          <div class="field full"><label for="demoZip">Billing ZIP code</label><input id="demoZip" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="" pattern="[0-9-]{5,10}" required /></div>
+          <div class="field full"><label for="demoAccessCode">Private demo code</label><input id="demoAccessCode" type="password" autocomplete="off" maxlength="40" placeholder="" required /><div class="demo-test-hint">Required only while the website is using fake test payments.</div></div>
         </div>
         <p class="demo-payment-error" id="demoPaymentError" role="alert"></p>
         <button type="submit" class="demo-pay-button" id="demoPayButton">Pay <span id="demoPayAmount">$36.00</span> — Demo</button>
@@ -325,7 +325,7 @@
       demoSuccess.hidden = true;
       completedOnlineOrder = null;
       demoPaymentForm.reset();
-      demoCardName.value = document.getElementById('customerName').value.trim();
+      demoCardName.value = '';
       demoPaymentError.textContent = '';
       ticketActionStatus.textContent = '';
       ticketActionStatus.classList.remove('error');
