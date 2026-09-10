@@ -169,11 +169,11 @@
           <div class="summary-total"><span>Total</span><span id="summaryTotal">$36.00</span></div>
           <button type="button" class="checkout-button" id="checkoutButton">Continue to payment</button>
           <p class="secure-note">🔒 Secure checkout</p>
-          <p class="ticket-note" id="customerConfirmationText">Your ticket will be sent by text and email after the order is completed.</p>
+          <p class="ticket-note" id="customerConfirmationText">After checkout, choose Print Ticket, Email Ticket, or Text Ticket.</p>
         </aside>
       </div>
     </section>
-    <p class="sample-note">Design sample only. This page does not submit orders or charge payments.</p>
+    <p class="sample-note">Demo payments do not charge a card. Successful tests are saved as paid online sales.</p>
   </main>
   <div class="demo-checkout-backdrop" id="demoCheckoutModal" aria-hidden="true">
     <section class="demo-checkout-modal" role="dialog" aria-modal="true" aria-labelledby="demoCheckoutTitle">
@@ -222,7 +222,7 @@
       inventory: 100,
       pickupTimes: ['Tuesday evening', 'Wednesday morning'],
       paymentChoices: ['Credit card'],
-      confirmationText: 'Your ticket will be sent by text and email after the order is completed.'
+      confirmationText: 'After checkout, choose Print Ticket, Email Ticket, or Text Ticket.'
     };
     const orderButton = document.getElementById('openOrderButton');
     const orderSection = document.getElementById('orderSection');
