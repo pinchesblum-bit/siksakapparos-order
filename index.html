@@ -296,6 +296,9 @@
       return value.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim();
     }
     function openDemoCheckout() {
+      const customerPhone = document.getElementById('customerPhone');
+      const phoneDigits = customerPhone.value.replace(/\D/g, '');
+      customerPhone.setCustomValidity(phoneDigits.length === 10 ? '' : 'Enter a 10-digit phone number.');
       if (!sampleOrderForm.reportValidity() || checkoutButton.disabled) return;
       demoPaymentForm.hidden = false;
       demoSuccess.hidden = true;
