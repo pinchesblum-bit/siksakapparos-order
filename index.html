@@ -156,7 +156,6 @@
                 <label>Number of kaparos</label>
                 <div class="quantity-control"><button class="quantity-button" id="decreaseQuantity" type="button" aria-label="Remove one kaparos">−</button><output class="quantity-value" id="quantityValue" aria-live="polite">2</output><button class="quantity-button" id="increaseQuantity" type="button" aria-label="Add one kaparos">+</button></div>
               </div>
-              <div class="field"><label for="pickupTime">Pickup time</label><select id="pickupTime"><option>Tuesday evening</option><option>Wednesday morning</option></select></div>
             </div>
           </div>
           <div class="form-section">
@@ -167,7 +166,6 @@
         <aside class="summary-card" aria-label="Order summary">
           <h2>Order summary</h2>
           <div class="summary-row"><span>Kaparos</span><strong><span id="summaryQuantity">2</span> × <span id="summaryUnitPrice">$18</span></strong></div>
-          <div class="summary-row"><span>Pickup</span><strong id="summaryPickup">Tuesday evening</strong></div>
           <div class="summary-total"><span>Total</span><span id="summaryTotal">$36.00</span></div>
           <button type="button" class="checkout-button" id="checkoutButton">Continue to payment</button>
           <p class="secure-note">🔒 Secure checkout</p>
@@ -199,7 +197,7 @@
       <div class="demo-success" id="demoSuccess" hidden>
         <div class="demo-success-icon" aria-hidden="true">✓</div><span class="demo-badge">DEMO APPROVED</span><h2>Payment approved</h2>
         <p id="demoSuccessMessage">Your demo order is complete.</p>
-        <div class="demo-ticket" id="publicTicket"><span>Online demo ticket</span><strong id="demoTicketNumber">0000000000</strong><div><span id="demoTicketQuantity">2 כפרות</span><span id="demoTicketPickup">Tuesday evening</span></div><b id="demoTicketTotal">$36.00</b></div>
+        <div class="demo-ticket" id="publicTicket"><span>Online demo ticket</span><strong id="demoTicketNumber">0000000000</strong><div><span id="demoTicketQuantity">2 כפרות</span></div><b id="demoTicketTotal">$36.00</b></div>
         <p class="demo-no-save">No card was charged. This test order is recorded as a paid online sale in the admin website and reports.</p>
         <p class="ticket-action-status" id="ticketActionStatus" role="status"></p>
         <div class="ticket-actions">
@@ -232,8 +230,6 @@
     const summaryQuantity = document.getElementById('summaryQuantity');
     const summaryUnitPrice = document.getElementById('summaryUnitPrice');
     const summaryTotal = document.getElementById('summaryTotal');
-    const pickupTime = document.getElementById('pickupTime');
-    const summaryPickup = document.getElementById('summaryPickup');
     const paymentOptions = document.getElementById('paymentOptions');
     const checkoutButton = document.querySelector('.checkout-button');
     const availabilityMessage = document.getElementById('availabilityMessage');
@@ -266,14 +262,6 @@
       summaryTotal.textContent = money(quantity * Number(config.price || 0));
     }
     function renderChoices() {
-      pickupTime.innerHTML = '';
-      config.pickupTimes.forEach(label => {
-        const option = document.createElement('option');
-        option.textContent = label;
-        option.value = label;
-        pickupTime.appendChild(option);
-      });
-      summaryPickup.textContent = pickupTime.value || '';
       paymentOptions.innerHTML = '';
       config.paymentChoices.forEach((label, index) => {
         const button = document.createElement('button');
@@ -364,7 +352,6 @@
       document.getElementById('demoSuccessMessage').textContent = 'Thank you, ' + sale.fullName + '. Your demo order is complete.';
       document.getElementById('demoTicketNumber').textContent = sale.ticketId;
       document.getElementById('demoTicketQuantity').textContent = sale.quantity + (sale.quantity === 1 ? ' כפרה' : ' כפרות');
-      document.getElementById('demoTicketPickup').textContent = sale.pickupTime;
       document.getElementById('demoTicketTotal').textContent = money(sale.price);
       ticketActionStatus.textContent = 'Choose how you would like to receive your ticket.';
       config.inventory = Math.max(0, Number(sale.remainingInventory || 0));
@@ -398,7 +385,7 @@
         ticketActionStatus.classList.add('error');
         return;
       }
-      popup.document.write('<!doctype html><html><head><title>Ticket #' + escapeTicketText(sale.ticketId) + '</title><style>body{margin:0;padding:28px;font-family:Arial,sans-serif;color:#241f1a;background:#fff}.ticket{max-width:520px;margin:auto;padding:30px;border:2px solid #6f4b2f;border-radius:18px;text-align:center}h1{margin:0;direction:rtl;font-size:30px}.sub{margin:5px 0 24px;direction:rtl;font-size:22px;color:#6f4b2f}.number{font-size:30px;font-weight:900;letter-spacing:.08em}.details{margin:22px 0;text-align:left;border-top:1px solid #ddd;border-bottom:1px solid #ddd}.row{display:flex;justify-content:space-between;gap:20px;padding:11px 0;border-bottom:1px solid #eee}.row:last-child{border:0}@media print{body{padding:0}.ticket{border:0}}</style></head><body><div class="ticket"><h1>' + escapeTicketText(config.title) + '</h1><div class="sub">' + escapeTicketText(config.subtitle) + '</div><div>Online demo ticket</div><div class="number">#' + escapeTicketText(sale.ticketId) + '</div>' + ticketBarcodeSvg(sale.ticketId) + '<div class="details"><div class="row"><span>Name</span><b>' + escapeTicketText(sale.fullName) + '</b></div><div class="row"><span>Phone</span><b>' + escapeTicketText(sale.phone.replace(/^(\d{3})(\d{3})(\d{4})$/, '$1-$2-$3')) + '</b></div><div class="row"><span>Amount</span><b>' + sale.quantity + '</b></div><div class="row"><span>Pickup</span><b>' + escapeTicketText(sale.pickupTime) + '</b></div><div class="row"><span>Paid</span><b>' + escapeTicketText(money(sale.price)) + '</b></div></div><p>Please bring this ticket when picking up your כפרות.</p></div><script>window.onload=()=>{window.print();}<\/script></body></html>');
+      popup.document.write('<!doctype html><html><head><title>Ticket #' + escapeTicketText(sale.ticketId) + '</title><style>body{margin:0;padding:28px;font-family:Arial,sans-serif;color:#241f1a;background:#fff}.ticket{max-width:520px;margin:auto;padding:30px;border:2px solid #6f4b2f;border-radius:18px;text-align:center}h1{margin:0;direction:rtl;font-size:30px}.sub{margin:5px 0 24px;direction:rtl;font-size:22px;color:#6f4b2f}.number{font-size:30px;font-weight:900;letter-spacing:.08em}.details{margin:22px 0;text-align:left;border-top:1px solid #ddd;border-bottom:1px solid #ddd}.row{display:flex;justify-content:space-between;gap:20px;padding:11px 0;border-bottom:1px solid #eee}.row:last-child{border:0}@media print{body{padding:0}.ticket{border:0}}</style></head><body><div class="ticket"><h1>' + escapeTicketText(config.title) + '</h1><div class="sub">' + escapeTicketText(config.subtitle) + '</div><div>Online demo ticket</div><div class="number">#' + escapeTicketText(sale.ticketId) + '</div>' + ticketBarcodeSvg(sale.ticketId) + '<div class="details"><div class="row"><span>Name</span><b>' + escapeTicketText(sale.fullName) + '</b></div><div class="row"><span>Phone</span><b>' + escapeTicketText(sale.phone.replace(/^(\d{3})(\d{3})(\d{4})$/, '$1-$2-$3')) + '</b></div><div class="row"><span>Amount</span><b>' + sale.quantity + '</b></div><div class="row"><span>Paid</span><b>' + escapeTicketText(money(sale.price)) + '</b></div></div><p>Please bring this ticket when picking up your כפרות.</p></div><script>window.onload=()=>{window.print();}<\/script></body></html>');
       popup.document.close();
     }
     function createPdfFromJpeg(jpegBytes, imageWidth, imageHeight) {
@@ -441,7 +428,7 @@
       let x=190; context.fillStyle='#17130f';
       for(const digit of String(sale.ticketId)){const value=Number(digit);for(let bit=0;bit<5;bit+=1){const width=((value>>bit)&1)?8:4;context.fillRect(x,385,width,150);x+=width+7;}x+=4;}
       context.textAlign='left'; context.font='bold 31px Arial'; context.fillStyle='#241f1a';
-      const rows=[['Name',sale.fullName],['Phone',sale.phone.replace(/^(\d{3})(\d{3})(\d{4})$/,'$1-$2-$3')],['Amount',String(sale.quantity)],['Pickup',sale.pickupTime],['Paid',money(sale.price)]];
+      const rows=[['Name',sale.fullName],['Phone',sale.phone.replace(/^(\d{3})(\d{3})(\d{4})$/,'$1-$2-$3')],['Amount',String(sale.quantity)],['Paid',money(sale.price)]];
       rows.forEach((row,index)=>{const y=650+index*100;context.fillStyle='#756c63';context.font='26px Arial';context.fillText(row[0],150,y);context.fillStyle='#241f1a';context.font='bold 30px Arial';context.fillText(String(row[1]),380,y);});
       context.textAlign='center'; context.font='25px Arial'; context.fillText('Please bring this ticket when picking up your kaparos.',500,1190);
       const blob = await new Promise((resolve,reject)=>canvas.toBlob(value=>value?resolve(value):reject(new Error('Ticket PDF could not be prepared.')),'image/jpeg',.94));
@@ -497,7 +484,6 @@
       quantity += 1;
       updateSummary();
     });
-    pickupTime.addEventListener('change', () => { summaryPickup.textContent = pickupTime.value; });
     checkoutButton.addEventListener('click', openDemoCheckout);
     document.getElementById('closeDemoCheckout').addEventListener('click', closeDemoCheckout);
     document.getElementById('demoDoneButton').addEventListener('click', closeDemoCheckout);
@@ -539,7 +525,7 @@
           phone: document.getElementById('customerPhone').value,
           email: document.getElementById('customerEmail').value.trim(),
           quantity,
-          pickupTime: pickupTime.value
+          pickupTime: ''
         });
         showDemoApproval(result.sale, orderToken);
       } catch (error) {
