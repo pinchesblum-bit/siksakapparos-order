@@ -99,6 +99,12 @@
     .demo-test-hint { margin-top: 6px; color: #756c63; font-size: 12px; }
     .demo-payment-error { min-height: 21px; margin: 12px 0 4px; color: #a23939; font-size: 14px; font-weight: 700; }
     .demo-pay-button, .demo-done-button { width: 100%; min-height: 52px; border: 0; border-radius: 13px; background: #6f4b2f; color: #fff; font-size: 16px; font-weight: 850; cursor: pointer; }
+    .ticket-actions { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin:0 0 10px; }
+    .ticket-action-button { min-height:46px; padding:9px 10px; border:1px solid #cdbba5; border-radius:12px; background:#fff; color:#5b3b24; font-size:14px; font-weight:850; cursor:pointer; }
+    .ticket-action-button:hover { background:#f8f0e5; }
+    .ticket-action-button:disabled { cursor:wait; opacity:.62; }
+    .ticket-action-status { min-height:21px; margin:0 0 10px !important; color:#35653e !important; font-size:13px; font-weight:750; }
+    .ticket-action-status.error { color:#9d342d !important; }
     .demo-pay-button:disabled { cursor: wait; opacity: .7; }
     .demo-secure-line { margin: 10px 0 0; color: #756c63; font-size: 12px; text-align: center; }
     .demo-success { text-align: center; }
@@ -110,7 +116,7 @@
     .demo-ticket > b { font-size: 20px; color: #58391f; }
     .demo-no-save { margin-bottom: 18px !important; font-size: 13px; }
     body.demo-checkout-open { overflow: hidden; }
-    @media (max-width: 560px) { .demo-checkout-modal { padding: 24px 18px; border-radius: 19px; } .demo-card-preview { min-height: 132px; padding: 18px; } .demo-card-number-preview { font-size: 17px; } .demo-fields { grid-template-columns: 1fr; } .demo-fields .full { grid-column: auto; } }
+    @media (max-width: 560px) { .demo-checkout-modal { padding: 24px 18px; border-radius: 19px; } .demo-card-preview { min-height: 132px; padding: 18px; } .demo-card-number-preview { font-size: 17px; } .demo-fields { grid-template-columns: 1fr; } .demo-fields .full { grid-column: auto; } .ticket-actions { grid-template-columns:1fr; } }
     .availability-message { margin: 18px auto 0; width: min(100%, 620px); padding: 12px 16px; border: 1px solid #d8c6ae; border-radius: 12px; background: #fff8ed; color: #674325; font-weight: 750; text-align: center; }
     .order-cta:disabled, .checkout-button:disabled { cursor: not-allowed; opacity: .58; transform: none; box-shadow: none; }
   </style>
@@ -184,6 +190,7 @@
           <div class="field"><label for="demoExpiry">Expiration</label><input id="demoExpiry" inputmode="numeric" autocomplete="cc-exp" maxlength="5" placeholder="12/30" pattern="(0[1-9]|1[0-2])/[0-9]{2}" required /></div>
           <div class="field"><label for="demoCvv">CVV</label><input id="demoCvv" type="password" inputmode="numeric" autocomplete="cc-csc" maxlength="4" placeholder="123" pattern="[0-9]{3,4}" required /></div>
           <div class="field full"><label for="demoZip">Billing ZIP code</label><input id="demoZip" inputmode="numeric" autocomplete="postal-code" maxlength="10" placeholder="10952" pattern="[0-9-]{5,10}" required /></div>
+          <div class="field full"><label for="demoAccessCode">Private demo code</label><input id="demoAccessCode" type="password" autocomplete="off" maxlength="40" placeholder="Enter your private demo code" required /><div class="demo-test-hint">Required only while the website is using fake test payments.</div></div>
         </div>
         <p class="demo-payment-error" id="demoPaymentError" role="alert"></p>
         <button type="submit" class="demo-pay-button" id="demoPayButton">Pay <span id="demoPayAmount">$36.00</span> — Demo</button>
@@ -192,8 +199,14 @@
       <div class="demo-success" id="demoSuccess" hidden>
         <div class="demo-success-icon" aria-hidden="true">✓</div><span class="demo-badge">DEMO APPROVED</span><h2>Payment approved</h2>
         <p id="demoSuccessMessage">Your demo order is complete.</p>
-        <div class="demo-ticket"><span>Demo ticket</span><strong id="demoTicketNumber">DEMO-000000</strong><div><span id="demoTicketQuantity">2 כפרות</span><span id="demoTicketPickup">Tuesday evening</span></div><b id="demoTicketTotal">$36.00</b></div>
-        <p class="demo-no-save">This test was not charged and was not added to your real sales.</p>
+        <div class="demo-ticket" id="publicTicket"><span>Online demo ticket</span><strong id="demoTicketNumber">0000000000</strong><div><span id="demoTicketQuantity">2 כפרות</span><span id="demoTicketPickup">Tuesday evening</span></div><b id="demoTicketTotal">$36.00</b></div>
+        <p class="demo-no-save">No card was charged. This test order is recorded as a paid online sale in the admin website and reports.</p>
+        <p class="ticket-action-status" id="ticketActionStatus" role="status"></p>
+        <div class="ticket-actions">
+          <button type="button" class="ticket-action-button" id="printOnlineTicket">Print Ticket</button>
+          <button type="button" class="ticket-action-button" id="emailOnlineTicket">Email Ticket</button>
+          <button type="button" class="ticket-action-button" id="textOnlineTicket">Text Ticket</button>
+        </div>
         <button type="button" class="demo-done-button" id="demoDoneButton">Done</button>
       </div>
     </section>
@@ -201,6 +214,7 @@
 
   <script>
     const PUBLIC_CONFIG_API = 'https://tugsxxafeaqbqonrruqt.supabase.co/functions/v1/kapparos-public-config';
+    const PUBLIC_ORDER_API = 'https://tugsxxafeaqbqonrruqt.supabase.co/functions/v1/kapparos-public-order';
     const DEFAULT_PUBLIC_CONFIG = {
       orderingEnabled: true,
       title: 'פנים מאירות סיקסא',
@@ -232,8 +246,13 @@
     const demoExpiry = document.getElementById('demoExpiry');
     const demoPayButton = document.getElementById('demoPayButton');
     const demoPaymentError = document.getElementById('demoPaymentError');
+    const ticketActionStatus = document.getElementById('ticketActionStatus');
+    const printOnlineTicket = document.getElementById('printOnlineTicket');
+    const emailOnlineTicket = document.getElementById('emailOnlineTicket');
+    const textOnlineTicket = document.getElementById('textOnlineTicket');
     let config = { ...DEFAULT_PUBLIC_CONFIG };
     let quantity = 2;
+    let completedOnlineOrder = null;
 
     function money(value) {
       return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(value || 0));
@@ -295,6 +314,20 @@
     function formatCardNumber(value) {
       return value.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim();
     }
+    function secureRandomHex(bytes = 24) {
+      const values = crypto.getRandomValues(new Uint8Array(bytes));
+      return Array.from(values, value => value.toString(16).padStart(2, '0')).join('');
+    }
+    async function publicOrderRequest(payload) {
+      const response = await fetch(PUBLIC_ORDER_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error || 'The order could not be completed.');
+      return result;
+    }
     function openDemoCheckout() {
       const customerPhone = document.getElementById('customerPhone');
       const phoneDigits = customerPhone.value.replace(/\D/g, '');
@@ -302,9 +335,12 @@
       if (!sampleOrderForm.reportValidity() || checkoutButton.disabled) return;
       demoPaymentForm.hidden = false;
       demoSuccess.hidden = true;
+      completedOnlineOrder = null;
       demoPaymentForm.reset();
       demoCardName.value = document.getElementById('customerName').value.trim();
       demoPaymentError.textContent = '';
+      ticketActionStatus.textContent = '';
+      ticketActionStatus.classList.remove('error');
       const total = money(quantity * Number(config.price || 0));
       document.getElementById('demoPaymentTotal').textContent = total;
       document.getElementById('demoPayAmount').textContent = total;
@@ -321,18 +357,115 @@
       document.body.classList.remove('demo-checkout-open');
       checkoutButton.focus();
     }
-    function showDemoApproval() {
-      const ticketNumber = 'DEMO-' + String(Math.floor(100000 + Math.random() * 900000));
-      const name = document.getElementById('customerName').value.trim();
-      const total = money(quantity * Number(config.price || 0));
+    function showDemoApproval(sale, orderToken) {
+      completedOnlineOrder = { ...sale, orderToken };
       demoPaymentForm.hidden = true;
       demoSuccess.hidden = false;
-      document.getElementById('demoSuccessMessage').textContent = 'Thank you, ' + name + '. Your demo order is complete.';
-      document.getElementById('demoTicketNumber').textContent = ticketNumber;
-      document.getElementById('demoTicketQuantity').textContent = quantity + (quantity === 1 ? ' כפרה' : ' כפרות');
-      document.getElementById('demoTicketPickup').textContent = pickupTime.value;
-      document.getElementById('demoTicketTotal').textContent = total;
+      document.getElementById('demoSuccessMessage').textContent = 'Thank you, ' + sale.fullName + '. Your demo order is complete.';
+      document.getElementById('demoTicketNumber').textContent = sale.ticketId;
+      document.getElementById('demoTicketQuantity').textContent = sale.quantity + (sale.quantity === 1 ? ' כפרה' : ' כפרות');
+      document.getElementById('demoTicketPickup').textContent = sale.pickupTime;
+      document.getElementById('demoTicketTotal').textContent = money(sale.price);
+      ticketActionStatus.textContent = 'Choose how you would like to receive your ticket.';
+      config.inventory = Math.max(0, Number(sale.remainingInventory || 0));
+      updateSummary();
       document.getElementById('demoDoneButton').focus();
+    }
+    function escapeTicketText(value) {
+      return String(value ?? '').replace(/[&<>"']/g, character => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[character]);
+    }
+    function ticketBarcodeSvg(ticketId) {
+      const digits = String(ticketId || '').replace(/\D/g, '');
+      let x = 10;
+      let bars = '';
+      for (const digit of digits) {
+        const value = Number(digit);
+        for (let bit = 0; bit < 5; bit += 1) {
+          const width = ((value >> bit) & 1) ? 4 : 2;
+          bars += '<rect x="' + x + '" y="2" width="' + width + '" height="62" fill="#17130f"/>';
+          x += width + 3;
+        }
+        x += 2;
+      }
+      return '<svg viewBox="0 0 ' + (x + 10) + ' 68" width="100%" height="68" aria-label="Ticket barcode">' + bars + '</svg>';
+    }
+    function printCompletedTicket() {
+      if (!completedOnlineOrder) return;
+      const sale = completedOnlineOrder;
+      const popup = window.open('', '_blank', 'width=640,height=820');
+      if (!popup) {
+        ticketActionStatus.textContent = 'Allow pop-ups, then press Print Ticket again.';
+        ticketActionStatus.classList.add('error');
+        return;
+      }
+      popup.document.write('<!doctype html><html><head><title>Ticket #' + escapeTicketText(sale.ticketId) + '</title><style>body{margin:0;padding:28px;font-family:Arial,sans-serif;color:#241f1a;background:#fff}.ticket{max-width:520px;margin:auto;padding:30px;border:2px solid #6f4b2f;border-radius:18px;text-align:center}h1{margin:0;direction:rtl;font-size:30px}.sub{margin:5px 0 24px;direction:rtl;font-size:22px;color:#6f4b2f}.number{font-size:30px;font-weight:900;letter-spacing:.08em}.details{margin:22px 0;text-align:left;border-top:1px solid #ddd;border-bottom:1px solid #ddd}.row{display:flex;justify-content:space-between;gap:20px;padding:11px 0;border-bottom:1px solid #eee}.row:last-child{border:0}@media print{body{padding:0}.ticket{border:0}}</style></head><body><div class="ticket"><h1>' + escapeTicketText(config.title) + '</h1><div class="sub">' + escapeTicketText(config.subtitle) + '</div><div>Online demo ticket</div><div class="number">#' + escapeTicketText(sale.ticketId) + '</div>' + ticketBarcodeSvg(sale.ticketId) + '<div class="details"><div class="row"><span>Name</span><b>' + escapeTicketText(sale.fullName) + '</b></div><div class="row"><span>Phone</span><b>' + escapeTicketText(sale.phone.replace(/^(\d{3})(\d{3})(\d{4})$/, '$1-$2-$3')) + '</b></div><div class="row"><span>Amount</span><b>' + sale.quantity + '</b></div><div class="row"><span>Pickup</span><b>' + escapeTicketText(sale.pickupTime) + '</b></div><div class="row"><span>Paid</span><b>' + escapeTicketText(money(sale.price)) + '</b></div></div><p>Please bring this ticket when picking up your כפרות.</p></div><script>window.onload=()=>{window.print();}<\/script></body></html>');
+      popup.document.close();
+    }
+    function createPdfFromJpeg(jpegBytes, imageWidth, imageHeight) {
+      const encoder = new TextEncoder();
+      const chunks = [];
+      const offsets = [0];
+      let length = 0;
+      const add = value => { const bytes = typeof value === 'string' ? encoder.encode(value) : value; chunks.push(bytes); length += bytes.length; };
+      const addObject = (number, value) => { offsets[number] = length; add(number + ' 0 obj\n' + value + '\nendobj\n'); };
+      const pageWidth = 612, pageHeight = 792, margin = 32;
+      const scale = Math.min((pageWidth - margin * 2) / imageWidth, (pageHeight - margin * 2) / imageHeight);
+      const drawWidth = imageWidth * scale, drawHeight = imageHeight * scale;
+      const drawing = 'q\n' + drawWidth.toFixed(2) + ' 0 0 ' + drawHeight.toFixed(2) + ' ' + ((pageWidth-drawWidth)/2).toFixed(2) + ' ' + ((pageHeight-drawHeight)/2).toFixed(2) + ' cm\n/Im0 Do\nQ';
+      add('%PDF-1.4\n%âãÏÓ\n');
+      addObject(1, '<< /Type /Catalog /Pages 2 0 R >>');
+      addObject(2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
+      addObject(3, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>');
+      offsets[4] = length;
+      add('4 0 obj\n<< /Type /XObject /Subtype /Image /Width ' + imageWidth + ' /Height ' + imageHeight + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + jpegBytes.length + ' >>\nstream\n');
+      add(jpegBytes); add('\nendstream\nendobj\n');
+      addObject(5, '<< /Length ' + encoder.encode(drawing).length + ' >>\nstream\n' + drawing + '\nendstream');
+      const xrefOffset = length;
+      add('xref\n0 6\n0000000000 65535 f \n');
+      for (let index=1; index<=5; index+=1) add(String(offsets[index]).padStart(10,'0') + ' 00000 n \n');
+      add('trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n' + xrefOffset + '\n%%EOF');
+      return new Blob(chunks, { type:'application/pdf' });
+    }
+    async function ticketPdfBase64() {
+      const sale = completedOnlineOrder;
+      const canvas = document.createElement('canvas');
+      canvas.width = 1000; canvas.height = 1350;
+      const context = canvas.getContext('2d');
+      context.fillStyle = '#fffdf8'; context.fillRect(0,0,canvas.width,canvas.height);
+      context.strokeStyle = '#6f4b2f'; context.lineWidth = 5; context.strokeRect(45,45,910,1260);
+      context.textAlign = 'center'; context.fillStyle = '#241f1a';
+      context.font = 'bold 54px Arial'; context.fillText(config.title,500,135);
+      context.font = 'bold 40px Arial'; context.fillStyle='#6f4b2f'; context.fillText(config.subtitle,500,195);
+      context.font = 'bold 25px Arial'; context.fillStyle='#756c63'; context.fillText('ONLINE DEMO TICKET',500,260);
+      context.font = 'bold 62px Arial'; context.fillStyle='#241f1a'; context.fillText('#'+sale.ticketId,500,345);
+      let x=190; context.fillStyle='#17130f';
+      for(const digit of String(sale.ticketId)){const value=Number(digit);for(let bit=0;bit<5;bit+=1){const width=((value>>bit)&1)?8:4;context.fillRect(x,385,width,150);x+=width+7;}x+=4;}
+      context.textAlign='left'; context.font='bold 31px Arial'; context.fillStyle='#241f1a';
+      const rows=[['Name',sale.fullName],['Phone',sale.phone.replace(/^(\d{3})(\d{3})(\d{4})$/,'$1-$2-$3')],['Amount',String(sale.quantity)],['Pickup',sale.pickupTime],['Paid',money(sale.price)]];
+      rows.forEach((row,index)=>{const y=650+index*100;context.fillStyle='#756c63';context.font='26px Arial';context.fillText(row[0],150,y);context.fillStyle='#241f1a';context.font='bold 30px Arial';context.fillText(String(row[1]),380,y);});
+      context.textAlign='center'; context.font='25px Arial'; context.fillText('Please bring this ticket when picking up your kaparos.',500,1190);
+      const blob = await new Promise((resolve,reject)=>canvas.toBlob(value=>value?resolve(value):reject(new Error('Ticket PDF could not be prepared.')),'image/jpeg',.94));
+      const pdf = createPdfFromJpeg(new Uint8Array(await blob.arrayBuffer()),canvas.width,canvas.height);
+      return await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=()=>reject(new Error('Ticket PDF could not be prepared.'));reader.readAsDataURL(pdf);});
+    }
+    async function sendCompletedTicket(action, button) {
+      if (!completedOnlineOrder) return;
+      button.disabled = true;
+      ticketActionStatus.classList.remove('error');
+      ticketActionStatus.textContent = action === 'send-ticket' ? 'Preparing and emailing your ticket…' : 'Sending your ticket by text…';
+      try {
+        const payload = { action, saleId:completedOnlineOrder.id, orderToken:completedOnlineOrder.orderToken };
+        if (action === 'send-ticket') payload.pdfBase64 = await ticketPdfBase64();
+        await publicOrderRequest(payload);
+        ticketActionStatus.textContent = action === 'send-ticket'
+          ? 'Ticket emailed to ' + completedOnlineOrder.email + '.'
+          : 'Ticket text queued for ' + completedOnlineOrder.phone.replace(/^(\d{3})(\d{3})(\d{4})$/,'$1-$2-$3') + '.';
+      } catch (error) {
+        ticketActionStatus.classList.add('error');
+        ticketActionStatus.textContent = error.message;
+      } finally {
+        button.disabled = false;
+      }
     }
     async function loadPublicConfig() {
       try {
@@ -380,7 +513,7 @@
       const digits = demoExpiry.value.replace(/\D/g, '').slice(0,4);
       demoExpiry.value = digits.length > 2 ? digits.slice(0,2) + '/' + digits.slice(2) : digits;
     });
-    demoPaymentForm.addEventListener('submit', event => {
+    demoPaymentForm.addEventListener('submit', async event => {
       event.preventDefault();
       demoPaymentError.textContent = '';
       const cardDigits = demoCardNumber.value.replace(/\D/g, '');
@@ -394,12 +527,31 @@
       if (!demoPaymentForm.reportValidity()) return;
       demoPayButton.disabled = true;
       demoPayButton.textContent = 'Processing demo payment…';
-      setTimeout(() => {
+      const orderToken = secureRandomHex(32);
+      try {
+        await new Promise(resolve => setTimeout(resolve, 650));
+        const result = await publicOrderRequest({
+          action: 'create-demo-order',
+          demoCode: document.getElementById('demoAccessCode').value,
+          orderKey: crypto.randomUUID ? crypto.randomUUID() : secureRandomHex(20),
+          orderToken,
+          fullName: document.getElementById('customerName').value.trim(),
+          phone: document.getElementById('customerPhone').value,
+          email: document.getElementById('customerEmail').value.trim(),
+          quantity,
+          pickupTime: pickupTime.value
+        });
+        showDemoApproval(result.sale, orderToken);
+      } catch (error) {
+        demoPaymentError.textContent = error.message;
+      } finally {
         demoPayButton.disabled = false;
         demoPayButton.innerHTML = 'Pay <span id="demoPayAmount">' + money(quantity * Number(config.price || 0)) + '</span> — Demo';
-        showDemoApproval();
-      }, 1100);
+      }
     });
+    printOnlineTicket.addEventListener('click', printCompletedTicket);
+    emailOnlineTicket.addEventListener('click', () => sendCompletedTicket('send-ticket', emailOnlineTicket));
+    textOnlineTicket.addEventListener('click', () => sendCompletedTicket('send-ticket-text', textOnlineTicket));
     applyConfig(DEFAULT_PUBLIC_CONFIG);
     loadPublicConfig();
   </script>
