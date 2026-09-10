@@ -77,6 +77,40 @@
       .trust-line { align-items:flex-start; flex-direction:column; max-width:235px; margin-inline:auto; }
       .payment-options { grid-template-columns:1fr; }
     }
+    .demo-checkout-backdrop { position: fixed; inset: 0; z-index: 1000; display: none; place-items: center; padding: 18px; background: rgba(28,24,20,.52); overflow-y: auto; }
+    .demo-checkout-backdrop.open { display: grid; }
+    .demo-checkout-modal { position: relative; width: min(100%,510px); max-height: calc(100vh - 36px); overflow-y: auto; padding: 30px; border: 1px solid rgba(111,75,47,.18); border-radius: 24px; background: #fffdf9; box-shadow: 0 28px 80px rgba(35,24,15,.28); }
+    .demo-close-button { position: absolute; top: 15px; right: 15px; width: 38px; height: 38px; border: 0; border-radius: 50%; background: #f2ece4; color: #33271f; font-size: 25px; cursor: pointer; }
+    .demo-checkout-heading { padding-right: 42px; }
+    .demo-checkout-heading h2, .demo-success h2 { margin: 9px 0 5px; font-size: 27px; line-height: 1.15; }
+    .demo-checkout-heading p, .demo-success > p { margin: 0; color: #756c63; line-height: 1.5; }
+    .demo-badge { display: inline-flex; align-items: center; min-height: 27px; padding: 4px 9px; border-radius: 999px; background: #efe3d3; color: #6f4b2f; font-size: 11px; font-weight: 900; letter-spacing: .09em; }
+    .demo-order-line { display: flex; justify-content: space-between; align-items: center; margin: 22px 0 15px; padding: 13px 15px; border: 1px solid #e7ddd2; border-radius: 13px; background: #fff; }
+    .demo-order-line strong { font-size: 21px; color: #58391f; }
+    .demo-card-preview { min-height: 150px; display: grid; grid-template-columns: 1fr auto; align-content: space-between; margin-bottom: 20px; padding: 22px; border-radius: 18px; background: linear-gradient(135deg,#6f4b2f,#3d2818); color: #fff; box-shadow: 0 15px 28px rgba(67,43,25,.2); }
+    .demo-card-chip { width: 39px; height: 29px; border-radius: 7px; background: linear-gradient(135deg,#f2db91,#b99539); }
+    .demo-card-number-preview { grid-column: 1/-1; align-self: end; font: 650 20px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing: .08em; }
+    .demo-card-brand { grid-column: 2; grid-row: 1; font-style: italic; font-weight: 900; }
+    .demo-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .demo-fields .full { grid-column: 1/-1; }
+    .demo-fields label { display: block; margin-bottom: 6px; font-size: 14px; font-weight: 750; }
+    .demo-fields input { width: 100%; min-height: 46px; padding: 10px 12px; border: 1px solid #d8cec3; border-radius: 11px; background: #fff; color: #241f1a; font-size: 16px; }
+    .demo-fields input:focus { outline: 3px solid rgba(111,75,47,.14); border-color: #6f4b2f; }
+    .demo-test-hint { margin-top: 6px; color: #756c63; font-size: 12px; }
+    .demo-payment-error { min-height: 21px; margin: 12px 0 4px; color: #a23939; font-size: 14px; font-weight: 700; }
+    .demo-pay-button, .demo-done-button { width: 100%; min-height: 52px; border: 0; border-radius: 13px; background: #6f4b2f; color: #fff; font-size: 16px; font-weight: 850; cursor: pointer; }
+    .demo-pay-button:disabled { cursor: wait; opacity: .7; }
+    .demo-secure-line { margin: 10px 0 0; color: #756c63; font-size: 12px; text-align: center; }
+    .demo-success { text-align: center; }
+    .demo-success-icon { width: 64px; height: 64px; display: grid; place-items: center; margin: 0 auto 15px; border-radius: 50%; background: #e2f2e5; color: #2f6d3a; font-size: 35px; font-weight: 900; }
+    .demo-ticket { display: grid; gap: 8px; margin: 23px 0 16px; padding: 20px; border: 1px solid #d8c6ae; border-radius: 16px; background: #fff8ed; text-align: left; }
+    .demo-ticket > span { color: #756c63; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+    .demo-ticket > strong { font-size: 25px; }
+    .demo-ticket > div { display: flex; justify-content: space-between; gap: 14px; color: #5e554c; }
+    .demo-ticket > b { font-size: 20px; color: #58391f; }
+    .demo-no-save { margin-bottom: 18px !important; font-size: 13px; }
+    body.demo-checkout-open { overflow: hidden; }
+    @media (max-width: 560px) { .demo-checkout-modal { padding: 24px 18px; border-radius: 19px; } .demo-card-preview { min-height: 132px; padding: 18px; } .demo-card-number-preview { font-size: 17px; } .demo-fields { grid-template-columns: 1fr; } .demo-fields .full { grid-column: auto; } }
     .availability-message { margin: 18px auto 0; width: min(100%, 620px); padding: 12px 16px; border: 1px solid #d8c6ae; border-radius: 12px; background: #fff8ed; color: #674325; font-weight: 750; text-align: center; }
     .order-cta:disabled, .checkout-button:disabled { cursor: not-allowed; opacity: .58; transform: none; box-shadow: none; }
   </style>
@@ -104,9 +138,9 @@
           <div class="form-section">
             <h3>Your information</h3>
             <div class="fields">
-              <div class="field full"><label for="customerName">Full name</label><input id="customerName" autocomplete="name" placeholder="Full name" /></div>
-              <div class="field"><label for="customerPhone">Phone number</label><input id="customerPhone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="845-641-5637" /></div>
-              <div class="field"><label for="customerEmail">Email</label><input id="customerEmail" type="email" autocomplete="email" placeholder="name@example.com" /></div>
+              <div class="field full"><label for="customerName">Full name</label><input id="customerName" autocomplete="name" placeholder="Full name" required /></div>
+              <div class="field"><label for="customerPhone">Phone number</label><input id="customerPhone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="845-641-5637" pattern="[0-9() +.-]{10,20}" required /></div>
+              <div class="field"><label for="customerEmail">Email</label><input id="customerEmail" type="email" autocomplete="email" placeholder="name@example.com" required /></div>
             </div>
           </div>
           <div class="form-section">
@@ -129,7 +163,7 @@
           <div class="summary-row"><span>Kaparos</span><strong><span id="summaryQuantity">2</span> × <span id="summaryUnitPrice">$18</span></strong></div>
           <div class="summary-row"><span>Pickup</span><strong id="summaryPickup">Tuesday evening</strong></div>
           <div class="summary-total"><span>Total</span><span id="summaryTotal">$36.00</span></div>
-          <button type="button" class="checkout-button">Continue to payment</button>
+          <button type="button" class="checkout-button" id="checkoutButton">Continue to payment</button>
           <p class="secure-note">🔒 Secure checkout</p>
           <p class="ticket-note" id="customerConfirmationText">Your ticket will be sent by text and email after the order is completed.</p>
         </aside>
@@ -137,6 +171,34 @@
     </section>
     <p class="sample-note">Design sample only. This page does not submit orders or charge payments.</p>
   </main>
+  <div class="demo-checkout-backdrop" id="demoCheckoutModal" aria-hidden="true">
+    <section class="demo-checkout-modal" role="dialog" aria-modal="true" aria-labelledby="demoCheckoutTitle">
+      <button type="button" class="demo-close-button" id="closeDemoCheckout" aria-label="Close checkout">×</button>
+      <form id="demoPaymentForm">
+        <div class="demo-checkout-heading"><span class="demo-badge">DEMO CHECKOUT</span><h2 id="demoCheckoutTitle">Secure card payment</h2><p>This is a test payment. No card will be charged.</p></div>
+        <div class="demo-order-line"><span>Order total</span><strong id="demoPaymentTotal">$36.00</strong></div>
+        <div class="demo-card-preview" aria-hidden="true"><span class="demo-card-chip"></span><span class="demo-card-number-preview" id="demoCardPreview">•••• •••• •••• ••••</span><span class="demo-card-brand">VISA</span></div>
+        <div class="demo-fields">
+          <div class="field full"><label for="demoCardName">Name on card</label><input id="demoCardName" autocomplete="cc-name" required /></div>
+          <div class="field full"><label for="demoCardNumber">Card number</label><input id="demoCardNumber" inputmode="numeric" autocomplete="cc-number" maxlength="19" placeholder="4111 1111 1111 1111" required /><div class="demo-test-hint">Demo card: <strong>4111 1111 1111 1111</strong></div></div>
+          <div class="field"><label for="demoExpiry">Expiration</label><input id="demoExpiry" inputmode="numeric" autocomplete="cc-exp" maxlength="5" placeholder="12/30" pattern="(0[1-9]|1[0-2])/[0-9]{2}" required /></div>
+          <div class="field"><label for="demoCvv">CVV</label><input id="demoCvv" type="password" inputmode="numeric" autocomplete="cc-csc" maxlength="4" placeholder="123" pattern="[0-9]{3,4}" required /></div>
+          <div class="field full"><label for="demoZip">Billing ZIP code</label><input id="demoZip" inputmode="numeric" autocomplete="postal-code" maxlength="10" placeholder="10952" pattern="[0-9-]{5,10}" required /></div>
+        </div>
+        <p class="demo-payment-error" id="demoPaymentError" role="alert"></p>
+        <button type="submit" class="demo-pay-button" id="demoPayButton">Pay <span id="demoPayAmount">$36.00</span> — Demo</button>
+        <p class="demo-secure-line">🔒 Test mode · No real transaction</p>
+      </form>
+      <div class="demo-success" id="demoSuccess" hidden>
+        <div class="demo-success-icon" aria-hidden="true">✓</div><span class="demo-badge">DEMO APPROVED</span><h2>Payment approved</h2>
+        <p id="demoSuccessMessage">Your demo order is complete.</p>
+        <div class="demo-ticket"><span>Demo ticket</span><strong id="demoTicketNumber">DEMO-000000</strong><div><span id="demoTicketQuantity">2 כפרות</span><span id="demoTicketPickup">Tuesday evening</span></div><b id="demoTicketTotal">$36.00</b></div>
+        <p class="demo-no-save">This test was not charged and was not added to your real sales.</p>
+        <button type="button" class="demo-done-button" id="demoDoneButton">Done</button>
+      </div>
+    </section>
+  </div>
+
   <script>
     const PUBLIC_CONFIG_API = 'https://tugsxxafeaqbqonrruqt.supabase.co/functions/v1/kapparos-public-config';
     const DEFAULT_PUBLIC_CONFIG = {
@@ -147,7 +209,7 @@
       price: 18,
       inventory: 100,
       pickupTimes: ['Tuesday evening', 'Wednesday morning'],
-      paymentChoices: ['Credit card', 'Pay later'],
+      paymentChoices: ['Credit card'],
       confirmationText: 'Your ticket will be sent by text and email after the order is completed.'
     };
     const orderButton = document.getElementById('openOrderButton');
@@ -161,6 +223,15 @@
     const paymentOptions = document.getElementById('paymentOptions');
     const checkoutButton = document.querySelector('.checkout-button');
     const availabilityMessage = document.getElementById('availabilityMessage');
+    const sampleOrderForm = document.getElementById('sampleOrderForm');
+    const demoCheckoutModal = document.getElementById('demoCheckoutModal');
+    const demoPaymentForm = document.getElementById('demoPaymentForm');
+    const demoSuccess = document.getElementById('demoSuccess');
+    const demoCardName = document.getElementById('demoCardName');
+    const demoCardNumber = document.getElementById('demoCardNumber');
+    const demoExpiry = document.getElementById('demoExpiry');
+    const demoPayButton = document.getElementById('demoPayButton');
+    const demoPaymentError = document.getElementById('demoPaymentError');
     let config = { ...DEFAULT_PUBLIC_CONFIG };
     let quantity = 2;
 
@@ -221,6 +292,45 @@
       renderChoices();
       updateSummary();
     }
+    function formatCardNumber(value) {
+      return value.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim();
+    }
+    function openDemoCheckout() {
+      if (!sampleOrderForm.reportValidity() || checkoutButton.disabled) return;
+      demoPaymentForm.hidden = false;
+      demoSuccess.hidden = true;
+      demoPaymentForm.reset();
+      demoCardName.value = document.getElementById('customerName').value.trim();
+      demoPaymentError.textContent = '';
+      const total = money(quantity * Number(config.price || 0));
+      document.getElementById('demoPaymentTotal').textContent = total;
+      document.getElementById('demoPayAmount').textContent = total;
+      document.getElementById('demoCardPreview').textContent = '•••• •••• •••• ••••';
+      demoCheckoutModal.classList.add('open');
+      demoCheckoutModal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('demo-checkout-open');
+      setTimeout(() => demoCardName.focus(), 0);
+    }
+    function closeDemoCheckout() {
+      if (demoPayButton.disabled) return;
+      demoCheckoutModal.classList.remove('open');
+      demoCheckoutModal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('demo-checkout-open');
+      checkoutButton.focus();
+    }
+    function showDemoApproval() {
+      const ticketNumber = 'DEMO-' + String(Math.floor(100000 + Math.random() * 900000));
+      const name = document.getElementById('customerName').value.trim();
+      const total = money(quantity * Number(config.price || 0));
+      demoPaymentForm.hidden = true;
+      demoSuccess.hidden = false;
+      document.getElementById('demoSuccessMessage').textContent = 'Thank you, ' + name + '. Your demo order is complete.';
+      document.getElementById('demoTicketNumber').textContent = ticketNumber;
+      document.getElementById('demoTicketQuantity').textContent = quantity + (quantity === 1 ? ' כפרה' : ' כפרות');
+      document.getElementById('demoTicketPickup').textContent = pickupTime.value;
+      document.getElementById('demoTicketTotal').textContent = total;
+      document.getElementById('demoDoneButton').focus();
+    }
     async function loadPublicConfig() {
       try {
         const response = await fetch(PUBLIC_CONFIG_API, {
@@ -252,6 +362,41 @@
       updateSummary();
     });
     pickupTime.addEventListener('change', () => { summaryPickup.textContent = pickupTime.value; });
+    checkoutButton.addEventListener('click', openDemoCheckout);
+    document.getElementById('closeDemoCheckout').addEventListener('click', closeDemoCheckout);
+    document.getElementById('demoDoneButton').addEventListener('click', closeDemoCheckout);
+    demoCheckoutModal.addEventListener('click', event => { if (event.target === demoCheckoutModal) closeDemoCheckout(); });
+    document.addEventListener('keydown', event => { if (event.key === 'Escape' && demoCheckoutModal.classList.contains('open')) closeDemoCheckout(); });
+    demoCardNumber.addEventListener('input', () => {
+      demoCardNumber.value = formatCardNumber(demoCardNumber.value);
+      const digits = demoCardNumber.value.replace(/\D/g, '');
+      document.getElementById('demoCardPreview').textContent = (digits + '••••••••••••••••').slice(0,16).match(/.{1,4}/g).join(' ');
+      demoCardNumber.setCustomValidity('');
+    });
+    demoExpiry.addEventListener('input', () => {
+      const digits = demoExpiry.value.replace(/\D/g, '').slice(0,4);
+      demoExpiry.value = digits.length > 2 ? digits.slice(0,2) + '/' + digits.slice(2) : digits;
+    });
+    demoPaymentForm.addEventListener('submit', event => {
+      event.preventDefault();
+      demoPaymentError.textContent = '';
+      const cardDigits = demoCardNumber.value.replace(/\D/g, '');
+      if (cardDigits !== '4111111111111111') {
+        demoCardNumber.setCustomValidity('Use the demo card number 4111 1111 1111 1111.');
+        demoCardNumber.reportValidity();
+        demoPaymentError.textContent = 'This demo accepts only the test card shown above.';
+        return;
+      }
+      demoCardNumber.setCustomValidity('');
+      if (!demoPaymentForm.reportValidity()) return;
+      demoPayButton.disabled = true;
+      demoPayButton.textContent = 'Processing demo payment…';
+      setTimeout(() => {
+        demoPayButton.disabled = false;
+        demoPayButton.innerHTML = 'Pay <span id="demoPayAmount">' + money(quantity * Number(config.price || 0)) + '</span> — Demo';
+        showDemoApproval();
+      }, 1100);
+    });
     applyConfig(DEFAULT_PUBLIC_CONFIG);
     loadPublicConfig();
   </script>
