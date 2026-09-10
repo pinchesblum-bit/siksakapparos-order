@@ -486,7 +486,12 @@
     });
     checkoutButton.addEventListener('click', openDemoCheckout);
     document.getElementById('closeDemoCheckout').addEventListener('click', closeDemoCheckout);
-    document.getElementById('demoDoneButton').addEventListener('click', closeDemoCheckout);
+    document.getElementById('demoDoneButton').addEventListener('click', () => {
+      if (demoPayButton.disabled || !completedOnlineOrder) return;
+      if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+      window.scrollTo(0, 0);
+      window.location.reload();
+    });
     demoCheckoutModal.addEventListener('click', event => { if (event.target === demoCheckoutModal) closeDemoCheckout(); });
     document.addEventListener('keydown', event => { if (event.key === 'Escape' && demoCheckoutModal.classList.contains('open')) closeDemoCheckout(); });
     demoCardNumber.addEventListener('input', () => {
