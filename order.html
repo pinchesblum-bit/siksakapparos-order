@@ -253,12 +253,14 @@
     let config = { ...DEFAULT_PUBLIC_CONFIG };
     let quantity = 2;
     let completedOnlineOrder = null;
+    const CHECKOUT_SESSION_KEY = 'kapparosCheckoutSessionV1';
+    const COMPLETED_TICKET_KEY = 'kapparosCompletedTicketV1';
 
     function money(value) {
       return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(value || 0));
     }
     function updateSummary() {
-      const maximum = Math.max(0, Number(config.inventory || 0));
+      const maximum = Math.min(100, Math.max(0, Number(config.inventory || 0)));
       quantity = maximum > 0 ? Math.min(Math.max(1, quantity), maximum) : 0;
       quantityValue.textContent = quantity;
       summaryQuantity.textContent = quantity;
@@ -301,6 +303,10 @@
         ? 'Online ordering is currently closed.'
         : 'Online orders are currently sold out.';
       renderChoices();
+      [printOnlineTicket, emailOnlineTicket, textOnlineTicket].forEach(button => {
+        button.hidden = config.printTicketsEnabled === false;
+      });
+      ticketActionStatus.textContent = config.printTicketsEnabled === false ? 'Ticket delivery is currently unavailable.' : ticketActionStatus.textContent;
       updateSummary();
     }
     function formatCardNumber(value) {
@@ -351,6 +357,7 @@
     }
     function showDemoApproval(sale, orderToken) {
       completedOnlineOrder = { ...sale, orderToken };
+      sessionStorage.setItem(COMPLETED_TICKET_KEY, JSON.stringify(completedOnlineOrder));
       demoPaymentForm.hidden = true;
       demoSuccess.hidden = false;
       document.getElementById('demoSuccessMessage').textContent = 'Thank you, ' + sale.fullName + '. Your demo order is complete.';
@@ -365,20 +372,22 @@
     function escapeTicketText(value) {
       return String(value ?? '').replace(/[&<>"']/g, character => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[character]);
     }
-    function ticketBarcodeSvg(ticketId) {
-      const digits = String(ticketId || '').replace(/\D/g, '');
-      let x = 10;
-      let bars = '';
-      for (const digit of digits) {
-        const value = Number(digit);
-        for (let bit = 0; bit < 5; bit += 1) {
-          const width = ((value >> bit) & 1) ? 4 : 2;
-          bars += '<rect x="' + x + '" y="2" width="' + width + '" height="62" fill="#17130f"/>';
-          x += width + 3;
-        }
-        x += 2;
+    function ticketBarcodeUnits(ticketId) {
+      const patterns = {0:'nnwwn',1:'wnnnw',2:'nwnnw',3:'wwnnn',4:'nnwnw',5:'wnwnn',6:'nwwnn',7:'nnnww',8:'wnnwn',9:'nwnwn'};
+      let digits = String(ticketId || '').replace(/\D/g, '');
+      if (digits.length % 2) digits = '0' + digits;
+      const units = [1,1,1,1];
+      for (let index=0; index<digits.length; index+=2) {
+        const bars=patterns[digits[index]], spaces=patterns[digits[index+1]];
+        for (let part=0; part<5; part+=1) units.push(bars[part]==='w'?3:1, spaces[part]==='w'?3:1);
       }
-      return '<svg viewBox="0 0 ' + (x + 10) + ' 68" width="100%" height="68" aria-label="Ticket barcode">' + bars + '</svg>';
+      units.push(3,1,1);
+      return units;
+    }
+    function ticketBarcodeSvg(ticketId) {
+      const units=ticketBarcodeUnits(ticketId); let x=14, bars='';
+      units.forEach((unit,index)=>{const width=unit*2;if(index%2===0)bars+='<rect x="'+x+'" y="2" width="'+width+'" height="62" fill="#17130f"/>';x+=width;});
+      return '<svg viewBox="0 0 '+(x+14)+' 68" width="100%" height="68" aria-label="Ticket barcode">'+bars+'</svg>';
     }
     function printCompletedTicket() {
       if (!completedOnlineOrder) return;
@@ -417,24 +426,45 @@
       add('trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n' + xrefOffset + '\n%%EOF');
       return new Blob(chunks, { type:'application/pdf' });
     }
+    function ticketTemplate(value, sale) {
+      return String(value || '').replace(/\{([a-z_]+)\}/g, (match, key) => ({
+        title:config.title, subtitle:config.subtitle, brand:config.title, name:sale.fullName,
+        phone:sale.phone, quantity:sale.quantity, price:money(sale.price),
+        payment_method:'Credit card', ticket_id:sale.ticketId
+      })[key] ?? match);
+    }
     async function ticketPdfBase64() {
       const sale = completedOnlineOrder;
+      const d = config.ticketDelivery || {};
       const canvas = document.createElement('canvas');
       canvas.width = 1000; canvas.height = 1350;
       const context = canvas.getContext('2d');
-      context.fillStyle = '#fffdf8'; context.fillRect(0,0,canvas.width,canvas.height);
-      context.strokeStyle = '#6f4b2f'; context.lineWidth = 5; context.strokeRect(45,45,910,1260);
-      context.textAlign = 'center'; context.fillStyle = '#241f1a';
-      context.font = 'bold 54px Arial'; context.fillText(config.title,500,135);
-      context.font = 'bold 40px Arial'; context.fillStyle='#6f4b2f'; context.fillText(config.subtitle,500,195);
-      context.font = 'bold 25px Arial'; context.fillStyle='#756c63'; context.fillText('ONLINE DEMO TICKET',500,260);
-      context.font = 'bold 62px Arial'; context.fillStyle='#241f1a'; context.fillText('#'+sale.ticketId,500,345);
-      let x=190; context.fillStyle='#17130f';
-      for(const digit of String(sale.ticketId)){const value=Number(digit);for(let bit=0;bit<5;bit+=1){const width=((value>>bit)&1)?8:4;context.fillRect(x,385,width,150);x+=width+7;}x+=4;}
-      context.textAlign='left'; context.font='bold 31px Arial'; context.fillStyle='#241f1a';
-      const rows=[['Name',sale.fullName],['Phone',sale.phone.replace(/^(\d{3})(\d{3})(\d{4})$/,'$1-$2-$3')],['Amount',String(sale.quantity)],['Paid',money(sale.price)]];
-      rows.forEach((row,index)=>{const y=650+index*100;context.fillStyle='#756c63';context.font='26px Arial';context.fillText(row[0],150,y);context.fillStyle='#241f1a';context.font='bold 30px Arial';context.fillText(String(row[1]),380,y);});
-      context.textAlign='center'; context.font='25px Arial'; context.fillText('Please bring this ticket when picking up your kaparos.',500,1190);
+      const background = /^#[0-9a-f]{6}$/i.test(d.pdfBackgroundColor || '') ? d.pdfBackgroundColor : '#ffffff';
+      const accent = /^#[0-9a-f]{6}$/i.test(d.pdfAccentColor || '') ? d.pdfAccentColor : '#6f4b2f';
+      const ink = /^#[0-9a-f]{6}$/i.test(d.pdfTextColor || '') ? d.pdfTextColor : '#241f1a';
+      const muted = /^#[0-9a-f]{6}$/i.test(d.pdfMutedColor || '') ? d.pdfMutedColor : '#756c63';
+      context.fillStyle=background; context.fillRect(0,0,canvas.width,canvas.height);
+      context.strokeStyle=accent; context.lineWidth=5; context.strokeRect(45,45,910,1260);
+      context.textAlign='center'; context.fillStyle=ink;
+      context.font='bold '+Math.min(78,Math.max(34,Number(d.pdfHeadingSize)||54))+'px Arial';
+      context.fillText(ticketTemplate(d.heading || '{title}',sale),500,135);
+      let y=195;
+      if(d.pdfShowSubtitle!==false){context.font='bold 40px Arial';context.fillStyle=accent;context.fillText(ticketTemplate(d.subheading||'{subtitle}',sale),500,y);y+=65;}
+      context.font='bold 25px Arial';context.fillStyle=muted;context.fillText('ONLINE DEMO TICKET',500,y);y+=82;
+      context.font='bold 62px Arial';context.fillStyle=ink;context.fillText((d.ticketNumberLabel||'Ticket')+' #'+sale.ticketId,500,y);
+      if(d.pdfShowBarcode!==false){
+        const barcodeUnits=ticketBarcodeUnits(sale.ticketId);
+        const barcodeScale=Math.min(8,620/barcodeUnits.reduce((sum,value)=>sum+value,0));
+        let x=(canvas.width-barcodeUnits.reduce((sum,value)=>sum+value,0)*barcodeScale)/2; context.fillStyle='#17130f';
+        barcodeUnits.forEach((unit,index)=>{const width=unit*barcodeScale;if(index%2===0)context.fillRect(x,y+40,width,150);x+=width;});
+      }
+      if(d.pdfShowDetails!==false){
+        const rows=[[d.nameLabel||'Name',sale.fullName],[d.phoneLabel||'Phone',sale.phone.replace(/^(\d{3})(\d{3})(\d{4})$/,'$1-$2-$3')],[d.quantityLabel||'Amount of כפרות',String(sale.quantity)]];
+        if(d.pdfShowPrice!==false)rows.push([d.priceLabel||'Price Paid',money(sale.price)]);
+        context.textAlign='left';
+        rows.forEach((row,index)=>{const rowY=680+index*100;context.fillStyle=muted;context.font='26px Arial';context.fillText(row[0],150,rowY);context.fillStyle=ink;context.font='bold '+Math.min(52,Math.max(24,Number(d.pdfValueSize)||30))+'px Arial';context.fillText(String(row[1]),430,rowY);});
+      }
+      if(d.pdfShowFooter!==false){context.textAlign='center';context.fillStyle=ink;context.font='25px Arial';context.fillText(ticketTemplate(d.footer||'Please keep this ticket.',sale),500,1190);}
       const blob = await new Promise((resolve,reject)=>canvas.toBlob(value=>value?resolve(value):reject(new Error('Ticket PDF could not be prepared.')),'image/jpeg',.94));
       const pdf = createPdfFromJpeg(new Uint8Array(await blob.arrayBuffer()),canvas.width,canvas.height);
       return await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=()=>reject(new Error('Ticket PDF could not be prepared.'));reader.readAsDataURL(pdf);});
@@ -454,8 +484,26 @@
       } catch (error) {
         ticketActionStatus.classList.add('error');
         ticketActionStatus.textContent = error.message;
+        button.dataset.sent = 'true';
+        const saved = JSON.parse(sessionStorage.getItem(COMPLETED_TICKET_KEY) || '{}');
+        saved.sentChannels = { ...(saved.sentChannels || {}), [action]: true };
+        sessionStorage.setItem(COMPLETED_TICKET_KEY, JSON.stringify(saved));
       } finally {
-        button.disabled = false;
+        button.disabled = button.dataset.sent === 'true';
+      }
+    }
+    function restoreCompletedTicket() {
+      try {
+        const saved = JSON.parse(sessionStorage.getItem(COMPLETED_TICKET_KEY) || 'null');
+        if (!saved?.id || !saved?.ticketId || !saved?.orderToken) return;
+        demoCheckoutModal.classList.add('open');
+        demoCheckoutModal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('demo-checkout-open');
+        showDemoApproval(saved, saved.orderToken);
+        emailOnlineTicket.disabled = Boolean(saved.sentChannels?.['send-ticket']);
+        textOnlineTicket.disabled = Boolean(saved.sentChannels?.['send-ticket-text']);
+      } catch (_) {
+        sessionStorage.removeItem(COMPLETED_TICKET_KEY);
       }
     }
     async function loadPublicConfig() {
@@ -488,6 +536,8 @@
     document.getElementById('closeDemoCheckout').addEventListener('click', closeDemoCheckout);
     document.getElementById('demoDoneButton').addEventListener('click', () => {
       if (demoPayButton.disabled || !completedOnlineOrder) return;
+      sessionStorage.removeItem(COMPLETED_TICKET_KEY);
+      sessionStorage.removeItem(CHECKOUT_SESSION_KEY);
       if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
       window.scrollTo(0, 0);
       window.location.assign('./');
@@ -518,22 +568,27 @@
       if (!demoPaymentForm.reportValidity()) return;
       demoPayButton.disabled = true;
       demoPayButton.textContent = 'Processing demo payment…';
-      const orderToken = secureRandomHex(32);
+      const details = {
+        fullName: document.getElementById('customerName').value.trim(),
+        phone: document.getElementById('customerPhone').value,
+        email: document.getElementById('customerEmail').value.trim(),
+        quantity,
+        expectedPrice: Number((quantity * Number(config.price || 0)).toFixed(2))
+      };
+      const fingerprint = JSON.stringify(details);
+      let checkoutSession = null;
+      try { checkoutSession = JSON.parse(sessionStorage.getItem(CHECKOUT_SESSION_KEY) || 'null'); } catch (_) {}
+      if (!checkoutSession || checkoutSession.fingerprint !== fingerprint) {
+        checkoutSession = { fingerprint, orderKey: crypto.randomUUID ? crypto.randomUUID() : secureRandomHex(20), orderToken: secureRandomHex(32) };
+        sessionStorage.setItem(CHECKOUT_SESSION_KEY, JSON.stringify(checkoutSession));
+      }
       try {
         await new Promise(resolve => setTimeout(resolve, 650));
-        const result = await publicOrderRequest({
-          action: 'create-demo-order',
-          orderKey: crypto.randomUUID ? crypto.randomUUID() : secureRandomHex(20),
-          orderToken,
-          fullName: document.getElementById('customerName').value.trim(),
-          phone: document.getElementById('customerPhone').value,
-          email: document.getElementById('customerEmail').value.trim(),
-          quantity,
-          pickupTime: ''
-        });
-        showDemoApproval(result.sale, orderToken);
+        const result = await publicOrderRequest({ action:'create-demo-order', orderKey:checkoutSession.orderKey, orderToken:checkoutSession.orderToken, ...details, pickupTime:'' });
+        showDemoApproval(result.sale, checkoutSession.orderToken);
       } catch (error) {
         demoPaymentError.textContent = error.message;
+        if (/price changed/i.test(error.message)) await loadPublicConfig();
       } finally {
         demoPayButton.disabled = false;
         demoPayButton.innerHTML = 'Pay <span id="demoPayAmount">' + money(quantity * Number(config.price || 0)) + '</span> — Demo';
@@ -543,7 +598,7 @@
     emailOnlineTicket.addEventListener('click', () => sendCompletedTicket('send-ticket', emailOnlineTicket));
     textOnlineTicket.addEventListener('click', () => sendCompletedTicket('send-ticket-text', textOnlineTicket));
     applyConfig(DEFAULT_PUBLIC_CONFIG);
-    loadPublicConfig();
+    loadPublicConfig().then(restoreCompletedTicket);
   </script>
 </body>
 </html>
