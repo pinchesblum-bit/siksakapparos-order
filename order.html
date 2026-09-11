@@ -165,7 +165,7 @@
           </div>
           <div class="form-section">
             <h3>Payment</h3>
-            <div class="payment-options" id="paymentOptions" role="group" aria-label="Payment method"><button type="button" class="payment-option selected" aria-pressed="true">Credit card</button><button type="button" class="payment-option" aria-pressed="false">Pay later</button></div>
+            <div class="payment-options" id="paymentOptions" role="group" aria-label="Payment method"><button type="button" class="payment-option selected" aria-pressed="true">Credit card</button></div>
           </div>
         </form>
         <aside class="summary-card" aria-label="Order summary">
@@ -288,7 +288,7 @@
     function applyConfig(next) {
       config = { ...DEFAULT_PUBLIC_CONFIG, ...(next || {}) };
       config.pickupTimes = Array.isArray(config.pickupTimes) && config.pickupTimes.length ? config.pickupTimes : DEFAULT_PUBLIC_CONFIG.pickupTimes;
-      config.paymentChoices = Array.isArray(config.paymentChoices) && config.paymentChoices.length ? config.paymentChoices : DEFAULT_PUBLIC_CONFIG.paymentChoices;
+      config.paymentChoices = ['Credit card'];
       document.getElementById('publicPageTitle').textContent = config.title;
       document.getElementById('publicPageSubtitle').textContent = config.subtitle;
       document.title = config.title + ' - ' + config.subtitle;
@@ -323,7 +323,7 @@
         body: JSON.stringify(payload)
       });
       const result = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(result.error || 'The order could not be completed.');
+      if (!response.ok) throw Object.assign(new Error(result.error || 'The order could not be completed.'), { status: response.status });
       return result;
     }
     function openDemoCheckout() {
@@ -357,6 +357,11 @@
     }
     function showDemoApproval(sale, orderToken) {
       completedOnlineOrder = { ...sale, orderToken };
+      [emailOnlineTicket, textOnlineTicket].forEach((button, index) => {
+        const sent = Boolean(sale.sentChannels?.[index === 0 ? 'send-ticket' : 'send-ticket-text']);
+        button.disabled = sent;
+        button.dataset.sent = sent ? 'true' : '';
+      });
       sessionStorage.setItem(COMPLETED_TICKET_KEY, JSON.stringify(completedOnlineOrder));
       demoPaymentForm.hidden = true;
       demoSuccess.hidden = false;
@@ -364,7 +369,7 @@
       document.getElementById('demoTicketNumber').textContent = sale.ticketId;
       document.getElementById('demoTicketQuantity').textContent = sale.quantity + (sale.quantity === 1 ? ' כפרה' : ' כפרות');
       document.getElementById('demoTicketTotal').textContent = money(sale.price);
-      ticketActionStatus.textContent = 'Choose how you would like to receive your ticket.';
+      ticketActionStatus.textContent = config.printTicketsEnabled === false ? 'Ticket delivery is currently unavailable.' : 'Choose how you would like to receive your ticket.';
       config.inventory = Math.max(0, Number(sale.remainingInventory || 0));
       updateSummary();
       document.getElementById('demoDoneButton').focus();
@@ -390,15 +395,23 @@
       return '<svg viewBox="0 0 '+(x+14)+' 68" width="100%" height="68" aria-label="Ticket barcode">'+bars+'</svg>';
     }
     function printCompletedTicket() {
-      if (!completedOnlineOrder) return;
+      if (!completedOnlineOrder || config.printTicketsEnabled === false) return;
       const sale = completedOnlineOrder;
+      const d = config.ticketDelivery || {};
+      const safeColor = (value, fallback) => /^#[0-9a-f]{6}$/i.test(value || '') ? value : fallback;
+      const ink = safeColor(d.pdfTextColor, '#241f1a'), accent = safeColor(d.pdfAccentColor, '#6f4b2f');
+      const muted = safeColor(d.pdfMutedColor, '#756c63'), background = safeColor(d.pdfBackgroundColor, '#ffffff');
+      const text = (value, fallback) => escapeTicketText(ticketTemplate(value ?? fallback, sale));
+      const rows = [[d.nameLabel ?? 'Name', sale.fullName], [d.phoneLabel ?? 'Phone', String(sale.phone).replace(/^(\d{3})(\d{3})(\d{4})$/, '$1-$2-$3')], [d.quantityLabel ?? 'Amount of כפרות', sale.quantity]];
+      if (d.pdfShowPrice === true) rows.push([d.priceLabel ?? 'Price Paid', money(sale.price)]);
+      const details = d.pdfShowDetails === false ? '' : '<div class="details">' + rows.map(row => '<div class="row"><span>' + escapeTicketText(row[0]) + '</span><b dir="auto">' + escapeTicketText(row[1]) + '</b></div>').join('') + '</div>';
       const popup = window.open('', '_blank', 'width=640,height=820');
       if (!popup) {
         ticketActionStatus.textContent = 'Allow pop-ups, then press Print Ticket again.';
         ticketActionStatus.classList.add('error');
         return;
       }
-      popup.document.write('<!doctype html><html><head><title>Ticket #' + escapeTicketText(sale.ticketId) + '</title><style>body{margin:0;padding:28px;font-family:Arial,sans-serif;color:#241f1a;background:#fff}.ticket{max-width:520px;margin:auto;padding:30px;border:2px solid #6f4b2f;border-radius:18px;text-align:center}h1{margin:0;direction:rtl;font-size:30px}.sub{margin:5px 0 24px;direction:rtl;font-size:22px;color:#6f4b2f}.number{font-size:30px;font-weight:900;letter-spacing:.08em}.details{margin:22px 0;text-align:left;border-top:1px solid #ddd;border-bottom:1px solid #ddd}.row{display:flex;justify-content:space-between;gap:20px;padding:11px 0;border-bottom:1px solid #eee}.row:last-child{border:0}@media print{body{padding:0}.ticket{border:0}}</style></head><body><div class="ticket"><h1>' + escapeTicketText(config.title) + '</h1><div class="sub">' + escapeTicketText(config.subtitle) + '</div><div>Online demo ticket</div><div class="number">#' + escapeTicketText(sale.ticketId) + '</div>' + ticketBarcodeSvg(sale.ticketId) + '<div class="details"><div class="row"><span>Name</span><b>' + escapeTicketText(sale.fullName) + '</b></div><div class="row"><span>Phone</span><b>' + escapeTicketText(sale.phone.replace(/^(\d{3})(\d{3})(\d{4})$/, '$1-$2-$3')) + '</b></div><div class="row"><span>Amount</span><b>' + sale.quantity + '</b></div><div class="row"><span>Paid</span><b>' + escapeTicketText(money(sale.price)) + '</b></div></div><p>Please bring this ticket when picking up your כפרות.</p></div><script>window.onload=()=>{window.print();}<\/script></body></html>');
+      popup.document.write('<!doctype html><html><head><title>Ticket #' + escapeTicketText(sale.ticketId) + '</title><style>body{margin:0;padding:28px;font-family:Arial,sans-serif;color:' + ink + ';background:' + background + '}.ticket{max-width:520px;margin:auto;padding:30px;border:2px solid ' + accent + ';border-radius:18px;text-align:center}h1{margin:0;direction:rtl;font-size:' + Math.min(40, Math.max(20, (Number(d.pdfHeadingSize)||64)/2)) + 'px;overflow-wrap:anywhere}.sub{margin:5px 0 24px;direction:rtl;font-size:22px;color:' + accent + '}.number{margin:20px 0;font-size:28px;font-weight:800;letter-spacing:.04em}.details{margin:22px 0;text-align:left;border-top:1px solid #ddd;border-bottom:1px solid #ddd}.row{display:flex;justify-content:space-between;align-items:start;gap:20px;padding:11px 0;border-bottom:1px solid #eee;overflow-wrap:anywhere}.row span{color:' + muted + '}.row b{max-width:65%}.row:last-child{border:0}p{white-space:pre-wrap;overflow-wrap:anywhere}@media print{body{padding:0}.ticket{border:0}}</style></head><body><div class="ticket"><h1>' + text(d.heading, '{title}') + '</h1>' + (d.pdfShowSubtitle === false ? '' : '<div class="sub">' + text(d.subheading, '{subtitle}') + '</div>') + '<div class="number">' + text(d.ticketNumberLabel, 'Ticket') + ' #' + escapeTicketText(sale.ticketId) + '</div>' + (d.pdfShowBarcode === false ? '' : ticketBarcodeSvg(sale.ticketId)) + details + (d.pdfShowFooter === false ? '' : '<p>' + text(d.footer, 'Please keep this ticket.') + '</p>') + '</div><script>window.onload=()=>{window.print();}<\/script></body></html>');
       popup.document.close();
     }
     function createPdfFromJpeg(jpegBytes, imageWidth, imageHeight) {
@@ -447,9 +460,9 @@
       context.strokeStyle=accent; context.lineWidth=5; context.strokeRect(45,45,910,1260);
       context.textAlign='center'; context.fillStyle=ink;
       context.font='bold '+Math.min(78,Math.max(34,Number(d.pdfHeadingSize)||54))+'px Arial';
-      context.fillText(ticketTemplate(d.heading || '{title}',sale),500,135);
+      context.fillText(ticketTemplate(d.heading ?? '{title}',sale),500,135);
       let y=195;
-      if(d.pdfShowSubtitle!==false){context.font='bold 40px Arial';context.fillStyle=accent;context.fillText(ticketTemplate(d.subheading||'{subtitle}',sale),500,y);y+=65;}
+      if(d.pdfShowSubtitle!==false){context.font='bold 40px Arial';context.fillStyle=accent;context.fillText(ticketTemplate(d.subheading??'{subtitle}',sale),500,y);y+=65;}
       context.font='bold 25px Arial';context.fillStyle=muted;context.fillText('ONLINE DEMO TICKET',500,y);y+=82;
       context.font='bold 62px Arial';context.fillStyle=ink;context.fillText((d.ticketNumberLabel||'Ticket')+' #'+sale.ticketId,500,y);
       if(d.pdfShowBarcode!==false){
@@ -460,17 +473,17 @@
       }
       if(d.pdfShowDetails!==false){
         const rows=[[d.nameLabel||'Name',sale.fullName],[d.phoneLabel||'Phone',sale.phone.replace(/^(\d{3})(\d{3})(\d{4})$/,'$1-$2-$3')],[d.quantityLabel||'Amount of כפרות',String(sale.quantity)]];
-        if(d.pdfShowPrice!==false)rows.push([d.priceLabel||'Price Paid',money(sale.price)]);
+        if(d.pdfShowPrice===true)rows.push([d.priceLabel||'Price Paid',money(sale.price)]);
         context.textAlign='left';
         rows.forEach((row,index)=>{const rowY=680+index*100;context.fillStyle=muted;context.font='26px Arial';context.fillText(row[0],150,rowY);context.fillStyle=ink;context.font='bold '+Math.min(52,Math.max(24,Number(d.pdfValueSize)||30))+'px Arial';context.fillText(String(row[1]),430,rowY);});
       }
-      if(d.pdfShowFooter!==false){context.textAlign='center';context.fillStyle=ink;context.font='25px Arial';context.fillText(ticketTemplate(d.footer||'Please keep this ticket.',sale),500,1190);}
+      if(d.pdfShowFooter!==false){context.textAlign='center';context.fillStyle=ink;context.font='25px Arial';context.fillText(ticketTemplate(d.footer??'Please keep this ticket.',sale),500,1190);}
       const blob = await new Promise((resolve,reject)=>canvas.toBlob(value=>value?resolve(value):reject(new Error('Ticket PDF could not be prepared.')),'image/jpeg',.94));
       const pdf = createPdfFromJpeg(new Uint8Array(await blob.arrayBuffer()),canvas.width,canvas.height);
       return await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=()=>reject(new Error('Ticket PDF could not be prepared.'));reader.readAsDataURL(pdf);});
     }
     async function sendCompletedTicket(action, button) {
-      if (!completedOnlineOrder) return;
+      if (!completedOnlineOrder || button.disabled || config.printTicketsEnabled === false) return;
       button.disabled = true;
       ticketActionStatus.classList.remove('error');
       ticketActionStatus.textContent = action === 'send-ticket' ? 'Preparing and emailing your ticket…' : 'Sending your ticket by text…';
@@ -481,13 +494,12 @@
         ticketActionStatus.textContent = action === 'send-ticket'
           ? 'Ticket emailed to ' + completedOnlineOrder.email + '.'
           : 'Ticket text queued for ' + completedOnlineOrder.phone.replace(/^(\d{3})(\d{3})(\d{4})$/,'$1-$2-$3') + '.';
+        button.dataset.sent = 'true';
+        completedOnlineOrder.sentChannels = { ...(completedOnlineOrder.sentChannels || {}), [action]: true };
+        sessionStorage.setItem(COMPLETED_TICKET_KEY, JSON.stringify(completedOnlineOrder));
       } catch (error) {
         ticketActionStatus.classList.add('error');
         ticketActionStatus.textContent = error.message;
-        button.dataset.sent = 'true';
-        const saved = JSON.parse(sessionStorage.getItem(COMPLETED_TICKET_KEY) || '{}');
-        saved.sentChannels = { ...(saved.sentChannels || {}), [action]: true };
-        sessionStorage.setItem(COMPLETED_TICKET_KEY, JSON.stringify(saved));
       } finally {
         button.disabled = button.dataset.sent === 'true';
       }
