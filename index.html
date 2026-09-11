@@ -428,8 +428,8 @@
       const sale = completedOnlineOrder;
       const d = config.ticketDelivery || {};
       const safeColor = (value, fallback) => /^#[0-9a-f]{6}$/i.test(value || '') ? value : fallback;
-      const ink = safeColor(d.pdfTextColor, '#241f1a'), accent = safeColor(d.pdfAccentColor, '#6f4b2f');
-      const muted = safeColor(d.pdfMutedColor, '#756c63'), background = safeColor(d.pdfBackgroundColor, '#ffffff');
+      const ink = safeColor(d.pdfTextColor, '#203c36'), accent = safeColor(d.pdfAccentColor, '#a6854f');
+      const muted = safeColor(d.pdfMutedColor, '#626b63'), background = safeColor(d.pdfBackgroundColor, '#fcfaf5');
       const text = (value, fallback) => escapeTicketText(ticketTemplate(value ?? fallback, sale));
       const rows = [[d.nameLabel ?? 'Name', sale.fullName], [d.phoneLabel ?? 'Phone', String(sale.phone).replace(/^(\d{3})(\d{3})(\d{4})$/, '$1-$2-$3')], [d.quantityLabel ?? 'Amount of כפרות', sale.quantity]];
       if (d.pdfShowPrice === true) rows.push([d.priceLabel ?? 'Price Paid', money(sale.price)]);
@@ -440,7 +440,7 @@
         ticketActionStatus.classList.add('error');
         return;
       }
-      popup.document.write('<!doctype html><html><head><title>Ticket #' + escapeTicketText(sale.ticketId) + '</title><style>body{margin:0;padding:28px;font-family:Arial,sans-serif;color:' + ink + ';background:' + background + '}.ticket{max-width:520px;margin:auto;padding:30px;border:2px solid ' + accent + ';border-radius:18px;text-align:center}h1{margin:0;direction:rtl;font-size:' + Math.min(40, Math.max(20, (Number(d.pdfHeadingSize)||64)/2)) + 'px;overflow-wrap:anywhere}.sub{margin:5px 0 24px;direction:rtl;font-size:22px;color:' + accent + '}.number{margin:20px 0;font-size:28px;font-weight:800;letter-spacing:.04em}.details{margin:22px 0;text-align:left;border-top:1px solid #ddd;border-bottom:1px solid #ddd}.row{display:flex;justify-content:space-between;align-items:start;gap:20px;padding:11px 0;border-bottom:1px solid #eee;overflow-wrap:anywhere}.row span{color:' + muted + '}.row b{max-width:65%}.row:last-child{border:0}p{white-space:pre-wrap;overflow-wrap:anywhere}@media print{body{padding:0}.ticket{border:0}}</style></head><body><div class="ticket"><h1>' + text(d.heading, '{title}') + '</h1>' + (d.pdfShowSubtitle === false ? '' : '<div class="sub">' + text(d.subheading, '{subtitle}') + '</div>') + '<div class="number">' + text(d.ticketNumberLabel, 'Ticket') + ' #' + escapeTicketText(sale.ticketId) + '</div>' + (d.pdfShowBarcode === false ? '' : ticketBarcodeSvg(sale.ticketId)) + details + (d.pdfShowFooter === false ? '' : '<p>' + text(d.footer, 'Please keep this ticket.') + '</p>') + '</div><script>window.onload=()=>{window.print();}<\/script></body></html>');
+      popup.document.write('<!doctype html><html><head><title>Ticket #' + escapeTicketText(sale.ticketId) + '</title><style>body{margin:0;padding:28px;font-family:Arial,sans-serif;color:' + ink + ';background:' + background + '}.ticket{max-width:520px;margin:auto;padding:30px;border:2px solid ' + accent + ';border-radius:18px;text-align:center}h1{margin:0;direction:rtl;font-size:' + Math.min(40, Math.max(20, (Number(d.pdfHeadingSize)||64)/2)) + 'px;overflow-wrap:anywhere}.sub{margin:5px 0 24px;direction:rtl;font-size:22px;color:' + accent + '}.number{margin:20px 0;font-size:28px;font-weight:800;letter-spacing:.04em}.details{margin:22px 0;text-align:left;border-top:1px solid #d4c6ac;border-bottom:1px solid #d4c6ac}.row{display:flex;justify-content:space-between;align-items:start;gap:20px;padding:11px 0;border-bottom:1px solid #e5dfd2;overflow-wrap:anywhere}.row span{color:' + muted + '}.row b{max-width:65%}.row:last-child{border:0}p{white-space:pre-wrap;overflow-wrap:anywhere}@media print{body{padding:0}.ticket{border:0}}</style></head><body><div class="ticket"><h1>' + text(d.heading, '{title}') + '</h1>' + (d.pdfShowSubtitle === false ? '' : '<div class="sub">' + text(d.subheading, '{subtitle}') + '</div>') + '<div class="number">' + text(d.ticketNumberLabel, 'Ticket') + ' #' + escapeTicketText(sale.ticketId) + '</div>' + (d.pdfShowBarcode === false ? '' : ticketBarcodeSvg(sale.ticketId)) + details + (d.pdfShowFooter === false ? '' : '<p>' + text(d.footer, 'Please keep this ticket.') + '</p>') + '</div><script>window.onload=()=>{window.print();}<\/script></body></html>');
       popup.document.close();
     }
     function createPdfFromJpeg(jpegBytes, imageWidth, imageHeight) {
@@ -481,10 +481,10 @@
       const canvas = document.createElement('canvas');
       canvas.width = 1000; canvas.height = 1350;
       const context = canvas.getContext('2d');
-      const background = /^#[0-9a-f]{6}$/i.test(d.pdfBackgroundColor || '') ? d.pdfBackgroundColor : '#ffffff';
-      const accent = /^#[0-9a-f]{6}$/i.test(d.pdfAccentColor || '') ? d.pdfAccentColor : '#6f4b2f';
-      const ink = /^#[0-9a-f]{6}$/i.test(d.pdfTextColor || '') ? d.pdfTextColor : '#241f1a';
-      const muted = /^#[0-9a-f]{6}$/i.test(d.pdfMutedColor || '') ? d.pdfMutedColor : '#756c63';
+      const background = /^#[0-9a-f]{6}$/i.test(d.pdfBackgroundColor || '') ? d.pdfBackgroundColor : '#fcfaf5';
+      const accent = /^#[0-9a-f]{6}$/i.test(d.pdfAccentColor || '') ? d.pdfAccentColor : '#a6854f';
+      const ink = /^#[0-9a-f]{6}$/i.test(d.pdfTextColor || '') ? d.pdfTextColor : '#203c36';
+      const muted = /^#[0-9a-f]{6}$/i.test(d.pdfMutedColor || '') ? d.pdfMutedColor : '#626b63';
       context.fillStyle=background; context.fillRect(0,0,canvas.width,canvas.height);
       context.strokeStyle=accent; context.lineWidth=5; context.strokeRect(45,45,910,1260);
       context.textAlign='center'; context.fillStyle=ink;
