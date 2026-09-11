@@ -150,9 +150,46 @@
     .demo-ticket,.demo-order-line,.availability-message { border-radius:8px; }
     .demo-ticket > strong,.demo-ticket > b,.summary-total,.summary-row strong { font-variant-numeric:tabular-nums; }
     @media (max-width:760px) { .hero-copy { font-size:16px; } }
+
+    body.preview-locked > main, body.preview-locked > .demo-checkout-backdrop, body.preview-locked > .demo-checkout-modal, body.preview-locked #demoCheckoutModal { display:none !important; }
+    .preview-gate { min-height:100svh; display:grid; place-items:center; padding:28px 18px; box-sizing:border-box; }
+    .preview-gate[hidden], .preview-exit[hidden] { display:none !important; }
+    .preview-gate-card { width:min(100%,440px); padding:34px; border:1px solid #d4c6ac; border-radius:18px; background:#fffefb; box-shadow:0 20px 50px rgba(32,60,54,.10); box-sizing:border-box; }
+    .preview-gate-brand { color:#a6854f; font-size:22px; font-weight:750; text-align:center; }
+    .preview-gate h1 { margin:16px 0 10px; font-size:26px; line-height:1.35; color:#203c36; text-align:center; }
+    .preview-gate p { color:#626b63; line-height:1.5; font-size:15px; text-align:center; }
+    .preview-gate form { margin-top:26px; }
+    .preview-gate label { display:block; margin:16px 0 7px; color:#203c36; font-size:14px; font-weight:650; }
+    .preview-gate input { width:100%; min-height:46px; padding:10px 13px; border:1px solid #d4c6ac; border-radius:8px; background:#fff; font:inherit; box-sizing:border-box; }
+    .preview-gate input:focus { outline:2px solid #203c36; outline-offset:2px; }
+    .preview-password-wrap { position:relative; }
+    .preview-password-wrap input { padding-right:70px; }
+    .preview-password-wrap button { position:absolute; right:9px; top:7px; min-height:32px; border:0; background:none; color:#203c36; cursor:pointer; font:inherit; font-size:13px; }
+    .preview-gate #previewLoginError { min-height:23px; color:#a23939; font-size:14px; }
+    .preview-login-submit { width:100%; min-height:48px; border:0; border-radius:8px; color:#fcfaf5; background:#203c36; font:inherit; font-weight:700; cursor:pointer; }
+    .preview-login-submit:disabled { opacity:.6; cursor:wait; }
+    .preview-exit { position:fixed; right:14px; top:14px; z-index:50; padding:9px 14px; background:#fffefb; color:#203c36; border:1px solid #d4c6ac; border-radius:8px; cursor:pointer; font:inherit; font-size:13px; }
+    @media(max-width:480px) { .preview-gate-card { padding:26px 22px; } .preview-gate h1 { font-size:23px; } }
 </style>
 </head>
-<body>
+<body class="preview-locked">
+  <section class="preview-gate" id="previewGate" aria-labelledby="previewGateTitle">
+    <div class="preview-gate-card">
+      <div class="preview-gate-brand" dir="rtl">פנים מאירות סיקסא</div>
+      <h1 id="previewGateTitle">Online ordering will open September 13.</h1>
+      <p>Enter your username and password to preview the website.</p>
+      <form id="previewLoginForm">
+        <label for="previewUsername">Username</label>
+        <input id="previewUsername" autocomplete="username" maxlength="120" required />
+        <label for="previewPassword">Password</label>
+        <div class="preview-password-wrap"><input id="previewPassword" type="password" autocomplete="current-password" maxlength="256" required /><button id="previewShowPassword" type="button" aria-label="Show password" aria-pressed="false">Show</button></div>
+        <p id="previewLoginError" role="alert"></p>
+        <button type="submit" class="preview-login-submit" id="previewLoginSubmit">Open website</button>
+      </form>
+    </div>
+  </section>
+  <button type="button" class="preview-exit" id="previewExit" hidden>Exit preview</button>
+
   <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;pointer-events:none">
     <defs><filter id="flyer-paper-match" color-interpolation-filters="sRGB">
       <feComponentTransfer>
@@ -249,9 +286,65 @@
     </section>
   </div>
 
+  <script src="ticket-design.js?v=20260911-1"></script>
   <script>
     const PUBLIC_CONFIG_API = 'https://tugsxxafeaqbqonrruqt.supabase.co/functions/v1/kapparos-public-config';
     const PUBLIC_ORDER_API = 'https://tugsxxafeaqbqonrruqt.supabase.co/functions/v1/kapparos-public-order';
+    const PREVIEW_SESSION_KEY = 'kapparosBuyingPreviewV1';
+    const previewGate = document.getElementById('previewGate');
+    const previewLoginForm = document.getElementById('previewLoginForm');
+    const previewLoginError = document.getElementById('previewLoginError');
+    const previewLoginSubmit = document.getElementById('previewLoginSubmit');
+    function previewHeaders() {
+      const token = sessionStorage.getItem(PREVIEW_SESSION_KEY);
+      return { 'Content-Type':'application/json', ...(token ? {Authorization:'Bearer ' + token} : {}) };
+    }
+    function showPreviewGate(message = '') {
+      document.body.classList.add('preview-locked');
+      document.body.classList.remove('demo-checkout-open');
+      previewGate.hidden = false;
+      document.getElementById('previewExit').hidden = true;
+      previewLoginError.textContent = message;
+    }
+    function revealBuyingWebsite(settings) {
+      applyConfig(settings);
+      document.body.classList.remove('preview-locked');
+      previewGate.hidden = true;
+      document.getElementById('previewExit').hidden = settings.publicAccessEnabled === true;
+    }
+    previewLoginForm.addEventListener('submit', async event => {
+      event.preventDefault();
+      if (!previewLoginForm.reportValidity()) return;
+      previewLoginSubmit.disabled = true;
+      previewLoginError.textContent = '';
+      try {
+        const response = await fetch(PUBLIC_CONFIG_API, {method:'POST',headers:{'Content-Type':'application/json'},cache:'no-store',body:JSON.stringify({action:'preview-login',username:document.getElementById('previewUsername').value.trim(),password:document.getElementById('previewPassword').value})});
+        const data = await response.json();
+        if (!response.ok || !data.token || !data.settings) throw new Error(data.error || 'The website could not be opened.');
+        sessionStorage.setItem(PREVIEW_SESSION_KEY, data.token);
+        previewLoginForm.reset();
+        document.getElementById('previewPassword').type = 'password';
+        document.getElementById('previewShowPassword').textContent = 'Show';
+        document.getElementById('previewShowPassword').setAttribute('aria-pressed', 'false');
+        revealBuyingWebsite(data.settings);
+        restoreCompletedTicket();
+      } catch (error) { previewLoginError.textContent = error.message || 'Please try again.'; }
+      finally { previewLoginSubmit.disabled = false; }
+    });
+    document.getElementById('previewShowPassword').addEventListener('click', event => {
+      const input = document.getElementById('previewPassword');
+      const visible = input.type === 'password';
+      input.type = visible ? 'text' : 'password';
+      event.currentTarget.textContent = visible ? 'Hide' : 'Show';
+      event.currentTarget.setAttribute('aria-pressed', String(visible));
+      event.currentTarget.setAttribute('aria-label', visible ? 'Hide password' : 'Show password');
+    });
+    document.getElementById('previewExit').addEventListener('click', () => {
+      sessionStorage.removeItem(PREVIEW_SESSION_KEY);
+      showPreviewGate();
+      document.getElementById('previewUsername').focus();
+    });
+
     const DEFAULT_PUBLIC_CONFIG = {
       orderingEnabled: true,
       title: 'פנים מאירות סיקסא',
@@ -354,10 +447,11 @@
     async function publicOrderRequest(payload) {
       const response = await fetch(PUBLIC_ORDER_API, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: previewHeaders(),
         body: JSON.stringify(payload)
       });
       const result = await response.json().catch(() => ({}));
+      if (result.code === 'PREVIEW_LOGIN_REQUIRED') showPreviewGate('Please log in again to continue.');
       if (!response.ok) throw Object.assign(new Error(result.error || 'The order could not be completed.'), { status: response.status });
       return result;
     }
@@ -485,44 +579,21 @@
       const sale = completedOnlineOrder;
       const response = await fetch(PUBLIC_CONFIG_API, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: previewHeaders(),
         cache: 'no-store',
         body: JSON.stringify({ action: 'public-config' })
       });
       if (!response.ok) throw new Error('The ticket design could not be loaded. Please try again.');
       const latest = await response.json();
-      const d = latest.settings?.ticketDelivery || {};
-      const canvas = document.createElement('canvas');
-      canvas.width = 1000; canvas.height = 1350;
-      const context = canvas.getContext('2d');
-      const background = /^#[0-9a-f]{6}$/i.test(d.pdfBackgroundColor || '') ? d.pdfBackgroundColor : '#fcfaf5';
-      const accent = /^#[0-9a-f]{6}$/i.test(d.pdfAccentColor || '') ? d.pdfAccentColor : '#a6854f';
-      const ink = /^#[0-9a-f]{6}$/i.test(d.pdfTextColor || '') ? d.pdfTextColor : '#203c36';
-      const muted = /^#[0-9a-f]{6}$/i.test(d.pdfMutedColor || '') ? d.pdfMutedColor : '#626b63';
-      context.fillStyle=background; context.fillRect(0,0,canvas.width,canvas.height);
-      context.strokeStyle=accent; context.lineWidth=5; context.strokeRect(45,45,910,1260);
-      context.textAlign='center'; context.fillStyle=ink;
-      context.font='bold '+Math.min(78,Math.max(34,Number(d.pdfHeadingSize)||54))+'px Arial';
-      context.fillText(ticketTemplate(d.heading ?? '{title}',sale),500,135);
-      let y=195;
-      if(d.pdfShowSubtitle!==false){context.font='bold 40px Arial';context.fillStyle=accent;context.fillText(ticketTemplate(d.subheading??'{subtitle}',sale),500,y);y+=65;}
-      context.font='bold 25px Arial';context.fillStyle=muted;context.fillText('ONLINE DEMO TICKET',500,y);y+=82;
-      context.font='bold 62px Arial';context.fillStyle=ink;context.fillText((d.ticketNumberLabel||'Ticket')+' #'+sale.ticketId,500,y);
-      if(d.pdfShowBarcode!==false){
-        const barcodeUnits=ticketBarcodeUnits(sale.ticketId);
-        const barcodeScale=Math.min(8,620/barcodeUnits.reduce((sum,value)=>sum+value,0));
-        let x=(canvas.width-barcodeUnits.reduce((sum,value)=>sum+value,0)*barcodeScale)/2; context.fillStyle='#17130f';
-        barcodeUnits.forEach((unit,index)=>{const width=unit*barcodeScale;if(index%2===0)context.fillRect(x,y+40,width,150);x+=width;});
-      }
-      if(d.pdfShowDetails!==false){
-        const rows=[[d.nameLabel||'Name',sale.fullName],[d.phoneLabel||'Phone',sale.phone.replace(/^(\d{3})(\d{3})(\d{4})$/,'$1-$2-$3')],[d.quantityLabel||'Amount of כפרות',String(sale.quantity)]];
-        if(d.pdfShowPrice===true)rows.push([d.priceLabel||'Price Paid',money(sale.price)]);
-        context.textAlign='left';
-        rows.forEach((row,index)=>{const rowY=680+index*100;context.fillStyle=muted;context.font='26px Arial';context.fillText(row[0],150,rowY);context.fillStyle=ink;context.font='bold '+Math.min(52,Math.max(24,Number(d.pdfValueSize)||30))+'px Arial';context.fillText(String(row[1]),430,rowY);});
-      }
-      if(d.pdfShowFooter!==false){context.textAlign='center';context.fillStyle=ink;context.font='25px Arial';context.fillText(ticketTemplate(d.footer??'Please keep this ticket.',sale),500,1190);}
-      const blob = await new Promise((resolve,reject)=>canvas.toBlob(value=>value?resolve(value):reject(new Error('Ticket PDF could not be prepared.')),'image/jpeg',.94));
-      const pdf = createPdfFromJpeg(new Uint8Array(await blob.arrayBuffer()),canvas.width,canvas.height);
+      if (latest.locked || !latest.settings) { showPreviewGate(); throw new Error('Log in to preview the website.'); }
+      const d = latest.settings.ticketDelivery || {};
+      const image = await KapparosTicketDesign.toJpeg(d, {
+        title:config.title, subtitle:config.subtitle, brand:[config.title,config.subtitle].filter(Boolean).join(' '),
+        name:sale.fullName || '—', ticket_id:sale.ticketId, quantity:String(sale.quantity || 0),
+        phone:String(sale.phone || '').replace(/^(\d{3})(\d{3})(\d{4})$/, '$1-$2-$3'),
+        payment_method:'Credit card', price_paid:money(sale.price)
+      });
+      const pdf = createPdfFromJpeg(image.bytes, image.width, image.height);
       return await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=()=>reject(new Error('Ticket PDF could not be prepared.'));reader.readAsDataURL(pdf);});
     }
     async function sendCompletedTicket(action, button) {
@@ -565,14 +636,17 @@
       try {
         const response = await fetch(PUBLIC_CONFIG_API, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: previewHeaders(),
           body: JSON.stringify({ action: 'public-config' })
         });
         if (!response.ok) throw new Error('Configuration unavailable');
         const data = await response.json();
-        applyConfig(data.settings);
+        if (data.locked || !data.settings) { showPreviewGate(); return false; }
+        revealBuyingWebsite(data.settings);
+        return true;
       } catch {
-        applyConfig(DEFAULT_PUBLIC_CONFIG);
+        showPreviewGate('The website is temporarily unavailable. Please try again.');
+        return false;
       }
     }
 
@@ -653,9 +727,10 @@
     emailOnlineTicket.addEventListener('click', () => sendCompletedTicket('send-ticket', emailOnlineTicket));
     textOnlineTicket.addEventListener('click', () => sendCompletedTicket('send-ticket-text', textOnlineTicket));
     applyConfig(DEFAULT_PUBLIC_CONFIG);
-    loadPublicConfig().then(restoreCompletedTicket);
+    loadPublicConfig().then(open => { if (open) restoreCompletedTicket(); });
   </script>
 </body>
 </html>
+
 
 
