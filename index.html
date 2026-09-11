@@ -477,7 +477,15 @@
     }
     async function ticketPdfBase64() {
       const sale = completedOnlineOrder;
-      const d = config.ticketDelivery || {};
+      const response = await fetch(PUBLIC_CONFIG_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        cache: 'no-store',
+        body: JSON.stringify({ action: 'public-config' })
+      });
+      if (!response.ok) throw new Error('The ticket design could not be loaded. Please try again.');
+      const latest = await response.json();
+      const d = latest.settings?.ticketDelivery || {};
       const canvas = document.createElement('canvas');
       canvas.width = 1000; canvas.height = 1350;
       const context = canvas.getContext('2d');
