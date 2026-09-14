@@ -1,0 +1,151 @@
+/* Visitor language and editable copy. Never reads customer inputs or ticket templates. */
+(function (root) {
+  'use strict';
+  const copy = root.KapparosBuyingContent;
+  const uiWords = {
+  "Pay": "באצאלט",
+  "— Demo": "— דעמא",
+  "Your information": "אייערע פרטים",
+  "Full name": "פולער נאמען",
+  "Phone number": "טעלעפאן נומער",
+  "Email": "אימעיל",
+  "Your order": "אייער באשטעלונג",
+  "Number of kaparos": "וויפיל כפרות",
+  "Payment": "באצאלונג",
+  "Credit card": "קרעדיט קארד",
+  "Order summary": "איבערבליק פון דער באשטעלונג",
+  "Kaparos": "כפרות",
+  "Total": "סך הכל",
+  "Continue to payment": "ווייטער צום באצאלן",
+  "🔒 Secure checkout": "🔒 זיכערע באצאלונג",
+  "← Back to home": "צוריק צום הויפט־בלאט →",
+  "Username": "באניצער־נאמען",
+  "Password": "פאסווארט",
+  "Show": "ווייז",
+  "Hide": "באהאלט",
+  "Open website": "עפן דעם וועבזייטל",
+  "Exit preview": "פארלאז די פריוויו",
+  "Online ordering is currently closed.": "די באשטעלונגען אויפן וועבזייטל זענען יעצט פארמאכט.",
+  "Online orders are currently sold out.": "אלע כפרות פאר באשטעלונגען אויפן וועבזייטל זענען שוין פארקויפט.",
+  "Enter a 10-digit phone number.": "שרייבט אריין א טעלעפאן נומער מיט 10 ציפערן.",
+  "The website is temporarily unavailable. Please try again.": "דער וועבזייטל איז צייטווייליג נישט צוטריטלעך. פרובירט נאכאמאל.",
+  "Please log in again to continue.": "ביטע שרייבט זיך נאכאמאל איין כדי ווייטער צו גיין.",
+  "Please try again.": "פרובירט נאכאמאל.",
+  "The website could not be opened.": "מען האט נישט געקענט עפענען דעם וועבזייטל.",
+  "Incorrect username or password.": "דער באניצער־נאמען אדער פאסווארט איז נישט ריכטיג.",
+  "Demo payments do not charge a card. Successful tests are saved as paid online sales.": "דעמא־באצאלונגען רעכענען נישט אפ קיין קארד. געלונגענע טעסטן ווערן געראטעוועט אלס באצאלטע אנליין־פארקויפונגען.",
+  "DEMO CHECKOUT": "דעמא־באצאלונג",
+  "Complete your payment": "פארענדיקט אייער באצאלונג",
+  "Name on card": "נאמען אויפן קארד",
+  "Card number": "קארד נומער",
+  "Expiration": "גילטיג ביז",
+  "Expiry": "גילטיג ביז",
+  "CVV": "CVV",
+  "Payment approved": "באצאלונג באשטעטיגט",
+  "Print Ticket": "דרוקט דעם טיקעט",
+  "Email Ticket": "שיקט דעם טיקעט דורך אימעיל",
+  "Text Ticket": "שיקט דעם טיקעט דורך טעקסט",
+  "Done": "פארטיג",
+  "Your ticket": "אייער טיקעט",
+  "Name": "נאמען",
+  "Quantity": "וויפיל כפרות",
+  "Phone": "טעלעפאן",
+  "Ticket delivery is currently unavailable.": "מען קען יעצט נישט שיקן טיקעטס.",
+  "Preparing and emailing your ticket…": "מען גרייט צו און שיקט אייער טיקעט דורך אימעיל…",
+  "Sending your ticket by text…": "מען שיקט אייער טיקעט דורך טעקסט…",
+  "Processing demo payment…": "מען באהאנדלט די דעמא־באצאלונג…",
+  "Log in to preview the website.": "שרייבט זיך איין צו זען דעם וועבזייטל.",
+  "Use the demo card number 4111 1111 1111 1111.": "נוצט דעם דעמא־קארד נומער 4111 1111 1111 1111.",
+  "This demo accepts only the test card shown above.": "די דעמא נעמט אן נאר דעם טעסט־קארד וואס שטייט אויבן.",
+  "The order could not be completed.": "מען האט נישט געקענט פארענדיקן די באשטעלונג.",
+  "Pop-up blocked. Allow pop-ups and try Print Ticket again.": "דער פענסטער איז בלאקירט. ערלויבט פענסטער און פרובירט נאכאמאל צו דרוקן דעם טיקעט.",
+  "Secure card payment": "זיכערע באצאלונג מיט א קארד",
+  "This is a test payment. No card will be charged.": "דאס איז א טעסט־באצאלונג. קיין קארד וועט נישט ווערן אפגערעכנט.",
+  "Order total": "סך הכל פון דער באשטעלונג",
+  "Billing ZIP code": "בילינג זיפ קאוד",
+  "🔒 Test mode · No real transaction": "🔒 טעסט־מאדע · קיין עכטע באצאלונג",
+  "DEMO APPROVED": "דעמא באשטעטיגט",
+  "Online demo ticket": "אנליין דעמא־טיקעט",
+  "Your demo order is complete.": "אייער דעמא־באשטעלונג איז פארטיג.",
+  "No card was charged. This test order is recorded as a paid online sale in the admin website and reports.": "קיין קארד איז נישט אפגערעכנט געווארן. די טעסט־באשטעלונג ווערט פארשריבן אלס א באצאלטע אנליין־פארקויפונג אינעם אדמין־וועבזייטל און אין די באריכטן.",
+  "Choose how you would like to receive your ticket.": "קלייבט אויס וויאזוי איר ווילט באקומען אייער טיקעט.",
+  "Allow pop-ups, then press Print Ticket again.": "ערלויבט פענסטער, און דרוקט נאכאמאל אויף דרוקן דעם טיקעט.",
+  "Show password": "ווייז דעם פאסווארט",
+  "Hide password": "באהאלט דעם פאסווארט",
+  "Remove one kaparos": "נעמט אראפ איין כפרה",
+  "Add one kaparos": "לייגט צו איין כפרה",
+  "Payment method": "באצאלונגס־אופן",
+  "Close checkout": "פארמאכט די באצאלונג"
+};
+  const reverseWords = Object.fromEntries(Object.entries(uiWords).map(([en, yi]) => [yi, en]));
+  let language = 'yi', settings = {}, locked = true;
+  try { language = localStorage.getItem('kapparosBuyingLanguageV1') === 'en' ? 'en' : 'yi'; } catch (_) {}
+  function ui(text) {
+    const original = reverseWords[text] || text;
+    return document.documentElement.lang === 'yi' ? uiWords[original] || original : original;
+  }
+  function put(element, value) {
+    if (!element) return;
+    element.textContent = value;
+    element.hidden = !value;
+    element.dir = /[\u0590-\u05ff]/.test(value) ? 'rtl' : 'ltr';
+    element.lang = /[\u0590-\u05ff]/.test(value) ? 'yi' : 'en';
+  }
+  function render() {
+    const current = copy.source(settings), translated = copy.english(settings);
+    const keys = locked ? ['title', 'gateTitle', 'gateDescription'] : copy.fields.map(field => field.key);
+    const ready = keys.every(key => Object.hasOwn(translated.values, key));
+    const selected = language === 'en' && ready ? 'en' : 'yi';
+    // Keep the visitor's preference stored, while withholding stale translations.
+    const requested = language; language = selected;
+    document.documentElement.lang = selected;
+    document.documentElement.dir = selected === 'yi' ? 'rtl' : 'ltr';
+    document.querySelectorAll('[data-language]').forEach(button => {
+      button.hidden = button.dataset.language === 'en' && !ready;
+      button.setAttribute('aria-pressed', String(button.dataset.language === selected));
+    });
+    for (const element of document.querySelectorAll('[data-copy]')) {
+      const key = element.dataset.copy;
+      put(element, selected === 'en' ? translated.values[key] ?? current[key] : current[key]);
+    }
+    document.querySelectorAll('[data-ui]').forEach(element => { element.textContent = ui(element.dataset.ui); });
+    document.querySelectorAll('[data-ui-aria]').forEach(element => element.setAttribute('aria-label', ui(element.dataset.uiAria)));
+    // These nodes contain app-generated messages, never customer-entered text.
+    for (const id of ['availabilityMessage', 'ticketActionStatus', 'previewLoginError', 'demoPaymentError', 'previewShowPassword']) {
+      const element = document.getElementById(id);
+      if (element) element.textContent = ui(element.textContent);
+    }
+    document.querySelectorAll('.payment-option').forEach(element => { element.textContent = ui('Credit card'); });
+    const showPassword = document.getElementById('previewShowPassword');
+    if (showPassword) {
+      const visible = document.getElementById('previewPassword').type === 'text';
+      showPassword.textContent = ui(visible ? 'Hide' : 'Show');
+      showPassword.setAttribute('aria-label', ui(visible ? 'Hide password' : 'Show password'));
+    }
+    const link = document.querySelector('.event-contact a');
+    if (link) {
+      const raw = current.phoneNumber, digits = raw.replace(/\D/g, '');
+      if (digits.length >= 7 && digits.length <= 15) link.href = 'tel:' + (digits.length === 10 ? '+1' : raw.startsWith('+') ? '+' : '') + digits;
+      else link.removeAttribute('href');
+      document.querySelector('.event-contact').hidden = !raw;
+    }
+    for (const selector of ['.event-detail', '.event-details-grid', '.event-details', '.event-booking', '.trust-line']) {
+      document.querySelectorAll(selector).forEach(element => {
+        element.hidden = !Array.from(element.querySelectorAll('[data-copy]')).some(child => !child.hidden && child.textContent);
+      });
+    }
+    const title = selected === 'en' ? translated.values.title ?? current.title : current.title;
+    document.title = 'Siksakapparos | ' + title;
+    language = requested;
+    document.dispatchEvent(new Event('buying-language-change'));
+  }
+  function apply(next, isLocked = false) { settings = next || {}; locked = isLocked; render(); }
+  function choose(next) {
+    language = next === 'en' ? 'en' : 'yi';
+    try { localStorage.setItem('kapparosBuyingLanguageV1', language); } catch (_) {}
+    render();
+  }
+  document.querySelectorAll('[data-language]').forEach(button => button.addEventListener('click', () => choose(button.dataset.language)));
+  root.BuyingLanguages = {apply, render, ui, get language() { return document.documentElement.lang; }};
+  render();
+})(globalThis);

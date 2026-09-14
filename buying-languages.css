@@ -1,0 +1,21 @@
+.language-switcher { display: flex; justify-content: flex-start; gap: 4px; max-width: 1180px; margin: 0 auto; padding: 16px 24px 0; }
+.language-switcher button { min-height: 40px; min-width: 78px; padding: 8px 14px; border: 1px solid #d9cfbd; border-radius: 7px; background: #fcfaf5; color: #203c36; font: 500 15px/1.4 Arial, sans-serif; cursor: pointer; }
+.language-switcher button[aria-pressed="true"] { background: #203c36; color: #fcfaf5; border-color: #203c36; }
+.language-switcher button:focus-visible { outline: 3px solid #a6854f; outline-offset: 3px; }
+[data-copy] { white-space: pre-wrap; overflow-wrap: anywhere; }
+.event-address [data-copy="addressLine1"] { display: block; color: var(--ink); font-size: 17px; }
+.event-address [data-copy="addressLine2"] { display: block; }
+html[lang="en"] .event-day, html[lang="en"] .event-venue { font-family: inherit; font-size: 20px; }
+html[lang="en"] .hero-title, html[lang="en"] #publicPageTitle { font-family: inherit; font-size: clamp(28px, 4vw, 46px); line-height: 1.2; }
+html[dir="rtl"] .field, html[dir="rtl"] .section-heading, html[dir="rtl"] .summary-card { text-align: right; }
+#customerName, #previewUsername, #demoCardName { unicode-bidi: plaintext; }
+input[type="email"], input[type="tel"], input[inputmode="numeric"], .summary-row strong, .summary-total > span:last-child, .quantity-control { direction: ltr; }
+[data-copy][hidden], .language-switcher [hidden], .event-detail[hidden], .event-details[hidden], .event-details-grid[hidden], .event-booking[hidden], .trust-line[hidden], .event-contact[hidden] { display: none !important; }
+@media (max-width: 480px) { .language-switcher { padding: 12px 18px 0; } .language-switcher button { min-height: 40px; } html[lang="en"] .event-day, html[lang="en"] .event-venue { font-size: 19px; } }
+
+html[lang="en"] [data-copy], html[lang="en"] .hero-subtitle { direction: ltr; }
+.preview-gate { min-height: calc(100svh - 58px); }
+
+.trust-item { max-width: 100%; }
+.trust-item [data-copy] { white-space: normal; }
+.trust-icon { flex-shrink: 0; }
