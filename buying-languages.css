@@ -56,10 +56,9 @@ html[dir="rtl"] .order-card, html[dir="rtl"] .summary-card { direction: rtl; }
  .buying-support-footer { display:block; width:100%; max-width:none; margin-inline:0; padding:8px 8px 24px; }
  .buying-support-footer > p { font-size:12px; line-height:1.5; margin-bottom:0; }
  .support-contacts a { font-size:12px; line-height:1.5; padding:13px 2px; }
- .trust-line { display: block; width: 100%; max-width: 100%; margin-inline: 0; text-align: start; }
- .trust-item { display: flex; justify-content: flex-start; width: 100%; max-width: 100%; margin-top: 0; text-align: start; gap: 12px; }
+ .trust-line { display: block; width: 100%; max-width: 100%; margin-inline: 0; text-align: center; }
+ .trust-item { display: flex; justify-content: center; width: 100%; max-width: 100%; margin-top: 0; text-align: center; gap: 12px; }
  .trust-item + .trust-item { margin-top: 14px; }
- html[lang="yi"] .trust-item { justify-content: center; text-align: center; }
  .trust-item .trust-icon { display: inline-flex; flex: 0 0 32px; margin-inline-end: 0; }
  .buyer-terms-text { max-height: 260px; }
 }
