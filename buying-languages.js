@@ -37,7 +37,6 @@
   "Please try again.": "פרובירט נאכאמאל.",
   "The website could not be opened.": "מען האט נישט געקענט עפענען דעם וועבזייטל.",
   "Incorrect username or password.": "דער באניצער־נאמען אדער פאסווארט איז נישט ריכטיג.",
-  "Demo payments do not charge a card. Successful tests are saved as paid online sales.": "דעמא־באצאלונגען רעכענען נישט אפ קיין קארד. געלונגענע טעסטן ווערן געראטעוועט אלס באצאלטע אנליין־פארקויפונגען.",
   "DEMO CHECKOUT": "דעמא־באצאלונג",
   "Complete your payment": "פארענדיקט אייער באצאלונג",
   "Name on card": "נאמען אויפן קארד",
@@ -137,7 +136,7 @@
       const icon = key.endsWith('Icon') ? presentation.icon(value) : null;
       if (icon) {
         const picture = document.createElement('img');
-        picture.src = icon.path; picture.alt = ''; picture.width = 32; picture.height = 32;
+        picture.src = '/' + icon.path; picture.alt = ''; picture.width = 32; picture.height = 32;
         picture.className = 'buying-symbol'; picture.setAttribute('aria-hidden', 'true');
         element.replaceChildren(picture);
       }
