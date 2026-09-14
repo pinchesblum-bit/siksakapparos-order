@@ -126,6 +126,14 @@
       if (!Object.hasOwn(current, key)) continue;
       const value = selected === 'en' ? translated.values[key] ?? current[key] : current[key];
       put(element, value);
+      if (key === 'venue') {
+        const lines = presentation.venueLines(value);
+        element.dir = document.documentElement.dir;
+        element.classList.toggle('has-two-lines', lines.every(line => line.trim()));
+        element.replaceChildren(...lines.map(line => {
+          const paragraph = document.createElement('p'); paragraph.className = 'event-venue'; put(paragraph, line); return paragraph;
+        }));
+      }
       const icon = key.endsWith('Icon') ? presentation.icon(value) : null;
       if (icon) {
         const picture = document.createElement('img');
