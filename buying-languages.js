@@ -86,6 +86,8 @@
 };
   const reverseWords = Object.fromEntries(Object.entries(uiWords).map(([en, yi]) => [yi, en]));
   let language = 'yi', settings = {}, locked = true;
+  // These public headings and minyan labels keep the owner's source wording in both languages.
+  const sourceLanguageFields = new Set(['title', 'subtitle', 'venue', 'benefitPayment']);
   try { language = localStorage.getItem('kapparosBuyingLanguageV1') === 'en' ? 'en' : 'yi'; } catch (_) {}
   function payment(text) {
     const original = reverseWords[text] || text;
@@ -131,11 +133,11 @@
     for (const element of document.querySelectorAll('[data-copy]')) {
       const key = element.dataset.copy;
       if (!Object.hasOwn(current, key)) continue;
-      const value = selected === 'en' ? translated.values[key] ?? current[key] : current[key];
+      const value = selected === 'en' && !sourceLanguageFields.has(key) ? translated.values[key] ?? current[key] : current[key];
       put(element, value);
       if (key === 'venue') {
         const lines = presentation.venueLines(value);
-        element.dir = document.documentElement.dir;
+        element.dir = /[\u0590-\u05ff]/.test(value) ? 'rtl' : document.documentElement.dir;
         element.classList.toggle('has-two-lines', lines.every(line => line.trim()));
         element.replaceChildren(...lines.map(line => {
           const paragraph = document.createElement('p'); paragraph.className = 'event-venue'; put(paragraph, line); return paragraph;
@@ -188,8 +190,7 @@
       });
     }
     document.querySelectorAll('.trust-line').forEach(line => { line.hidden = !Array.from(line.querySelectorAll('.trust-item')).some(item => !item.hidden); });
-    const title = selected === 'en' ? translated.values.title ?? current.title : current.title;
-    document.title = 'Siksakapparos | ' + title;
+    document.title = 'Siksakapparos | ' + current.title;
     document.dispatchEvent(new Event('buying-language-change'));
   }
   function apply(next, isLocked = false) { settings = next || {}; locked = isLocked; render(); }

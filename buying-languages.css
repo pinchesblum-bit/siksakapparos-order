@@ -8,13 +8,13 @@
 .event-address { text-align: center; }
 .event-address a { display: inline-block; max-width: 100%; color: inherit; text-decoration: none; }
 .event-address a:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }
-html[lang="en"] .event-day, html[lang="en"] .event-venue { font-family: inherit; font-size: 20px; }
-html[lang="en"] .hero-title, html[lang="en"] #publicPageTitle { font-family: inherit; font-size: clamp(28px, 4vw, 46px); line-height: 1.2; }
+html[lang="en"] .event-day:not([lang="yi"]), html[lang="en"] .event-venue:not([lang="yi"]) { font-family: inherit; font-size: 20px; }
+html[lang="en"] .hero-title:not([lang="yi"]), html[lang="en"] #publicPageTitle:not([lang="yi"]) { font-family: inherit; font-size: clamp(28px, 4vw, 46px); line-height: 1.2; }
 html[dir="rtl"] .field, html[dir="rtl"] .section-heading, html[dir="rtl"] .summary-card { text-align: right; }
 #customerName, #previewUsername, #demoCardName { unicode-bidi: plaintext; }
 input[type="email"], input[type="tel"], input[inputmode="numeric"], .summary-row strong, .summary-total > span:last-child, .quantity-control { direction: ltr; }
 [data-copy][hidden], .language-switcher [hidden], .event-detail[hidden], .event-details[hidden], .event-details-grid[hidden], .event-booking[hidden], .trust-line[hidden], .event-contact[hidden] { display: none !important; }
-@media (max-width: 480px) { .language-switcher { padding: 12px 18px 0; } .language-switcher button { min-height: 40px; } html[lang="en"] .event-day, html[lang="en"] .event-venue { font-size: 19px; } }
+@media (max-width: 480px) { .language-switcher { padding: 12px 18px 0; } .language-switcher button { min-height: 40px; } html[lang="en"] .event-day:not([lang="yi"]), html[lang="en"] .event-venue:not([lang="yi"]) { font-size: 19px; } }
 
 html[lang="en"] [data-copy]:not([lang="yi"]), html[lang="en"] .hero-subtitle:not([lang="yi"]) { direction: ltr; }
 .preview-gate { min-height: calc(100svh - 58px); }
@@ -38,11 +38,11 @@ html[lang="en"] [data-copy]:not([lang="yi"]), html[lang="en"] .hero-subtitle:not
 .buyer-terms-accept { display: flex; align-items: flex-start; gap: 11px; padding: 16px 0 5px; cursor: pointer; font-size: 15px; line-height: 1.55; font-weight: 500; }
 .buyer-terms-accept input[type="checkbox"] { flex: 0 0 21px; width: 21px; height: 21px; min-height: 21px; margin: 2px 0 0; padding: 0; accent-color: #203c36; }
 .buyer-terms-error { color: #a23939; font-size: 14px; line-height: 1.5; margin: 7px 0 0; }
-.buying-support-footer { display:flex; align-items:center; justify-content:center; gap:6px 16px; max-width: 1180px; margin: 14px auto 0; padding: 10px 22px 34px; border-top: 1px solid var(--line); color: var(--muted); text-align: center; }
-.buying-support-footer > p { margin: 0; font-size: 15px; line-height: 1.6; }
-.support-contacts { display: flex; align-items: center; justify-content: center; flex-wrap: nowrap; gap: 5px 16px; }
-.support-contacts a { min-height: 44px; padding: 9px 4px; color: var(--ink); text-decoration: none; }
-.support-email { font-size: 15px; line-height: 1.6; overflow-wrap: anywhere; max-width: 100%; }
+.buying-support-footer { display:flex; align-items:baseline; justify-content:center; gap:6px 16px; max-width: 1180px; margin: 14px auto 0; padding: 10px 22px 34px; border-top: 1px solid var(--line); color: var(--muted); text-align: center; font-size:15px; line-height:1.6; }
+.buying-support-footer > p { margin: 0; font: inherit; }
+.support-contacts { display: flex; align-items: baseline; justify-content: center; flex-wrap: nowrap; gap: 5px 16px; min-width:0; }
+.support-contacts a { min-height: 44px; padding: 10px 4px; color: var(--ink); text-decoration: none; font:inherit; letter-spacing:normal; }
+.support-email { overflow-wrap: anywhere; max-width: 100%; }
 .buying-support-footer a:focus-visible, .buyer-terms-text:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
 .order-shell > *, .fields > *, .demo-fields > * { min-width: 0; }
 html[dir="rtl"] .order-shell { direction: ltr; }
@@ -51,11 +51,11 @@ html[dir="rtl"] .order-card, html[dir="rtl"] .summary-card { direction: rtl; }
  .event-contact { display: block; margin-top: 12px; text-align: center; }
  .event-contact > span { display: block; font-size: 16px; line-height: 1.5; }
  .event-contact a { display: inline-block; font-size: 19px; min-height: 40px; padding: 5px 8px; }
- .support-contacts { display: block; text-align: center; }
- .support-contacts a { display: block; width: fit-content; max-width: 100%; margin: 0 auto; }
+ .support-contacts { gap:12px; text-align:center; }
+ .support-contacts a { display:block; max-width:100%; margin:0; white-space:nowrap; }
  .buying-support-footer { display:block; width:100%; max-width:none; margin-inline:0; padding:8px 8px 24px; }
- .buying-support-footer > p { font-size:14px; line-height:1.55; margin-bottom:3px; }
- .support-contacts a { font-size:14px; line-height:1.5; padding:8px 4px; }
+ .buying-support-footer > p { font-size:12px; line-height:1.5; margin-bottom:0; }
+ .support-contacts a { font-size:12px; line-height:1.5; padding:13px 2px; }
  .trust-line { display: block; width: 100%; max-width: 100%; margin-inline: 0; text-align: start; }
  .trust-item { display: flex; justify-content: flex-start; width: 100%; max-width: 100%; margin-top: 0; text-align: start; gap: 12px; }
  .trust-item + .trust-item { margin-top: 14px; }
@@ -64,7 +64,7 @@ html[dir="rtl"] .order-card, html[dir="rtl"] .summary-card { direction: rtl; }
  .buyer-terms-text { max-height: 260px; }
 }
 
-@media (min-width:601px) { .buying-support-footer > p { white-space:normal; } .support-contacts { flex:0 0 auto; } .support-contacts a { white-space:nowrap; } .support-phone { font-size:15px; } }
+@media (min-width:601px) { .buying-support-footer > p { white-space:normal; } .support-contacts { flex:0 0 auto; } .support-contacts a { white-space:nowrap; } }
 @media (min-width:601px) and (max-width:1000px) { .buying-support-footer { flex-wrap:wrap; } }
 
 /* The notice occupies the landing action position when ordering is unavailable. */
@@ -87,4 +87,8 @@ html[dir="rtl"] .order-card, html[dir="rtl"] .summary-card { direction: rtl; }
  .hero-copy { display:block; }
  .hero-copy::before, .hero-copy::after { display:none; }
  .buying-support-footer { padding-inline:12px; padding-bottom:12px; }
+}
+@media (max-width:359px) {
+ .buying-support-footer { padding-inline:8px; }
+ .buying-support-footer > p { font-size:11px; }
 }
