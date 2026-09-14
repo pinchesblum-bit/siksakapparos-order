@@ -4,6 +4,10 @@
   const copy = root.KapparosBuyingContent;
   const presentation = root.KapparosBuyingPresentation;
   const uiWords = {
+    "Checking availability…": "מען קוקט איבער וויפיל כפרות עס זענען נאך דא…",
+    "Availability could not be checked. Please try again.": "מען האט נישט געקענט איבערקוקן וויפיל כפרות עס זענען נאך דא. פרובירט נאכאמאל.",
+    "There are not enough chickens for this order. Please review the updated quantity before continuing.": "עס זענען נישט דא גענוג כפרות פאר אייער באשטעלונג. ביטע קוקט איבער די צאל כפרות פאר איר גייט ווייטער.",
+    "The price changed. Please review the updated total before continuing.": "דער פרייז איז געטוישט געווארן. ביטע קוקט איבער דעם נייעם סך הכל פאר איר גייט ווייטער.",
     "Please read and accept the terms before continuing.": "ביטע לייענט און באשטעטיגט די תנאים פאר איר גייט ווייטער.",
     "Ordering is unavailable while the terms are being updated.": "מען קען צייטווייליג נישט באשטעלן בשעת די תנאים ווערן דערהיינטיגט.",
     "The terms changed. Please review and accept them again.": "די תנאים זענען געטוישט געווארן. ביטע לייענט און באשטעטיגט זיי נאכאמאל.",
@@ -142,7 +146,7 @@
     document.querySelectorAll('[data-ui]').forEach(element => { element.textContent = ui(element.dataset.ui); });
     document.querySelectorAll('[data-ui-aria]').forEach(element => element.setAttribute('aria-label', ui(element.dataset.uiAria)));
     // These nodes contain app-generated messages, never customer-entered text.
-    for (const id of ['availabilityMessage', 'ticketActionStatus', 'demoPaymentError']) {
+    for (const id of ['availabilityMessage', 'checkoutAvailabilityError', 'ticketActionStatus', 'demoPaymentError']) {
       const element = document.getElementById(id);
       if (element) element.textContent = ui(element.textContent);
     }

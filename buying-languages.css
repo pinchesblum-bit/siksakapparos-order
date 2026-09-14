@@ -35,7 +35,7 @@ html[lang="en"] [data-copy]:not([lang="yi"]), html[lang="en"] .hero-subtitle:not
 .buyer-terms-accept { display: flex; align-items: flex-start; gap: 11px; padding: 16px 0 5px; cursor: pointer; font-size: 15px; line-height: 1.55; font-weight: 500; }
 .buyer-terms-accept input[type="checkbox"] { flex: 0 0 21px; width: 21px; height: 21px; min-height: 21px; margin: 2px 0 0; padding: 0; accent-color: #203c36; }
 .buyer-terms-error { color: #a23939; font-size: 14px; line-height: 1.5; margin: 7px 0 0; }
-.buying-support-footer { display:flex; align-items:center; justify-content:center; gap:6px 16px; max-width: 1180px; margin: 14px auto 0; padding: 25px 22px 34px; border-top: 1px solid var(--line); color: var(--muted); text-align: center; }
+.buying-support-footer { display:flex; align-items:center; justify-content:center; gap:6px 16px; max-width: 1180px; margin: 14px auto 0; padding: 10px 22px 34px; border-top: 1px solid var(--line); color: var(--muted); text-align: center; }
 .buying-support-footer > p { margin: 0; font-size: 15px; line-height: 1.6; }
 .support-contacts { display: flex; align-items: center; justify-content: center; flex-wrap: nowrap; gap: 5px 16px; }
 .support-contacts a { min-height: 44px; padding: 9px 4px; color: var(--ink); text-decoration-color: var(--gold); text-underline-offset: 4px; }
@@ -50,7 +50,7 @@ html[dir="rtl"] .order-card, html[dir="rtl"] .summary-card { direction: rtl; }
  .event-contact a { display: inline-block; font-size: 19px; min-height: 40px; padding: 5px 8px; }
  .support-contacts { display: block; text-align: center; }
  .support-contacts a { display: block; width: fit-content; max-width: 100%; margin: 0 auto; }
- .buying-support-footer { display:block; margin-inline: 16px; padding:18px 8px 24px; }
+ .buying-support-footer { display:block; margin-inline: 16px; padding:8px 8px 24px; }
  .buying-support-footer > p { font-size:14px; line-height:1.55; margin-bottom:3px; }
  .support-contacts a { font-size:14px; line-height:1.5; padding:8px 4px; }
  .trust-line { display: block; width: 100%; max-width: 100%; margin-inline: 0; text-align: start; }
@@ -63,3 +63,10 @@ html[dir="rtl"] .order-card, html[dir="rtl"] .summary-card { direction: rtl; }
 
 @media (min-width:601px) { .buying-support-footer > p { white-space:normal; } .support-contacts { flex:0 0 auto; } .support-contacts a { white-space:nowrap; } .support-phone { font-size:15px; } }
 @media (min-width:601px) and (max-width:1000px) { .buying-support-footer { flex-wrap:wrap; } }
+
+/* The notice occupies the landing action position when ordering is unavailable. */
+.order-cta.ordering-unavailable { display:none; }
+.hero > .availability-message { margin-top:26px; }
+.quantity-button:disabled { cursor:not-allowed; opacity:.45; }
+.checkout-availability-error { margin:0 0 14px; text-align:start; }
+.checkout-availability-error[hidden] { display:none; }

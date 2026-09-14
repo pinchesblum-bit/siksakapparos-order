@@ -179,7 +179,7 @@
     @media(max-width:480px) { .preview-gate-card { padding:26px 22px; } .preview-gate h1 { font-size:23px; } }
 </style>
   <link rel="stylesheet" href="event-details.css?v=20260914-6" />
-  <link rel="stylesheet" href="buying-languages.css?v=20260914-6" />
+  <link rel="stylesheet" href="buying-languages.css?v=20260914-7" />
 </head>
 <body class="preview-locked preview-loading">
   <section class="preview-loading-screen" id="previewLoading" lang="en" dir="ltr" aria-label="Loading website">
@@ -242,9 +242,9 @@
         <span class="trust-item"><span class="trust-icon" data-copy="benefitPaymentIcon" aria-hidden="true">📖</span><span data-copy="benefitPayment">Secure payment</span></span>
         <span class="trust-item"><span class="trust-icon" data-copy="benefitTicketIcon" aria-hidden="true">💧</span><span data-copy="benefitTicket">Ticket by text and email</span></span>
       </div>
-      <p class="availability-message" id="availabilityMessage" role="status" hidden></p>
       <p class="event-booking" lang="yi" dir="rtl"><span data-copy="bookingNote">עס איז כדאי צו באשטעלן פאראויס, כדי צו זיין פארזיכערט מיט א כפרה.</span><strong data-copy="prepaymentNote">א באשטעלטע כפרה מוז זיין באצאלט פון פארויס.</strong></p>
       <button type="button" class="order-cta" id="openOrderButton" data-copy="buttonText">באשטעלט יעצט אייער כפרה</button>
+      <p class="availability-message" id="availabilityMessage" role="status" hidden></p>
       <p class="event-contact"><span data-copy="contactLabel" lang="yi" dir="rtl">רופט:</span><a data-copy="phoneNumber" href="tel:+18453723311" dir="ltr">845-372-3311</a></p>
     </section>
     <section class="order-section" id="orderSection" aria-labelledby="orderHeading">
@@ -283,6 +283,7 @@
           <h2 data-ui="Order summary">Order summary</h2>
           <div class="summary-row"><span data-ui="Kaparos">Kaparos</span><strong><span id="summaryQuantity">1</span> × <span id="summaryUnitPrice">$18</span></strong></div>
           <div class="summary-total"><span data-ui="Total">Total</span><span id="summaryTotal">$18.00</span></div>
+          <p id="checkoutAvailabilityError" class="buyer-terms-error checkout-availability-error" role="alert" hidden></p>
           <button type="button" class="checkout-button" id="checkoutButton" data-ui="Continue to payment">Continue to payment</button>
           <p class="secure-note" data-ui="🔒 Secure checkout">🔒 Secure checkout</p>
           <p class="ticket-note" id="customerConfirmationText" data-copy="confirmationText">After checkout, choose Print Ticket, Email Ticket, or Text Ticket.</p>
@@ -330,7 +331,7 @@
 
   <script src="buying-content.js?v=20260914-2"></script>
   <script src="buying-presentation.js?v=20260914-4"></script>
-  <script src="buying-languages.js?v=20260914-6"></script>
+  <script src="buying-languages.js?v=20260914-7"></script>
   <script src="buying-checkout.js?v=20260914-2"></script>
   <script src="ticket-design.js?v=20260911-1"></script>
   <script>
@@ -443,6 +444,7 @@
     const textOnlineTicket = document.getElementById('textOnlineTicket');
     let config = { ...DEFAULT_PUBLIC_CONFIG };
     let quantity = 1;
+    let checkoutChecking = false;
     let completedOnlineOrder = null;
     const CHECKOUT_SESSION_KEY = 'kapparosCheckoutSessionV1';
     const COMPLETED_TICKET_KEY = 'kapparosCompletedTicketV1';
@@ -451,12 +453,14 @@
       return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(value || 0));
     }
     function updateSummary() {
-      const maximum = Math.min(100, Math.max(0, Number(config.inventory || 0)));
+      const maximum = Math.min(100, Math.max(0, Math.floor(Number(config.inventory || 0))));
       quantity = maximum > 0 ? Math.min(Math.max(1, quantity), maximum) : 0;
       quantityValue.textContent = quantity;
       summaryQuantity.textContent = quantity;
       summaryUnitPrice.textContent = money(config.price);
       summaryTotal.textContent = money(quantity * Number(config.price || 0));
+      document.getElementById('decreaseQuantity').disabled = checkoutChecking || quantity <= 1;
+      document.getElementById('increaseQuantity').disabled = checkoutChecking || config.orderingEnabled === false || quantity >= maximum;
     }
     function renderChoices() {
       paymentOptions.innerHTML = '';
@@ -489,7 +493,8 @@
       const available = Math.max(0, Math.floor(Number(config.inventory || 0)));
       const closed = config.orderingEnabled === false || available === 0;
       orderButton.disabled = closed;
-      checkoutButton.disabled = closed;
+      orderButton.classList.toggle('ordering-unavailable', closed);
+      checkoutButton.disabled = checkoutChecking || closed;
       availabilityMessage.hidden = !closed;
       availabilityMessage.textContent = config.orderingEnabled === false
         ? 'Online ordering is currently closed.'
@@ -530,28 +535,68 @@
       if (!response.ok) throw Object.assign(new Error(result.error || 'The order could not be completed.'), { status: response.status, code: result.code });
       return result;
     }
-    function openDemoCheckout() {
+    function checkoutStockMessage(message = '') {
+      const error = document.getElementById('checkoutAvailabilityError');
+      error.textContent = BuyingLanguages.ui(message);
+      error.hidden = !message;
+    }
+    async function openDemoCheckout() {
       const customerPhone = document.getElementById('customerPhone');
       const phoneDigits = BuyingCheckout.phoneDigits(customerPhone.value);
       customerPhone.value = KapparosBuyingContent.phone(phoneDigits).label;
       customerPhone.setCustomValidity(phoneDigits.length === 10 ? '' : 'Enter a 10-digit phone number.');
-      if (!BuyingCheckout.validate() || !sampleOrderForm.reportValidity() || checkoutButton.disabled) return;
-      demoPaymentForm.hidden = false;
-      demoSuccess.hidden = true;
-      completedOnlineOrder = null;
-      demoPaymentForm.reset();
-      demoCardName.value = '';
-      demoPaymentError.textContent = '';
-      ticketActionStatus.textContent = '';
-      ticketActionStatus.classList.remove('error');
-      const total = money(quantity * Number(config.price || 0));
-      document.getElementById('demoPaymentTotal').textContent = total;
-      document.getElementById('demoPayAmount').textContent = total;
-      document.getElementById('demoCardPreview').textContent = '•••• •••• •••• ••••';
-      demoCheckoutModal.classList.add('open');
-      demoCheckoutModal.setAttribute('aria-hidden', 'false');
-      document.body.classList.add('demo-checkout-open');
-      setTimeout(() => demoCardName.focus(), 0);
+      if (checkoutChecking || checkoutButton.disabled || !BuyingCheckout.validate() || !sampleOrderForm.reportValidity()) return;
+      const requestedQuantity = quantity, reviewedPrice = Number(config.price || 0);
+      checkoutChecking = true;
+      checkoutStockMessage();
+      checkoutButton.disabled = true;
+      checkoutButton.setAttribute('aria-busy', 'true');
+      checkoutButton.textContent = BuyingLanguages.ui('Checking availability…');
+      updateSummary();
+      try {
+        // Read only: stock is checked before opening payment. The existing
+        // database transaction still makes the final, atomic stock decision.
+        const data = await fetchPublicConfig();
+        if (data.locked || !data.settings) { showPreviewGate('Please log in again to continue.'); return; }
+        applyConfig(data.settings);
+        if (config.orderingEnabled === false) {
+          checkoutStockMessage('Online ordering is currently closed.'); return;
+        }
+        const available = Math.min(100, Math.max(0, Math.floor(Number(config.inventory || 0))));
+        if (requestedQuantity < 1 || requestedQuantity > available) {
+          checkoutStockMessage(available === 0 ? 'Online orders are currently sold out.'
+            : 'There are not enough chickens for this order. Please review the updated quantity before continuing.');
+          return;
+        }
+        if (reviewedPrice !== Number(config.price || 0)) {
+          checkoutStockMessage('The price changed. Please review the updated total before continuing.'); return;
+        }
+        if (!BuyingCheckout.validate() || !sampleOrderForm.reportValidity()) return;
+        demoPaymentForm.hidden = false;
+        demoSuccess.hidden = true;
+        completedOnlineOrder = null;
+        demoPaymentForm.reset();
+        demoCardName.value = '';
+        demoPaymentError.textContent = '';
+        ticketActionStatus.textContent = '';
+        ticketActionStatus.classList.remove('error');
+        const total = money(quantity * Number(config.price || 0));
+        document.getElementById('demoPaymentTotal').textContent = total;
+        document.getElementById('demoPayAmount').textContent = total;
+        document.getElementById('demoCardPreview').textContent = '•••• •••• •••• ••••';
+        demoCheckoutModal.classList.add('open');
+        demoCheckoutModal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('demo-checkout-open');
+        setTimeout(() => demoCardName.focus(), 0);
+      } catch {
+        checkoutStockMessage('Availability could not be checked. Please try again.');
+      } finally {
+        checkoutChecking = false;
+        checkoutButton.removeAttribute('aria-busy');
+        checkoutButton.textContent = BuyingLanguages.ui(checkoutButton.dataset.ui);
+        checkoutButton.disabled = config.orderingEnabled === false || Number(config.inventory || 0) < 1;
+        updateSummary();
+      }
     }
     function closeDemoCheckout() {
       if (demoPayButton.disabled) return;
@@ -708,17 +753,17 @@
         sessionStorage.removeItem(COMPLETED_TICKET_KEY);
       }
     }
+    async function fetchPublicConfig() {
+      const response = await fetch(PUBLIC_CONFIG_API, {
+        method: 'POST', headers: previewHeaders(), cache: 'no-store',
+        signal: AbortSignal.timeout(15000), body: JSON.stringify({ action: 'public-config' })
+      });
+      if (!response.ok) throw new Error('Configuration unavailable');
+      return response.json();
+    }
     async function loadPublicConfig() {
       try {
-        const response = await fetch(PUBLIC_CONFIG_API, {
-          method: 'POST',
-          headers: previewHeaders(),
-          cache: 'no-store',
-          signal: AbortSignal.timeout(15000),
-          body: JSON.stringify({ action: 'public-config' })
-        });
-        if (!response.ok) throw new Error('Configuration unavailable');
-        const data = await response.json();
+        const data = await fetchPublicConfig();
         if (data.locked || !data.settings) { BuyingLanguages.apply(data.copy || {}, true); showPreviewGate(); return false; }
         revealBuyingWebsite(data.settings);
         return true;
@@ -736,10 +781,14 @@
       if (!orderButton.disabled) window.location.assign('/order/');
     });
     document.getElementById('decreaseQuantity').addEventListener('click', () => {
+      if (document.getElementById('decreaseQuantity').disabled) return;
+      checkoutStockMessage();
       quantity = Math.max(1, quantity - 1);
       updateSummary();
     });
     document.getElementById('increaseQuantity').addEventListener('click', () => {
+      if (document.getElementById('increaseQuantity').disabled) return;
+      checkoutStockMessage();
       quantity += 1;
       updateSummary();
     });
