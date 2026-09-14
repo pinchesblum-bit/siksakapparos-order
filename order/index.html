@@ -318,7 +318,7 @@
     </section>
   </div>
 
-  <script src="/buying-visit.js?v=20260914-8"></script>
+  <script src="/buying-visit.js?v=20260914-13"></script>
   <script src="/buying-content.js?v=20260914-2"></script>
   <script src="/buying-presentation.js?v=20260914-8"></script>
   <script src="/buying-languages.js?v=20260914-10"></script>
@@ -403,11 +403,7 @@
         document.getElementById('previewPassword').type = 'password';
         document.getElementById('previewShowPassword').textContent = BuyingLanguages.ui('Show');
         document.getElementById('previewShowPassword').setAttribute('aria-pressed', 'false');
-        if (location.pathname.startsWith('/order/')) {
-          BuyingVisit.verified(data.settings); BuyingVisit.go('/');
-        } else {
-          revealBuyingWebsite(data.settings); window.scrollTo(0, 0);
-        }
+        revealBuyingWebsite(data.settings); window.scrollTo(0, 0);
       } catch (error) { previewLoginError.textContent = BuyingLanguages.ui(error.message || 'Please try again.'); }
       finally { previewLoginSubmit.disabled = false; }
     });
@@ -893,5 +889,4 @@
   </script>
 </body>
 </html>
-
 

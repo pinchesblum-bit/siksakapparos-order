@@ -329,7 +329,7 @@
     </section>
   </div>
 
-  <script src="buying-visit.js?v=20260914-8"></script>
+  <script src="buying-visit.js?v=20260914-13"></script>
   <script src="buying-content.js?v=20260914-2"></script>
   <script src="buying-presentation.js?v=20260914-8"></script>
   <script src="buying-languages.js?v=20260914-10"></script>
@@ -397,7 +397,7 @@
       finishPreviewLoading();
       document.body.classList.remove('preview-locked', 'preview-loading');
       BuyingLanguages.apply(config, false);
-      document.getElementById('previewExit').hidden = settings.publicAccessEnabled === true;
+      document.getElementById('previewExit').hidden = true;
     }
     previewLoginForm.addEventListener('submit', async event => {
       event.preventDefault();
@@ -788,7 +788,7 @@
     async function fetchPublicConfig() {
       const response = await fetch(PUBLIC_CONFIG_API, {
         method: 'POST', headers: previewHeaders(), cache: 'no-store',
-        signal: AbortSignal.timeout(15000), body: JSON.stringify({ action: 'public-config' })
+        signal: AbortSignal.timeout(15000), body: JSON.stringify({ action: 'homepage-config' })
       });
       if (!response.ok) throw new Error('Configuration unavailable');
       return response.json();
@@ -796,7 +796,7 @@
     async function loadPublicConfig() {
       try {
         const data = await fetchPublicConfig();
-        if (data.locked || !data.settings) { BuyingLanguages.apply(data.copy || {}, true); showPreviewGate(); return false; }
+        if (data.locked || !data.settings) throw new Error('Homepage unavailable');
         revealBuyingWebsite(data.settings);
         return true;
       } catch {
@@ -906,5 +906,4 @@
   </script>
 </body>
 </html>
-
 

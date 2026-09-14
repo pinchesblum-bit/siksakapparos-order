@@ -50,5 +50,5 @@
     root.location.replace('/');
   });
   root.BuyingVisit = {go, verified, forget, clearCheckout, resumeTicket, redirecting,
-    initialSettings:internal && handoff.settings && Number.isFinite(handoff.verifiedAt) && Date.now() - handoff.verifiedAt >= 0 && Date.now() - handoff.verifiedAt < 15000 ? handoff.settings : null, initialVerifiedAt:handoff?.verifiedAt};
+    initialSettings:internal && handoff.settings && (!onOrderPage || handoff.settings.homepageOnly !== true) && Number.isFinite(handoff.verifiedAt) && Date.now() - handoff.verifiedAt >= 0 && Date.now() - handoff.verifiedAt < 15000 ? handoff.settings : null, initialVerifiedAt:handoff?.verifiedAt};
 })(globalThis);
