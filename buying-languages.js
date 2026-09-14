@@ -34,7 +34,7 @@
   "Open website": "עפן דעם וועבזייטל",
   "Exit preview": "פארלאז די פריוויו",
   "Online ordering is currently closed.": "די באשטעלונגען אויפן וועבזייטל זענען יעצט פארמאכט.",
-  "Online orders are currently sold out.": "אלע כפרות פאר באשטעלונגען אויפן וועבזייטל זענען שוין פארקויפט.",
+  "Online orders are currently sold out.": "אלע כפרות זענען שוין פארקויפט",
   "Enter a 10-digit phone number.": "שרייבט אריין א טעלעפאן נומער מיט 10 ציפערן.",
   "The website is temporarily unavailable. Please try again.": "דער וועבזייטל איז צייטווייליג נישט צוטריטלעך. פרובירט נאכאמאל.",
   "Please log in again to continue.": "ביטע שרייבט זיך נאכאמאל איין כדי ווייטער צו גיין.",
@@ -87,7 +87,13 @@
   const reverseWords = Object.fromEntries(Object.entries(uiWords).map(([en, yi]) => [yi, en]));
   let language = 'yi', settings = {}, locked = true;
   try { language = localStorage.getItem('kapparosBuyingLanguageV1') === 'en' ? 'en' : 'yi'; } catch (_) {}
-  function ui(text) {
+  function payment(text) {
+    const original = reverseWords[text] || text;
+    const field = copy.fields.find(field => field.ui === original);
+    return field ? presentation.english(settings).values[field.key] ?? field.en : original;
+  }
+  function ui(text, element) {
+    if (element?.closest('[data-fixed-language="en"]')) return payment(text);
     const original = reverseWords[text] || text;
     if (locked) return original;
     const field = copy.fields.find(field => field.ui === original);
@@ -143,12 +149,12 @@
         element.replaceChildren(picture);
       }
     }
-    document.querySelectorAll('[data-ui]').forEach(element => { element.textContent = ui(element.dataset.ui); });
-    document.querySelectorAll('[data-ui-aria]').forEach(element => element.setAttribute('aria-label', ui(element.dataset.uiAria)));
+    document.querySelectorAll('[data-ui]').forEach(element => { element.textContent = ui(element.dataset.ui, element); });
+    document.querySelectorAll('[data-ui-aria]').forEach(element => element.setAttribute('aria-label', ui(element.dataset.uiAria, element)));
     // These nodes contain app-generated messages, never customer-entered text.
     for (const id of ['availabilityMessage', 'checkoutAvailabilityError', 'ticketActionStatus', 'demoPaymentError']) {
       const element = document.getElementById(id);
-      if (element) element.textContent = ui(element.textContent);
+      if (element) element.textContent = ui(element.textContent, element);
     }
     document.querySelectorAll('.payment-option').forEach(element => { element.textContent = ui('Credit card'); });
     for (const [selector, key] of [['.event-contact a', 'phoneNumber'], ['.support-phone', 'supportPhone']]) {
@@ -187,6 +193,6 @@
     render();
   }
   document.querySelectorAll('[data-language]').forEach(button => button.addEventListener('click', () => choose(button.dataset.language)));
-  root.BuyingLanguages = {apply, render, ui, lock() { locked = true; render(); }, get language() { return document.documentElement.lang; }};
+  root.BuyingLanguages = {apply, render, ui, payment, lock() { locked = true; render(); }, get language() { return document.documentElement.lang; }};
   render();
 })(globalThis);

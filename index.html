@@ -179,10 +179,10 @@
     @media(max-width:480px) { .preview-gate-card { padding:26px 22px; } .preview-gate h1 { font-size:23px; } }
 </style>
   <link rel="stylesheet" href="event-details.css?v=20260914-6" />
-  <link rel="stylesheet" href="buying-languages.css?v=20260914-7" />
+  <link rel="stylesheet" href="buying-languages.css?v=20260914-8" />
 </head>
 <body class="preview-locked preview-loading">
-  <section class="preview-loading-screen" id="previewLoading" lang="en" dir="ltr" aria-label="Loading website">
+  <section class="preview-loading-screen" id="previewLoading" hidden lang="en" dir="ltr" aria-label="Loading website">
     <span class="preview-loading-spinner" id="previewLoadingSpinner" aria-hidden="true"></span>
     <p id="previewLoadingStatus" role="status">Loading…</p>
     <button type="button" id="previewRetry" hidden>Try again</button>
@@ -295,7 +295,7 @@
       <div class="support-contacts"><a class="support-phone" data-copy="supportPhone" dir="ltr"></a><a class="support-email" data-copy="supportEmail" dir="ltr"></a></div>
     </footer>
   </main>
-  <div class="demo-checkout-backdrop" id="demoCheckoutModal" aria-hidden="true">
+  <div class="demo-checkout-backdrop" id="demoCheckoutModal" lang="en" dir="ltr" data-fixed-language="en" aria-hidden="true">
     <section class="demo-checkout-modal" role="dialog" aria-modal="true" aria-labelledby="demoCheckoutTitle">
       <button type="button" class="demo-close-button" id="closeDemoCheckout" aria-label="Close checkout" data-ui-aria="Close checkout">×</button>
       <form id="demoPaymentForm">
@@ -329,9 +329,10 @@
     </section>
   </div>
 
+  <script src="buying-visit.js?v=20260914-8"></script>
   <script src="buying-content.js?v=20260914-2"></script>
-  <script src="buying-presentation.js?v=20260914-4"></script>
-  <script src="buying-languages.js?v=20260914-7"></script>
+  <script src="buying-presentation.js?v=20260914-8"></script>
+  <script src="buying-languages.js?v=20260914-8"></script>
   <script src="buying-checkout.js?v=20260914-2"></script>
   <script src="ticket-design.js?v=20260911-1"></script>
   <script>
@@ -347,11 +348,29 @@
       const token = sessionStorage.getItem(PREVIEW_SESSION_KEY);
       return { 'Content-Type':'application/json', ...(token ? {Authorization:'Bearer ' + token} : {}) };
     }
+    let previewLoadingTimer = null, visitVersion = 0;
+    function finishPreviewLoading() {
+      clearTimeout(previewLoadingTimer); previewLoadingTimer = null;
+      previewLoading.hidden = true;
+    }
+    function resetVisitCheckout() {
+      BuyingVisit.forget(); visitVersion++;
+      completedOnlineOrder = null; quantity = 1;
+      sampleOrderForm.reset(); demoPaymentForm.reset();
+      demoCheckoutModal.classList.remove('open');
+      demoCheckoutModal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('demo-checkout-open');
+      checkoutStockMessage();
+    }
     function showPreviewLoading(failed = false) {
       document.body.classList.add('preview-locked', 'preview-loading');
       document.body.classList.remove('demo-checkout-open');
       previewGate.hidden = true;
-      previewLoading.hidden = false;
+      finishPreviewLoading();
+      if (failed) previewLoading.hidden = false;
+      else previewLoadingTimer = setTimeout(() => {
+        if (document.body.classList.contains('preview-loading')) previewLoading.hidden = false;
+      }, 300);
       document.getElementById('previewExit').hidden = true;
       document.getElementById('previewLoadingSpinner').hidden = failed;
       document.getElementById('previewLoadingStatus').textContent = failed ? 'The website could not be loaded. Please try again.' : 'Loading…';
@@ -360,18 +379,22 @@
     }
     function showPreviewGate(message = '') {
       document.body.classList.remove('preview-loading');
-      previewLoading.hidden = true;
+      finishPreviewLoading();
       document.body.classList.add('preview-locked');
       document.body.classList.remove('demo-checkout-open');
+      demoCheckoutModal.classList.remove('open');
+      demoCheckoutModal.setAttribute('aria-hidden', 'true');
+      demoPaymentForm.reset();
       previewGate.hidden = false;
       document.getElementById('previewExit').hidden = true;
       BuyingLanguages.lock();
       previewLoginError.textContent = message;
     }
-    function revealBuyingWebsite(settings) {
+    function revealBuyingWebsite(settings, checkedAt) {
+      BuyingVisit.verified(settings, checkedAt);
       applyConfig(settings);
       previewGate.hidden = true;
-      previewLoading.hidden = true;
+      finishPreviewLoading();
       document.body.classList.remove('preview-locked', 'preview-loading');
       BuyingLanguages.apply(config, false);
       document.getElementById('previewExit').hidden = settings.publicAccessEnabled === true;
@@ -385,13 +408,17 @@
         const response = await fetch(PUBLIC_CONFIG_API, {method:'POST',headers:{'Content-Type':'application/json'},cache:'no-store',body:JSON.stringify({action:'preview-login',username:document.getElementById('previewUsername').value.trim(),password:document.getElementById('previewPassword').value})});
         const data = await response.json();
         if (!response.ok || !data.token || !data.settings) throw new Error(data.error || 'The website could not be opened.');
+        resetVisitCheckout();
         sessionStorage.setItem(PREVIEW_SESSION_KEY, data.token);
         previewLoginForm.reset();
         document.getElementById('previewPassword').type = 'password';
         document.getElementById('previewShowPassword').textContent = BuyingLanguages.ui('Show');
         document.getElementById('previewShowPassword').setAttribute('aria-pressed', 'false');
-        revealBuyingWebsite(data.settings);
-        restoreCompletedTicket();
+        if (location.pathname.startsWith('/order/')) {
+          BuyingVisit.verified(data.settings); BuyingVisit.go('/');
+        } else {
+          revealBuyingWebsite(data.settings); window.scrollTo(0, 0);
+        }
       } catch (error) { previewLoginError.textContent = BuyingLanguages.ui(error.message || 'Please try again.'); }
       finally { previewLoginSubmit.disabled = false; }
     });
@@ -404,8 +431,10 @@
       event.currentTarget.setAttribute('aria-label', BuyingLanguages.ui(visible ? 'Hide password' : 'Show password'));
     });
     document.getElementById('previewExit').addEventListener('click', () => {
+      resetVisitCheckout();
       sessionStorage.removeItem(PREVIEW_SESSION_KEY);
       showPreviewGate();
+      if (location.pathname.startsWith('/order/')) { BuyingVisit.go('/'); return; }
       document.getElementById('previewUsername').focus();
     });
 
@@ -511,11 +540,8 @@
     document.addEventListener('buying-language-change', () => {
       if (!completedOnlineOrder) return;
       const sale = completedOnlineOrder;
-      document.getElementById('demoSuccessMessage').textContent = BuyingLanguages.language === 'yi'
-        ? 'א דאנק, ' + sale.fullName + '. אייער דעמא־באשטעלונג איז פארטיג.'
-        : 'Thank you, ' + sale.fullName + '. Your demo order is complete.';
-      document.getElementById('demoTicketQuantity').textContent = sale.quantity + (BuyingLanguages.language === 'en'
-        ? (sale.quantity === 1 ? ' kaparah' : ' kaparos') : (sale.quantity === 1 ? ' כפרה' : ' כפרות'));
+      document.getElementById('demoSuccessMessage').textContent = 'Thank you, ' + sale.fullName + '. Your demo order is complete.';
+      document.getElementById('demoTicketQuantity').textContent = sale.quantity + (sale.quantity === 1 ? ' kaparah' : ' kaparos');
     });
     function formatCardNumber(value) {
       return value.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim();
@@ -546,7 +572,7 @@
       customerPhone.value = KapparosBuyingContent.phone(phoneDigits).label;
       customerPhone.setCustomValidity(phoneDigits.length === 10 ? '' : 'Enter a 10-digit phone number.');
       if (checkoutChecking || checkoutButton.disabled || !BuyingCheckout.validate() || !sampleOrderForm.reportValidity()) return;
-      const requestedQuantity = quantity, reviewedPrice = Number(config.price || 0);
+      const requestedQuantity = quantity, reviewedPrice = Number(config.price || 0), accessVersion = visitVersion;
       checkoutChecking = true;
       checkoutStockMessage();
       checkoutButton.disabled = true;
@@ -557,8 +583,10 @@
         // Read only: stock is checked before opening payment. The existing
         // database transaction still makes the final, atomic stock decision.
         const data = await fetchPublicConfig();
+        if (accessVersion !== visitVersion) return;
         if (data.locked || !data.settings) { showPreviewGate('Please log in again to continue.'); return; }
         applyConfig(data.settings);
+        BuyingVisit.verified(data.settings);
         if (config.orderingEnabled === false) {
           checkoutStockMessage('Online ordering is currently closed.'); return;
         }
@@ -605,7 +633,7 @@
       document.body.classList.remove('demo-checkout-open');
       checkoutButton.focus();
     }
-    function showDemoApproval(sale, orderToken) {
+    function showDemoApproval(sale, orderToken, restoring = false) {
       completedOnlineOrder = { ...sale, orderToken };
       [emailOnlineTicket, textOnlineTicket].forEach((button, index) => {
         const sent = Boolean(sale.sentChannels?.[index === 0 ? 'send-ticket' : 'send-ticket-text']);
@@ -615,12 +643,15 @@
       sessionStorage.setItem(COMPLETED_TICKET_KEY, JSON.stringify(completedOnlineOrder));
       demoPaymentForm.hidden = true;
       demoSuccess.hidden = false;
-      document.getElementById('demoSuccessMessage').textContent = BuyingLanguages.language === 'yi' ? 'א דאנק, ' + sale.fullName + '. אייער דעמא־באשטעלונג איז פארטיג.' : 'Thank you, ' + sale.fullName + '. Your demo order is complete.';
+      document.getElementById('demoSuccessMessage').textContent = 'Thank you, ' + sale.fullName + '. Your demo order is complete.';
       document.getElementById('demoTicketNumber').textContent = sale.ticketId;
-      document.getElementById('demoTicketQuantity').textContent = sale.quantity + (BuyingLanguages.language === 'en' ? (sale.quantity === 1 ? ' kaparah' : ' kaparos') : (sale.quantity === 1 ? ' כפרה' : ' כפרות'));
+      document.getElementById('demoTicketQuantity').textContent = sale.quantity + (sale.quantity === 1 ? ' kaparah' : ' kaparos');
       document.getElementById('demoTicketTotal').textContent = money(sale.price);
-      ticketActionStatus.textContent = BuyingLanguages.ui(config.printTicketsEnabled === false ? 'Ticket delivery is currently unavailable.' : 'Choose how you would like to receive your ticket.');
-      config.inventory = Math.max(0, Number(sale.remainingInventory || 0));
+      ticketActionStatus.textContent = BuyingLanguages.payment(config.printTicketsEnabled === false ? 'Ticket delivery is currently unavailable.' : 'Choose how you would like to receive your ticket.');
+      if (!restoring) {
+        config.inventory = Math.max(0, Number(sale.remainingInventory || 0));
+        BuyingVisit.verified(config);
+      }
       updateSummary();
       document.getElementById('demoDoneButton').focus();
     }
@@ -657,7 +688,7 @@
       const details = d.pdfShowDetails === false ? '' : '<div class="details">' + rows.map(row => '<div class="row"><span>' + escapeTicketText(row[0]) + '</span><b dir="auto">' + escapeTicketText(row[1]) + '</b></div>').join('') + '</div>';
       const popup = window.open('', '_blank', 'width=640,height=820');
       if (!popup) {
-        ticketActionStatus.textContent = BuyingLanguages.ui('Allow pop-ups, then press Print Ticket again.');
+        ticketActionStatus.textContent = BuyingLanguages.payment('Allow pop-ups, then press Print Ticket again.');
         ticketActionStatus.classList.add('error');
         return;
       }
@@ -721,7 +752,7 @@
       if (!completedOnlineOrder || button.disabled || config.printTicketsEnabled === false) return;
       button.disabled = true;
       ticketActionStatus.classList.remove('error');
-      ticketActionStatus.textContent = BuyingLanguages.ui(action === 'send-ticket' ? 'Preparing and emailing your ticket…' : 'Sending your ticket by text…');
+      ticketActionStatus.textContent = BuyingLanguages.payment(action === 'send-ticket' ? 'Preparing and emailing your ticket…' : 'Sending your ticket by text…');
       try {
         const payload = { action, saleId:completedOnlineOrder.id, orderToken:completedOnlineOrder.orderToken };
         if (action === 'send-ticket') payload.pdfBase64 = await ticketPdfBase64();
@@ -740,13 +771,14 @@
       }
     }
     function restoreCompletedTicket() {
+      if (!BuyingVisit.resumeTicket) return;
       try {
         const saved = JSON.parse(sessionStorage.getItem(COMPLETED_TICKET_KEY) || 'null');
         if (!saved?.id || !saved?.ticketId || !saved?.orderToken) return;
         demoCheckoutModal.classList.add('open');
         demoCheckoutModal.setAttribute('aria-hidden', 'false');
         document.body.classList.add('demo-checkout-open');
-        showDemoApproval(saved, saved.orderToken);
+        showDemoApproval(saved, saved.orderToken, true);
         emailOnlineTicket.disabled = Boolean(saved.sentChannels?.['send-ticket']);
         textOnlineTicket.disabled = Boolean(saved.sentChannels?.['send-ticket-text']);
       } catch (_) {
@@ -778,7 +810,7 @@
       loadPublicConfig().then(open => { if (open) restoreCompletedTicket(); });
     });
     orderButton.addEventListener('click', () => {
-      if (!orderButton.disabled) window.location.assign('/order/');
+      if (!orderButton.disabled) BuyingVisit.go('/order/');
     });
     document.getElementById('decreaseQuantity').addEventListener('click', () => {
       if (document.getElementById('decreaseQuantity').disabled) return;
@@ -800,7 +832,7 @@
       sessionStorage.removeItem(CHECKOUT_SESSION_KEY);
       if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
       window.scrollTo(0, 0);
-      window.location.assign('/');
+      BuyingVisit.go('/');
     });
     demoCheckoutModal.addEventListener('click', event => { if (event.target === demoCheckoutModal) closeDemoCheckout(); });
     document.addEventListener('keydown', event => { if (event.key === 'Escape' && demoCheckoutModal.classList.contains('open')) closeDemoCheckout(); });
@@ -821,14 +853,14 @@
       if (cardDigits !== '4111111111111111') {
         demoCardNumber.setCustomValidity('Use the demo card number 4111 1111 1111 1111.');
         demoCardNumber.reportValidity();
-        demoPaymentError.textContent = BuyingLanguages.ui('This demo accepts only the test card shown above.');
+        demoPaymentError.textContent = BuyingLanguages.payment('This demo accepts only the test card shown above.');
         return;
       }
       demoCardNumber.setCustomValidity('');
       if (!BuyingCheckout.validate()) { closeDemoCheckout(); return; }
       if (!demoPaymentForm.reportValidity()) return;
       demoPayButton.disabled = true;
-      demoPayButton.textContent = BuyingLanguages.ui('Processing demo payment…');
+      demoPayButton.textContent = BuyingLanguages.payment('Processing demo payment…');
       const details = {
         fullName: document.getElementById('customerName').value.trim(),
         phone: BuyingCheckout.phoneDigits(document.getElementById('customerPhone').value),
@@ -856,14 +888,21 @@
         }
       } finally {
         demoPayButton.disabled = false;
-        demoPayButton.innerHTML = '<span data-ui="Pay">' + BuyingLanguages.ui('Pay') + '</span> <span id="demoPayAmount">' + money(quantity * Number(config.price || 0)) + '</span> <span data-ui="— Demo">' + BuyingLanguages.ui('— Demo') + '</span>';
+        demoPayButton.innerHTML = '<span data-ui="Pay">' + BuyingLanguages.payment('Pay') + '</span> <span id="demoPayAmount">' + money(quantity * Number(config.price || 0)) + '</span> <span data-ui="— Demo">' + BuyingLanguages.payment('— Demo') + '</span>';
       }
     });
     printOnlineTicket.addEventListener('click', printCompletedTicket);
     emailOnlineTicket.addEventListener('click', () => sendCompletedTicket('send-ticket', emailOnlineTicket));
     textOnlineTicket.addEventListener('click', () => sendCompletedTicket('send-ticket-text', textOnlineTicket));
+    document.querySelector('.order-back')?.addEventListener('click', event => {
+      if (event.button || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+      event.preventDefault(); BuyingVisit.go('/');
+    });
     applyConfig(DEFAULT_PUBLIC_CONFIG);
-    loadPublicConfig().then(open => { if (open) restoreCompletedTicket(); });
+    if (!BuyingVisit.redirecting) {
+      if (BuyingVisit.initialSettings) revealBuyingWebsite(BuyingVisit.initialSettings, BuyingVisit.initialVerifiedAt);
+      else { showPreviewLoading(); loadPublicConfig().then(open => { if (open) restoreCompletedTicket(); }); }
+    }
   </script>
 </body>
 </html>

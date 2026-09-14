@@ -70,3 +70,18 @@ html[dir="rtl"] .order-card, html[dir="rtl"] .summary-card { direction: rtl; }
 .quantity-button:disabled { cursor:not-allowed; opacity:.45; }
 .checkout-availability-error { margin:0 0 14px; text-align:start; }
 .checkout-availability-error[hidden] { display:none; }
+
+/* The terminal keeps its English direction independently of the buying page. */
+#demoCheckoutModal, #demoCheckoutModal .demo-checkout-dialog { direction:ltr; }
+#demoCheckoutModal .field { direction:ltr; text-align:left; }
+/* A compact support band uses the existing deep-green and gold palette. */
+.buying-support-footer { background:#203c36; color:#fcfaf5; border-top-color:#a6854f; padding-bottom:12px; }
+.buying-support-footer a { color:#f3dfb5; text-decoration-color:#c2a36d; }
+.hero-copy { display:flex; align-items:center; justify-content:center; gap:12px; }
+.hero-copy::before, .hero-copy::after { content:""; flex:0 0 50px; height:14px; background:center/contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 14' fill='none' stroke='%23a6854f' stroke-width='1.2'%3E%3Cpath d='M0 7h27m0 0q7-9 14 0-7 9-14 0Zm20 0 5-5 5 5-5 5Z'/%3E%3C/svg%3E"); }
+.hero-copy::after { transform:scaleX(-1); }
+@media (max-width:600px) {
+ .hero-copy { gap:8px; }
+ .hero-copy::before, .hero-copy::after { flex-basis:26px; height:11px; }
+ .buying-support-footer { padding-inline:12px; padding-bottom:12px; }
+}
