@@ -169,29 +169,29 @@
     @media(max-width:480px) { .preview-gate-card { padding:26px 22px; } .preview-gate h1 { font-size:23px; } }
 </style>
   <link rel="stylesheet" href="event-details.css" />
-  <link rel="stylesheet" href="buying-languages.css?v=20260914-1" />
+  <link rel="stylesheet" href="buying-languages.css?v=20260914-2" />
 </head>
 <body class="preview-locked">
   <nav class="language-switcher" aria-label="Language / שפראך" dir="ltr">
     <button type="button" data-language="yi" lang="yi" dir="rtl" aria-pressed="true">ייִדיש</button>
     <button type="button" data-language="en" lang="en" aria-pressed="false">English</button>
   </nav>
-  <section class="preview-gate" id="previewGate" aria-labelledby="previewGateTitle">
+  <section lang="en" dir="ltr" class="preview-gate" id="previewGate" aria-labelledby="previewGateTitle">
     <div class="preview-gate-card">
-      <div class="preview-gate-brand" data-copy="title" dir="rtl">פנים מאירות סיקסא</div>
-      <h1 id="previewGateTitle" data-copy="gateTitle">Online ordering will open September 13.</h1>
-      <p data-copy="gateDescription">Enter your username and password to preview the website.</p>
+      <div class="preview-gate-brand" dir="ltr">Punim Meiros Siksa</div>
+      <h1 id="previewGateTitle">Online ordering will open September 13.</h1>
+      <p>Enter your username and password to preview the website.</p>
       <form id="previewLoginForm">
-        <label for="previewUsername" data-ui="Username">Username</label>
+        <label for="previewUsername">Username</label>
         <input id="previewUsername" autocomplete="username" maxlength="120" required />
-        <label for="previewPassword" data-ui="Password">Password</label>
-        <div class="preview-password-wrap"><input id="previewPassword" type="password" autocomplete="current-password" maxlength="256" required /><button id="previewShowPassword" type="button" aria-label="Show password" data-ui-aria="Show password" aria-pressed="false" data-ui="Show">Show</button></div>
+        <label for="previewPassword">Password</label>
+        <div class="preview-password-wrap"><input id="previewPassword" type="password" autocomplete="current-password" maxlength="256" required /><button id="previewShowPassword" type="button" aria-label="Show password" aria-pressed="false">Show</button></div>
         <p id="previewLoginError" role="alert"></p>
-        <button type="submit" class="preview-login-submit" id="previewLoginSubmit" data-ui="Open website">Open website</button>
+        <button type="submit" class="preview-login-submit" id="previewLoginSubmit">Open website</button>
       </form>
     </div>
   </section>
-  <button type="button" class="preview-exit" id="previewExit" hidden data-ui="Exit preview">Exit preview</button>
+  <button type="button" class="preview-exit" id="previewExit" hidden>Exit preview</button>
 
   <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;pointer-events:none">
     <defs><filter id="flyer-paper-match" color-interpolation-filters="sRGB">
@@ -224,9 +224,9 @@
       <p class="hero-copy" data-copy="introText">Order your kaparos simply and securely. Complete your information below and receive your ticket by text and email.</p>
       <button type="button" class="order-cta" id="openOrderButton" data-copy="buttonText" aria-expanded="false" aria-controls="orderSection">באשטעלט יעצט אייער כפרה</button>
       <div class="trust-line" aria-label="Ordering benefits">
-        <span class="trust-item"><span class="trust-icon" aria-hidden="true">✓</span><span data-copy="benefitOrder">Quick online order</span></span>
-        <span class="trust-item"><span class="trust-icon" aria-hidden="true">⌁</span><span data-copy="benefitPayment">Secure payment</span></span>
-        <span class="trust-item"><span class="trust-icon" aria-hidden="true">✉</span><span data-copy="benefitTicket">Ticket by text and email</span></span>
+        <span class="trust-item"><span class="trust-icon" data-copy="benefitOrderIcon" aria-hidden="true">🐓</span><span data-copy="benefitOrder">Quick online order</span></span>
+        <span class="trust-item"><span class="trust-icon" data-copy="benefitPaymentIcon" aria-hidden="true">🕍</span><span data-copy="benefitPayment">Secure payment</span></span>
+        <span class="trust-item"><span class="trust-icon" data-copy="benefitTicketIcon" aria-hidden="true">💧</span><span data-copy="benefitTicket">Ticket by text and email</span></span>
       </div>
       <p class="availability-message" id="availabilityMessage" role="status" hidden></p>
       <p class="event-booking" lang="yi" dir="rtl"><span data-copy="bookingNote">עס איז כדאי צו באשטעלן פאראויס, כדי צו זיין פארזיכערט מיט א כפרה.</span><strong data-copy="prepaymentNote">א באשטעלטע כפרה מוז זיין באצאלט פון פארויס.</strong></p>
@@ -238,9 +238,9 @@
           <div class="form-section">
             <h3 data-ui="Your information">Your information</h3>
             <div class="fields">
-              <div class="field full"><label for="customerName" data-ui="Full name">Full name</label><input id="customerName" autocomplete="off" placeholder="" required /></div>
-              <div class="field"><label for="customerPhone" data-ui="Phone number">Phone number</label><input id="customerPhone" type="tel" inputmode="numeric" autocomplete="off" placeholder="" pattern="[0-9() +.-]{10,20}" required /></div>
-              <div class="field"><label for="customerEmail" data-ui="Email">Email</label><input id="customerEmail" type="email" autocomplete="off" placeholder="" required /></div>
+              <div class="field full"><label for="customerName" data-ui="Full name">Full name</label><input id="customerName" dir="auto" autocomplete="off" placeholder="" required /></div>
+              <div class="field"><label for="customerPhone" data-ui="Phone number">Phone number</label><input id="customerPhone" dir="ltr" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="" pattern="[0-9() +.-]{10,20}" required /></div>
+              <div class="field"><label for="customerEmail" data-ui="Email">Email</label><input id="customerEmail" dir="ltr" type="email" autocomplete="off" placeholder="" required /></div>
             </div>
           </div>
           <div class="form-section">
@@ -256,6 +256,12 @@
             <h3 data-ui="Payment">Payment</h3>
             <div class="payment-options" id="paymentOptions" role="group" aria-label="Payment method" data-ui-aria="Payment method"><button type="button" class="payment-option selected" aria-pressed="true" data-ui="Credit card">Credit card</button></div>
           </div>
+          <section class="buyer-terms" id="buyerTerms" aria-labelledby="buyerTermsHeading" hidden>
+            <h3 id="buyerTermsHeading" data-copy="termsTitle">Terms</h3>
+            <div class="buyer-terms-text" id="buyerTermsText" data-copy="termsText" tabindex="0"></div>
+            <label class="buyer-terms-accept"><input type="checkbox" id="acceptBuyerTerms" /><span data-copy="termsAcceptLabel">I have read and agree to the terms.</span></label>
+            <p class="buyer-terms-error" id="buyerTermsError" role="alert"></p>
+          </section>
         </form>
         <aside class="summary-card" aria-label="Order summary" data-ui-aria="Order summary">
           <h2 data-ui="Order summary">Order summary</h2>
@@ -268,6 +274,10 @@
       </div>
     </section>
     <p class="sample-note" data-ui="Demo payments do not charge a card. Successful tests are saved as paid online sales.">Demo payments do not charge a card. Successful tests are saved as paid online sales.</p>
+    <footer class="buying-support-footer" id="buyingSupportFooter" hidden>
+      <p data-copy="supportMessage">For help with the website, contact us:</p>
+      <div class="support-contacts"><a class="support-phone" data-copy="supportPhone" dir="ltr"></a><a class="support-email" data-copy="supportEmail" dir="ltr"></a></div>
+    </footer>
   </main>
   <div class="demo-checkout-backdrop" id="demoCheckoutModal" aria-hidden="true">
     <section class="demo-checkout-modal" role="dialog" aria-modal="true" aria-labelledby="demoCheckoutTitle">
@@ -303,8 +313,9 @@
     </section>
   </div>
 
-  <script src="buying-content.js?v=20260914-1"></script>
-  <script src="buying-languages.js?v=20260914-1"></script>
+  <script src="buying-content.js?v=20260914-2"></script>
+  <script src="buying-languages.js?v=20260914-2"></script>
+  <script src="buying-checkout.js?v=20260914-2"></script>
   <script src="ticket-design.js?v=20260911-1"></script>
   <script>
     const PUBLIC_CONFIG_API = 'https://tugsxxafeaqbqonrruqt.supabase.co/functions/v1/kapparos-public-config';
@@ -323,11 +334,13 @@
       document.body.classList.remove('demo-checkout-open');
       previewGate.hidden = false;
       document.getElementById('previewExit').hidden = true;
-      previewLoginError.textContent = BuyingLanguages.ui(message);
+      BuyingLanguages.lock();
+      previewLoginError.textContent = message;
     }
     function revealBuyingWebsite(settings) {
       applyConfig(settings);
       document.body.classList.remove('preview-locked');
+      BuyingLanguages.apply(config, false);
       previewGate.hidden = true;
       document.getElementById('previewExit').hidden = settings.publicAccessEnabled === true;
     }
@@ -456,7 +469,8 @@
       });
       ticketActionStatus.textContent = config.printTicketsEnabled === false ? 'Ticket delivery is currently unavailable.' : ticketActionStatus.textContent;
       updateSummary();
-      BuyingLanguages.apply(config);
+      BuyingLanguages.apply(config, document.body.classList.contains('preview-locked'));
+      BuyingCheckout.apply(config);
     }
     document.addEventListener('buying-language-change', () => {
       if (!completedOnlineOrder) return;
@@ -482,14 +496,15 @@
       });
       const result = await response.json().catch(() => ({}));
       if (result.code === 'PREVIEW_LOGIN_REQUIRED') showPreviewGate('Please log in again to continue.');
-      if (!response.ok) throw Object.assign(new Error(result.error || 'The order could not be completed.'), { status: response.status });
+      if (!response.ok) throw Object.assign(new Error(result.error || 'The order could not be completed.'), { status: response.status, code: result.code });
       return result;
     }
     function openDemoCheckout() {
       const customerPhone = document.getElementById('customerPhone');
-      const phoneDigits = customerPhone.value.replace(/\D/g, '');
+      const phoneDigits = BuyingCheckout.phoneDigits(customerPhone.value);
+      customerPhone.value = KapparosBuyingContent.phone(phoneDigits).label;
       customerPhone.setCustomValidity(phoneDigits.length === 10 ? '' : 'Enter a 10-digit phone number.');
-      if (!sampleOrderForm.reportValidity() || checkoutButton.disabled) return;
+      if (!BuyingCheckout.validate() || !sampleOrderForm.reportValidity() || checkoutButton.disabled) return;
       demoPaymentForm.hidden = false;
       demoSuccess.hidden = true;
       completedOnlineOrder = null;
@@ -724,15 +739,17 @@
         return;
       }
       demoCardNumber.setCustomValidity('');
+      if (!BuyingCheckout.validate()) { closeDemoCheckout(); return; }
       if (!demoPaymentForm.reportValidity()) return;
       demoPayButton.disabled = true;
       demoPayButton.textContent = BuyingLanguages.ui('Processing demo payment…');
       const details = {
         fullName: document.getElementById('customerName').value.trim(),
-        phone: document.getElementById('customerPhone').value,
+        phone: BuyingCheckout.phoneDigits(document.getElementById('customerPhone').value),
         email: document.getElementById('customerEmail').value.trim(),
         quantity,
-        expectedPrice: Number((quantity * Number(config.price || 0)).toFixed(2))
+        expectedPrice: Number((quantity * Number(config.price || 0)).toFixed(2)),
+        ...BuyingCheckout.acceptancePayload()
       };
       const fingerprint = JSON.stringify(details);
       let checkoutSession = null;
@@ -748,6 +765,9 @@
       } catch (error) {
         demoPaymentError.textContent = error.message;
         if (/price changed/i.test(error.message)) await loadPublicConfig();
+        if (error.code === 'TERMS_CHANGED' || error.code === 'TERMS_UNAVAILABLE') {
+          await loadPublicConfig(); demoPayButton.disabled = false; closeDemoCheckout(); BuyingCheckout.validate();
+        }
       } finally {
         demoPayButton.disabled = false;
         demoPayButton.innerHTML = '<span data-ui="Pay">' + BuyingLanguages.ui('Pay') + '</span> <span id="demoPayAmount">' + money(quantity * Number(config.price || 0)) + '</span> <span data-ui="— Demo">' + BuyingLanguages.ui('— Demo') + '</span>';

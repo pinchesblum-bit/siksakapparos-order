@@ -3,6 +3,9 @@
   'use strict';
   const copy = root.KapparosBuyingContent;
   const uiWords = {
+    "Please read and accept the terms before continuing.": "ביטע לייענט און באשטעטיגט די תנאים פאר איר גייט ווייטער.",
+    "Ordering is unavailable while the terms are being updated.": "מען קען צייטווייליג נישט באשטעלן בשעת די תנאים ווערן דערהיינטיגט.",
+    "The terms changed. Please review and accept them again.": "די תנאים זענען געטוישט געווארן. ביטע לייענט און באשטעטיגט זיי נאכאמאל.",
   "Pay": "באצאלט",
   "— Demo": "— דעמא",
   "Your information": "אייערע פרטים",
@@ -82,6 +85,12 @@
   try { language = localStorage.getItem('kapparosBuyingLanguageV1') === 'en' ? 'en' : 'yi'; } catch (_) {}
   function ui(text) {
     const original = reverseWords[text] || text;
+    if (locked) return original;
+    const field = copy.fields.find(field => field.ui === original);
+    if (field) {
+      const current = copy.source(settings), translated = copy.english(settings);
+      return document.documentElement.lang === 'yi' ? current[field.key] : translated.values[field.key] ?? original;
+    }
     return document.documentElement.lang === 'yi' ? uiWords[original] || original : original;
   }
   function put(element, value) {
@@ -92,8 +101,15 @@
     element.lang = /[\u0590-\u05ff]/.test(value) ? 'yi' : 'en';
   }
   function render() {
+    const toolbar = document.querySelector('.language-switcher');
+    if (toolbar) toolbar.hidden = locked;
+    if (locked) {
+      document.documentElement.lang = 'en'; document.documentElement.dir = 'ltr';
+      document.title = 'Siksakapparos | Punim Meiros Siksa';
+      return;
+    }
     const current = copy.source(settings), translated = copy.english(settings);
-    const keys = locked ? ['title', 'gateTitle', 'gateDescription'] : copy.fields.map(field => field.key);
+    const keys = copy.fields.filter(field => (!field.key.startsWith('terms') || settings.termsEnabled === true) && (!field.key.startsWith('support') || current.supportPhone || current.supportEmail)).map(field => field.key);
     const ready = keys.every(key => Object.hasOwn(translated.values, key));
     const selected = language === 'en' && ready ? 'en' : 'yi';
     // Keep the visitor's preference stored, while withholding stale translations.
@@ -106,34 +122,42 @@
     });
     for (const element of document.querySelectorAll('[data-copy]')) {
       const key = element.dataset.copy;
+      if (!Object.hasOwn(current, key)) continue;
       put(element, selected === 'en' ? translated.values[key] ?? current[key] : current[key]);
     }
     document.querySelectorAll('[data-ui]').forEach(element => { element.textContent = ui(element.dataset.ui); });
     document.querySelectorAll('[data-ui-aria]').forEach(element => element.setAttribute('aria-label', ui(element.dataset.uiAria)));
     // These nodes contain app-generated messages, never customer-entered text.
-    for (const id of ['availabilityMessage', 'ticketActionStatus', 'previewLoginError', 'demoPaymentError', 'previewShowPassword']) {
+    for (const id of ['availabilityMessage', 'ticketActionStatus', 'demoPaymentError']) {
       const element = document.getElementById(id);
       if (element) element.textContent = ui(element.textContent);
     }
     document.querySelectorAll('.payment-option').forEach(element => { element.textContent = ui('Credit card'); });
-    const showPassword = document.getElementById('previewShowPassword');
-    if (showPassword) {
-      const visible = document.getElementById('previewPassword').type === 'text';
-      showPassword.textContent = ui(visible ? 'Hide' : 'Show');
-      showPassword.setAttribute('aria-label', ui(visible ? 'Hide password' : 'Show password'));
+    for (const [selector, key] of [['.event-contact a', 'phoneNumber'], ['.support-phone', 'supportPhone']]) {
+      const link = document.querySelector(selector); if (!link) continue;
+      const value = copy.phone(current[key]);
+      put(link, value.label); link.dir = 'ltr';
+      if (value.href) link.setAttribute('href', value.href); else link.removeAttribute('href');
     }
-    const link = document.querySelector('.event-contact a');
-    if (link) {
-      const raw = current.phoneNumber, digits = raw.replace(/\D/g, '');
-      if (digits.length >= 7 && digits.length <= 15) link.href = 'tel:' + (digits.length === 10 ? '+1' : raw.startsWith('+') ? '+' : '') + digits;
-      else link.removeAttribute('href');
-      document.querySelector('.event-contact').hidden = !raw;
+    const contact = document.querySelector('.event-contact'); if (contact) contact.hidden = !current.phoneNumber;
+    const email = document.querySelector('.support-email');
+    if (email) {
+      put(email, current.supportEmail); email.dir = 'ltr';
+      if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(current.supportEmail)) email.setAttribute('href', 'mailto:' + current.supportEmail);
+      else email.removeAttribute('href');
     }
+    const footer = document.getElementById('buyingSupportFooter');
+    if (footer) footer.hidden = !current.supportPhone && !current.supportEmail;
+    document.querySelectorAll('.trust-item').forEach(item => {
+      const label = item.querySelector('[data-copy]:not(.trust-icon)');
+      item.hidden = !label || label.hidden;
+    });
     for (const selector of ['.event-detail', '.event-details-grid', '.event-details', '.event-booking', '.trust-line']) {
       document.querySelectorAll(selector).forEach(element => {
         element.hidden = !Array.from(element.querySelectorAll('[data-copy]')).some(child => !child.hidden && child.textContent);
       });
     }
+    document.querySelectorAll('.trust-line').forEach(line => { line.hidden = !Array.from(line.querySelectorAll('.trust-item')).some(item => !item.hidden); });
     const title = selected === 'en' ? translated.values.title ?? current.title : current.title;
     document.title = 'Siksakapparos | ' + title;
     language = requested;
@@ -146,6 +170,6 @@
     render();
   }
   document.querySelectorAll('[data-language]').forEach(button => button.addEventListener('click', () => choose(button.dataset.language)));
-  root.BuyingLanguages = {apply, render, ui, get language() { return document.documentElement.lang; }};
+  root.BuyingLanguages = {apply, render, ui, lock() { locked = true; render(); }, get language() { return document.documentElement.lang; }};
   render();
 })(globalThis);
