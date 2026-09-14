@@ -59,7 +59,7 @@
   padding: 5px 0;
   color: var(--ink);
   font-weight: 600;
-  text-decoration-color: var(--gold);
+  text-decoration: none;
   text-underline-offset: 4px;
   font-variant-numeric: tabular-nums;
 }

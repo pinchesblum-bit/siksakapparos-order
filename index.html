@@ -178,8 +178,8 @@
     .preview-exit { position:fixed; right:14px; top:14px; z-index:50; padding:9px 14px; background:#fffefb; color:#203c36; border:1px solid #d4c6ac; border-radius:8px; cursor:pointer; font:inherit; font-size:13px; }
     @media(max-width:480px) { .preview-gate-card { padding:26px 22px; } .preview-gate h1 { font-size:23px; } }
 </style>
-  <link rel="stylesheet" href="event-details.css?v=20260914-4" />
-  <link rel="stylesheet" href="buying-languages.css?v=20260914-5" />
+  <link rel="stylesheet" href="event-details.css?v=20260914-6" />
+  <link rel="stylesheet" href="buying-languages.css?v=20260914-6" />
 </head>
 <body class="preview-locked preview-loading">
   <section class="preview-loading-screen" id="previewLoading" lang="en" dir="ltr" aria-label="Loading website">
@@ -237,7 +237,6 @@
         <p class="event-services" data-copy="services" lang="he" dir="rtl">מניני סליחות ושחרית ומקוה חמה</p>
         <div class="event-venues" data-copy="venue"><p class="event-venue">בחצר בית מדרשינו</p></div>
       </section>
-      <button type="button" class="order-cta" id="openOrderButton" data-copy="buttonText" aria-expanded="false" aria-controls="orderSection">באשטעלט יעצט אייער כפרה</button>
       <div class="trust-line" aria-label="Ordering benefits">
         <span class="trust-item"><span class="trust-icon" data-copy="benefitOrderIcon" aria-hidden="true">🔪</span><span data-copy="benefitOrder">Quick online order</span></span>
         <span class="trust-item"><span class="trust-icon" data-copy="benefitPaymentIcon" aria-hidden="true">📖</span><span data-copy="benefitPayment">Secure payment</span></span>
@@ -245,6 +244,7 @@
       </div>
       <p class="availability-message" id="availabilityMessage" role="status" hidden></p>
       <p class="event-booking" lang="yi" dir="rtl"><span data-copy="bookingNote">עס איז כדאי צו באשטעלן פאראויס, כדי צו זיין פארזיכערט מיט א כפרה.</span><strong data-copy="prepaymentNote">א באשטעלטע כפרה מוז זיין באצאלט פון פארויס.</strong></p>
+      <button type="button" class="order-cta" id="openOrderButton" data-copy="buttonText">באשטעלט יעצט אייער כפרה</button>
       <p class="event-contact"><span data-copy="contactLabel" lang="yi" dir="rtl">רופט:</span><a data-copy="phoneNumber" href="tel:+18453723311" dir="ltr">845-372-3311</a></p>
     </section>
     <section class="order-section" id="orderSection" aria-labelledby="orderHeading">
@@ -264,7 +264,7 @@
             <div class="fields">
               <div class="field">
                 <label data-ui="Number of kaparos">Number of kaparos</label>
-                <div class="quantity-control"><button class="quantity-button" id="decreaseQuantity" type="button" aria-label="Remove one kaparos" data-ui-aria="Remove one kaparos">−</button><output class="quantity-value" id="quantityValue" aria-live="polite">2</output><button class="quantity-button" id="increaseQuantity" type="button" aria-label="Add one kaparos" data-ui-aria="Add one kaparos">+</button></div>
+                <div class="quantity-control"><button class="quantity-button" id="decreaseQuantity" type="button" aria-label="Remove one kaparos" data-ui-aria="Remove one kaparos">−</button><output class="quantity-value" id="quantityValue" aria-live="polite">1</output><button class="quantity-button" id="increaseQuantity" type="button" aria-label="Add one kaparos" data-ui-aria="Add one kaparos">+</button></div>
               </div>
             </div>
           </div>
@@ -281,8 +281,8 @@
         </form>
         <aside class="summary-card" aria-label="Order summary" data-ui-aria="Order summary">
           <h2 data-ui="Order summary">Order summary</h2>
-          <div class="summary-row"><span data-ui="Kaparos">Kaparos</span><strong><span id="summaryQuantity">2</span> × <span id="summaryUnitPrice">$18</span></strong></div>
-          <div class="summary-total"><span data-ui="Total">Total</span><span id="summaryTotal">$36.00</span></div>
+          <div class="summary-row"><span data-ui="Kaparos">Kaparos</span><strong><span id="summaryQuantity">1</span> × <span id="summaryUnitPrice">$18</span></strong></div>
+          <div class="summary-total"><span data-ui="Total">Total</span><span id="summaryTotal">$18.00</span></div>
           <button type="button" class="checkout-button" id="checkoutButton" data-ui="Continue to payment">Continue to payment</button>
           <p class="secure-note" data-ui="🔒 Secure checkout">🔒 Secure checkout</p>
           <p class="ticket-note" id="customerConfirmationText" data-copy="confirmationText">After checkout, choose Print Ticket, Email Ticket, or Text Ticket.</p>
@@ -330,7 +330,7 @@
 
   <script src="buying-content.js?v=20260914-2"></script>
   <script src="buying-presentation.js?v=20260914-4"></script>
-  <script src="buying-languages.js?v=20260914-5"></script>
+  <script src="buying-languages.js?v=20260914-6"></script>
   <script src="buying-checkout.js?v=20260914-2"></script>
   <script src="ticket-design.js?v=20260911-1"></script>
   <script>
@@ -442,7 +442,7 @@
     const emailOnlineTicket = document.getElementById('emailOnlineTicket');
     const textOnlineTicket = document.getElementById('textOnlineTicket');
     let config = { ...DEFAULT_PUBLIC_CONFIG };
-    let quantity = 2;
+    let quantity = 1;
     let completedOnlineOrder = null;
     const CHECKOUT_SESSION_KEY = 'kapparosCheckoutSessionV1';
     const COMPLETED_TICKET_KEY = 'kapparosCompletedTicketV1';

@@ -89,7 +89,7 @@
     const field = copy.fields.find(field => field.ui === original);
     if (field) {
       const current = presentation.source(settings), translated = presentation.english(settings);
-      return document.documentElement.lang === 'yi' ? current[field.key] : translated.values[field.key] ?? original;
+      return document.documentElement.lang === 'yi' ? current[field.key] : translated.values[field.key] ?? current[field.key];
     }
     return document.documentElement.lang === 'yi' ? uiWords[original] || original : original;
   }
@@ -109,15 +109,13 @@
       return;
     }
     const current = presentation.source(settings), translated = presentation.english(settings);
-    const keys = copy.fields.filter(field => (!field.key.startsWith('terms') || settings.termsEnabled === true) && (!field.key.startsWith('support') || current.supportPhone || current.supportEmail)).map(field => field.key);
-    const ready = keys.every(key => Object.hasOwn(translated.values, key));
-    const selected = language === 'en' && ready ? 'en' : 'yi';
-    // Keep the visitor's preference stored, while withholding stale translations.
-    const requested = language; language = selected;
+    // A pending field must not remove the entire English option. Never show an
+    // old translation: only that field falls back to its current Yiddish source.
+    const selected = language;
     document.documentElement.lang = selected;
     document.documentElement.dir = selected === 'yi' ? 'rtl' : 'ltr';
     document.querySelectorAll('[data-language]').forEach(button => {
-      button.hidden = button.dataset.language === 'en' && !ready;
+      button.hidden = false;
       button.setAttribute('aria-pressed', String(button.dataset.language === selected));
     });
     for (const element of document.querySelectorAll('[data-copy]')) {
@@ -176,7 +174,6 @@
     document.querySelectorAll('.trust-line').forEach(line => { line.hidden = !Array.from(line.querySelectorAll('.trust-item')).some(item => !item.hidden); });
     const title = selected === 'en' ? translated.values.title ?? current.title : current.title;
     document.title = 'Siksakapparos | ' + title;
-    language = requested;
     document.dispatchEvent(new Event('buying-language-change'));
   }
   function apply(next, isLocked = false) { settings = next || {}; locked = isLocked; render(); }
