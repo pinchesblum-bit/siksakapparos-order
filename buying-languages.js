@@ -2,6 +2,7 @@
 (function (root) {
   'use strict';
   const copy = root.KapparosBuyingContent;
+  const presentation = root.KapparosBuyingPresentation;
   const uiWords = {
     "Please read and accept the terms before continuing.": "ביטע לייענט און באשטעטיגט די תנאים פאר איר גייט ווייטער.",
     "Ordering is unavailable while the terms are being updated.": "מען קען צייטווייליג נישט באשטעלן בשעת די תנאים ווערן דערהיינטיגט.",
@@ -88,7 +89,7 @@
     if (locked) return original;
     const field = copy.fields.find(field => field.ui === original);
     if (field) {
-      const current = copy.source(settings), translated = copy.english(settings);
+      const current = presentation.source(settings), translated = presentation.english(settings);
       return document.documentElement.lang === 'yi' ? current[field.key] : translated.values[field.key] ?? original;
     }
     return document.documentElement.lang === 'yi' ? uiWords[original] || original : original;
@@ -108,7 +109,7 @@
       document.title = 'Siksakapparos | Punim Meiros Siksa';
       return;
     }
-    const current = copy.source(settings), translated = copy.english(settings);
+    const current = presentation.source(settings), translated = presentation.english(settings);
     const keys = copy.fields.filter(field => (!field.key.startsWith('terms') || settings.termsEnabled === true) && (!field.key.startsWith('support') || current.supportPhone || current.supportEmail)).map(field => field.key);
     const ready = keys.every(key => Object.hasOwn(translated.values, key));
     const selected = language === 'en' && ready ? 'en' : 'yi';
@@ -123,7 +124,15 @@
     for (const element of document.querySelectorAll('[data-copy]')) {
       const key = element.dataset.copy;
       if (!Object.hasOwn(current, key)) continue;
-      put(element, selected === 'en' ? translated.values[key] ?? current[key] : current[key]);
+      const value = selected === 'en' ? translated.values[key] ?? current[key] : current[key];
+      put(element, value);
+      const icon = key.endsWith('Icon') ? presentation.icon(value) : null;
+      if (icon) {
+        const picture = document.createElement('img');
+        picture.src = icon.path; picture.alt = ''; picture.width = 32; picture.height = 32;
+        picture.className = 'buying-symbol'; picture.setAttribute('aria-hidden', 'true');
+        element.replaceChildren(picture);
+      }
     }
     document.querySelectorAll('[data-ui]').forEach(element => { element.textContent = ui(element.dataset.ui); });
     document.querySelectorAll('[data-ui-aria]').forEach(element => element.setAttribute('aria-label', ui(element.dataset.uiAria)));

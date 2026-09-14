@@ -19,6 +19,7 @@ html[lang="en"] [data-copy], html[lang="en"] .hero-subtitle { direction: ltr; }
 .trust-item { max-width: 100%; }
 .trust-item [data-copy] { white-space: normal; }
 .trust-icon { flex-shrink: 0; }
+.buying-symbol { display: inline-block; width: 32px; height: 32px; object-fit: contain; vertical-align: middle; }
 /* Phone numbers keep their order and stay on one line in either language. */
 .event-contact { flex-wrap: wrap; gap: 5px 12px; }
 .event-contact > span { min-width: 0; max-width: 100%; }
