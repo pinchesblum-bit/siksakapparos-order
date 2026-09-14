@@ -170,6 +170,12 @@
       if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(current.supportEmail)) email.setAttribute('href', 'mailto:' + current.supportEmail);
       else email.removeAttribute('href');
     }
+    const address = document.querySelector('.event-address a');
+    if (address) {
+      const location = [current.addressLine1, current.addressLine2].map(value => String(value || '').trim()).filter(Boolean).join(', ');
+      if (location) address.setAttribute('href', 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(location));
+      else address.removeAttribute('href');
+    }
     const footer = document.getElementById('buyingSupportFooter');
     if (footer) footer.hidden = !current.supportPhone && !current.supportEmail;
     document.querySelectorAll('.trust-item').forEach(item => {
