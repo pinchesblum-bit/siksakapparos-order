@@ -54,8 +54,8 @@ html[dir="rtl"] .order-card, html[dir="rtl"] .summary-card { direction: rtl; }
  .support-contacts { gap:12px; text-align:center; }
  .support-contacts a { display:block; max-width:100%; margin:0; white-space:nowrap; }
  .buying-support-footer { display:block; width:100%; max-width:none; margin-inline:0; padding:8px 8px 24px; }
- .buying-support-footer > p { font-size:12px; line-height:1.5; margin-bottom:0; }
- .support-contacts a { font-size:12px; line-height:1.5; padding:13px 2px; }
+ .buying-support-footer > p { font-size:11px; line-height:1.4; margin-bottom:0; }
+ .support-contacts a { font-size:11px; line-height:1.4; min-height:40px; padding:10px 2px; }
  .trust-line { display:flex; flex-direction:row; flex-wrap:wrap; align-items:center; gap:14px 16px; direction:ltr; width:100%; max-width:100%; margin-inline:0; text-align:center; }
  .trust-item { display:flex; flex:1 1 0; justify-content:center; width:auto; max-width:100%; margin-top:0; text-align:center; gap:8px; }
  .trust-item--minyanim { order:2; }
@@ -88,7 +88,7 @@ html[dir="rtl"] .order-card, html[dir="rtl"] .summary-card { direction: rtl; }
 @media (max-width:600px) {
  .hero-copy { display:block; }
  .hero-copy::before, .hero-copy::after { display:none; }
- .buying-support-footer { padding-inline:12px; padding-bottom:12px; }
+ .buying-support-footer { padding:6px 12px 4px; }
 }
 @media (max-width:359px) {
  .buying-support-footer { padding-inline:8px; }
