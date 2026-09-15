@@ -65,6 +65,7 @@
     .checkout-button:hover { background:var(--accent-dark); }
     .secure-note,.ticket-note { margin:12px 0 0; color:var(--muted); font-size:12px; line-height:1.5; text-align:center; }
     .ticket-note { margin-top:16px; padding-top:14px; border-top:1px solid var(--line); }
+    .checkout-removed { display:none !important; }
     .sample-note { max-width:1020px; margin:0 auto; padding:0 22px 28px; color:var(--muted); font-size:12px; text-align:center; }
     @media (max-width:760px) {
       .public-header { min-height:60px; padding:12px 14px; }
@@ -250,7 +251,7 @@
     <section class="order-section" id="orderSection" aria-labelledby="orderHeading">
       <div class="order-shell">
         <form class="order-card" id="sampleOrderForm">
-          <div class="section-heading"><h2 id="orderHeading" data-copy="orderTitle">Order your kaparos</h2><p data-copy="orderDescription" hidden>Enter your information and review the order before payment.</p></div>
+          <div class="section-heading"><h2 id="orderHeading" data-copy="orderTitle">Order your kaparos</h2><p class="checkout-removed" data-copy="orderDescription" hidden>Enter your information and review the order before payment.</p></div>
           <div class="form-section">
             <h3 data-ui="Your information">Your information</h3>
             <div class="fields">
@@ -268,7 +269,7 @@
               </div>
             </div>
           </div>
-          <div class="form-section" hidden>
+          <div class="form-section checkout-removed" hidden>
             <h3 data-ui="Payment">Payment</h3>
             <div class="payment-options" id="paymentOptions" role="group" aria-label="Payment method" data-ui-aria="Payment method"><button type="button" class="payment-option selected" aria-pressed="true" data-ui="Credit card">Credit card</button></div>
           </div>
@@ -286,7 +287,7 @@
           <p id="checkoutAvailabilityError" class="buyer-terms-error checkout-availability-error" role="alert" hidden></p>
           <button type="button" class="checkout-button" id="checkoutButton" data-ui="Continue to payment">Continue to payment</button>
           <p class="secure-note" data-ui="🔒 Secure checkout">🔒 Secure checkout</p>
-          <p class="ticket-note" id="customerConfirmationText" data-copy="confirmationText" hidden>After checkout, choose Print Ticket, Email Ticket, or Text Ticket.</p>
+          <p class="ticket-note checkout-removed" id="customerConfirmationText" data-copy="confirmationText" hidden>After checkout, choose Print Ticket, Email Ticket, or Text Ticket.</p>
         </aside>
       </div>
     </section>
