@@ -50,6 +50,7 @@
     label { color:#203c36; font-size:13px; font-weight:800; }
     input,select { width:100%; min-height:48px; padding:12px 13px; border:1px solid #d4c6ac; border-radius:12px; outline:none; background:#fff; color:var(--ink); font-size:16px; }
     input:focus,select:focus { border-color:#203c36; box-shadow:0 0 0 3px rgba(32,60,54,.12); }
+    .order-card.validation-attempted .fields input:invalid { border-color:#a23939; box-shadow:0 0 0 2px rgba(162,57,57,.12); }
     .quantity-control { display:grid; grid-template-columns:48px minmax(64px,1fr) 48px; gap:9px; }
     .quantity-button { min-height:48px; border:1px solid var(--line); border-radius:12px; background:#fff; color:var(--accent); font-size:22px; font-weight:850; }
     .quantity-value { display:grid; place-items:center; min-height:48px; border:1px solid var(--line); border-radius:12px; background:#f0eee4; font-size:18px; font-weight:850; font-variant-numeric:tabular-nums; }
@@ -334,7 +335,7 @@
   <script src="buying-content.js?v=20260914-2"></script>
   <script src="buying-presentation.js?v=20260914-8"></script>
   <script src="buying-languages.js?v=20260914-10"></script>
-  <script src="buying-checkout.js?v=20260914-2"></script>
+  <script src="buying-checkout.js?v=20260915-3"></script>
   <script src="ticket-design.js?v=20260915-2"></script>
   <script>
     const PUBLIC_CONFIG_API = 'https://tugsxxafeaqbqonrruqt.supabase.co/functions/v1/kapparos-public-config';
@@ -572,7 +573,7 @@
       const phoneDigits = BuyingCheckout.phoneDigits(customerPhone.value);
       customerPhone.value = KapparosBuyingContent.phone(phoneDigits).label;
       customerPhone.setCustomValidity(phoneDigits.length === 10 ? '' : 'Enter a 10-digit phone number.');
-      if (checkoutChecking || checkoutButton.disabled || !BuyingCheckout.validate() || !sampleOrderForm.reportValidity()) return;
+      if (checkoutChecking || checkoutButton.disabled || !BuyingCheckout.validateCustomerDetails() || !BuyingCheckout.validate()) return;
       const requestedQuantity = quantity, reviewedPrice = Number(config.price || 0), accessVersion = visitVersion;
       checkoutChecking = true;
       checkoutStockMessage();
@@ -600,7 +601,7 @@
         if (reviewedPrice !== Number(config.price || 0)) {
           checkoutStockMessage('The price changed. Please review the updated total before continuing.'); return;
         }
-        if (!BuyingCheckout.validate() || !sampleOrderForm.reportValidity()) return;
+        if (!BuyingCheckout.validateCustomerDetails() || !BuyingCheckout.validate()) return;
         demoPaymentForm.hidden = false;
         demoSuccess.hidden = true;
         completedOnlineOrder = null;

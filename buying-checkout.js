@@ -34,10 +34,24 @@
   function acceptancePayload() {
     return current().required ? {termsAcceptance: {accepted: checkbox.checked, revision: acceptedRevision, language: acceptedLanguage}} : {};
   }
+  function validateCustomerDetails() {
+    const form = document.getElementById('sampleOrderForm');
+    const fields = ['customerName', 'customerPhone', 'customerEmail'].map(id => document.getElementById(id));
+    form.classList.add('validation-attempted');
+    const firstInvalid = fields.find(field => !field.checkValidity());
+    fields.forEach(field => field.setAttribute('aria-invalid', String(!field.checkValidity())));
+    if (!firstInvalid) return true;
+    firstInvalid.reportValidity();
+    return false;
+  }
   function phoneDigits(value) { const digits = String(value || '').replace(/\D/g, ''); return digits.length === 11 && digits.startsWith('1') ? digits.slice(1) : digits; }
   const phone = document.getElementById('customerPhone');
   phone.addEventListener('input', () => { phone.setCustomValidity(''); });
   phone.addEventListener('blur', () => { const digits = phoneDigits(phone.value); if (digits.length === 10) phone.value = copy.phone(digits).label; });
+  ['customerName', 'customerPhone', 'customerEmail'].forEach(id => {
+    const field = document.getElementById(id);
+    field.addEventListener('input', () => field.setAttribute('aria-invalid', String(!field.checkValidity())));
+  });
   document.addEventListener('buying-language-change', render);
-  root.BuyingCheckout = {apply, render, validate, acceptancePayload, phoneDigits};
+  root.BuyingCheckout = {apply, render, validate, validateCustomerDetails, acceptancePayload, phoneDigits};
 })(globalThis);
