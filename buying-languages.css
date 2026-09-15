@@ -35,6 +35,9 @@ html[lang="en"] [data-copy]:not([lang="yi"]), html[lang="en"] .hero-subtitle:not
 .trust-item--minyanim { order:1; }
 .trust-item--mikvah { order:2; }
 .trust-item--shoychet { order:3; }
+html[lang="en"] .trust-item--shoychet { order:1; }
+html[lang="en"] .trust-item--mikvah { order:2; }
+html[lang="en"] .trust-item--minyanim { order:3; }
 html[lang="yi"] .trust-item { direction:rtl; }
 .buyer-terms { margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--line); }
 .buyer-terms h3 { margin: 0 0 12px; font-size: 19px; }
@@ -66,6 +69,9 @@ html[dir="rtl"] .order-card, html[dir="rtl"] .summary-card { direction: rtl; }
  .trust-item--minyanim { order:1; }
  .trust-item--shoychet { order:2; }
  .trust-item--mikvah { order:3; flex:0 0 100%; }
+ html[lang="en"] .trust-item--shoychet { order:1; }
+ html[lang="en"] .trust-item--minyanim { order:2; }
+ html[lang="en"] .trust-item--mikvah { order:3; }
  .trust-item .trust-icon { display:inline-flex; flex:0 0 26px; width:26px; height:26px; margin-inline-end:0; font-size:20px; }
  .trust-item .buying-symbol { width:26px; height:26px; }
  .buyer-terms-text { max-height: 260px; }
