@@ -46,6 +46,8 @@
     .order-shell { display:grid; grid-template-columns:minmax(0,1.35fr) minmax(280px,.65fr); gap:22px; align-items:start; }
     .order-card,.summary-card { border:1px solid var(--line); border-radius:22px; background:var(--surface); box-shadow:var(--shadow); }
     .order-card { padding:28px; }
+    .order-form-stack { display:grid; gap:18px; min-width:0; }
+    .information-card h2 { margin:0 0 16px; font-size:27px; }
     .summary-card { position:sticky; top:20px; padding:24px; }
     .section-heading { margin-bottom:22px; }
     .section-heading h2 { margin:0; font-size:27px; }
@@ -59,14 +61,18 @@
     input,select,textarea { width:100%; min-height:48px; padding:12px 13px; border:1px solid #d4c6ac; border-radius:12px; outline:none; background:#fff; color:var(--ink); font:inherit; font-size:16px; }
     textarea { min-height:82px; line-height:1.45; resize:vertical; }
     input:focus,select:focus,textarea:focus { border-color:#203c36; box-shadow:0 0 0 3px rgba(32,60,54,.12); }
-    .order-card.validation-attempted .fields input:invalid { border-color:#a23939; box-shadow:0 0 0 2px rgba(162,57,57,.12); }
+    .order-form-stack.validation-attempted input:invalid,
+    .order-form-stack.validation-attempted textarea:invalid { border-color:#a23939; box-shadow:0 0 0 2px rgba(162,57,57,.12); }
+    .required-mark { margin-inline-start:3px; color:#b52f2f; font-weight:900; }
+    .quantity-section { margin-top:16px; padding-top:15px; border-top:1px solid var(--line); }
+    .quantity-section > label { display:block; margin-bottom:8px; }
     .quantity-control { display:grid; grid-template-columns:48px minmax(64px,1fr) 48px; gap:9px; }
     .quantity-button { min-height:48px; border:1px solid var(--line); border-radius:12px; background:#fff; color:var(--accent); font-size:22px; font-weight:850; }
     .quantity-value { display:grid; place-items:center; min-height:48px; border:1px solid var(--line); border-radius:12px; background:#f0eee4; font-size:18px; font-weight:850; font-variant-numeric:tabular-nums; }
     .payment-options { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
     .payment-option { min-height:50px; padding:11px 14px; border:1px solid var(--line); border-radius:12px; background:#fff; color:var(--ink); font-weight:800; }
     .payment-option.selected { border-color:var(--accent); background:var(--accent-soft); color:var(--accent-dark); box-shadow:0 0 0 2px rgba(32,60,54,.09); }
-    .order-note-field { margin-top:14px; }
+    .order-note-field { margin-top:0; }
     .summary-card h2 { margin:0 0 17px; font-size:21px; }
     .summary-row,.summary-total { display:flex; align-items:baseline; justify-content:space-between; gap:14px; }
     .summary-row { padding:12px 0; border-bottom:1px solid var(--line); }
@@ -84,7 +90,9 @@
       .hero-copy { font-size:15px; }
       .order-section { padding:0 10px 30px; }
       .order-shell { grid-template-columns:1fr; gap:14px; }
+      .order-form-stack { gap:14px; }
       .order-card { padding:17px 14px; }
+      .information-card h2 { margin-bottom:13px; font-size:22px; line-height:1.2; }
       .summary-card { position:static; padding:17px 14px; }
       .section-heading { margin-bottom:16px; }
       .section-heading h2 { font-size:22px; line-height:1.2; }
@@ -101,10 +109,10 @@
       .quantity-button,.quantity-value { min-height:44px; }
       .quantity-button { font-size:20px; }
       .quantity-value { font-size:17px; }
-      .order-card .buyer-terms { margin-top:20px; padding-top:18px; }
-      .order-card .buyer-terms h3 { margin-bottom:10px; font-size:17px; }
-      .order-card .buyer-terms-text { max-height:220px; padding:11px; font-size:15px; line-height:1.55; }
-      .order-card .buyer-terms-accept { gap:8px; padding:12px 0 4px; font-size:14px; line-height:1.45; }
+      .payment-card .buyer-terms { margin-top:20px; padding-top:18px; }
+      .payment-card .buyer-terms h3 { margin-bottom:10px; font-size:17px; }
+      .payment-card .buyer-terms-text { max-height:220px; padding:11px; font-size:15px; line-height:1.55; }
+      .payment-card .buyer-terms-accept { gap:8px; padding:12px 0 4px; font-size:14px; line-height:1.45; }
       .summary-card h2 { margin-bottom:13px; font-size:19px; }
       .summary-row { padding:9px 0; }
       .summary-total { padding:14px 0 16px; font-size:18px; }
@@ -136,15 +144,17 @@
     .demo-fields label { display: block; margin-bottom: 6px; font-size: 14px; font-weight: 750; }
     .demo-fields input, .ifield-frame { width: 100%; min-height: 46px; padding: 10px 12px; border: 1px solid #d4c6ac; border-radius: 11px; background: #fff; color: #203c36; font-size: 16px; }
     .payment-field[hidden] { display:none !important; }
-    .order-payment-section .payment-mode-picker { margin:0 0 14px; }
+    .payment-card-heading { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:14px; }
+    .payment-card-heading h2 { margin:0; font-size:21px; }
     .order-payment-section .demo-fields { gap:10px; }
     .order-payment-section .demo-fields label { margin-bottom:4px; font-size:13px; }
     .order-payment-section .ifields-error { grid-column:1/-1; }
     .demo-fields input:focus, .ifield-frame:focus-within { outline: 3px solid rgba(32,60,54,.14); border-color: #203c36; }
     .ifield-frame { display:block; height:46px; min-height:46px; max-height:46px; padding:0; overflow:hidden; }
-    .payment-mode-picker { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:16px 0; padding:4px; border:1px solid #d4c6ac; border-radius:12px; background:#f0eee4; }
-    .payment-mode-button { min-height:40px; border:0; border-radius:8px; background:transparent; color:#203c36; font-weight:800; cursor:pointer; }
-    .payment-mode-button.selected { background:#fff; box-shadow:0 2px 8px rgba(32,60,54,.12); }
+    .payment-mode-picker { flex:0 0 auto; }
+    .payment-mode-button { min-height:36px; padding:7px 13px; border:1px solid #d4c6ac; border-radius:8px; background:#fff; color:#203c36; font-size:13px; font-weight:800; cursor:pointer; }
+    .payment-mode-button:hover { background:#f0eee4; }
+    .payment-mode-button[hidden] { display:none !important; }
     .payment-mode-button:disabled { cursor:not-allowed; opacity:.5; }
     .ifields-error { display:block; min-height:0; margin-top:5px; color:#a23939; font-size:13px; font-weight:700; }
     .demo-test-hint { margin-top: 6px; color: #626b63; font-size: 12px; }
@@ -157,7 +167,9 @@
     .ticket-action-status { min-height:21px; margin:0 0 10px !important; color:#35653e !important; font-size:13px; font-weight:750; }
     .ticket-action-status.error { color:#9d342d !important; }
     .demo-pay-button:disabled { cursor: wait; opacity: .7; }
-    .demo-secure-line { margin: 10px 0 0; color: #626b63; font-size: 12px; text-align: center; }
+    .payment-security { display:flex; align-items:center; justify-content:center; gap:9px; min-height:34px; margin:9px 0 0; color:#626b63; font-size:12px; text-align:center; }
+    .payment-security img { display:block; width:auto; height:25px; object-fit:contain; }
+    .payment-security img[hidden] { display:none !important; }
     .demo-success { text-align: center; }
     .demo-success-icon { width: 64px; height: 64px; display: grid; place-items: center; margin: 0 auto 15px; border-radius: 50%; background: #e2f2e5; color: #2f6d3a; font-size: 35px; font-weight: 900; }
     .demo-ticket { display: grid; gap: 8px; margin: 23px 0 16px; padding: 20px; border: 1px solid #d4c6ac; border-radius: 16px; background: #f0eee4; text-align: left; }
@@ -176,7 +188,7 @@
     .order-brand .hero-title, html[lang="en"] .order-brand .hero-title { font-size:26px; line-height:1.2; }
     .order-brand .hero-subtitle { font-size:21px; margin-top:4px; }
     .order-brand-copy { text-align:center; min-width:0; }
-    @media(max-width:600px) { .order-brand { padding-top:12px; } .order-brand .hero-title, html[lang="en"] .order-brand .hero-title { font-size:21px; } .order-brand .hero-subtitle { font-size:18px; margin-top:2px; } .order-back { margin-bottom:10px; padding:6px 0; } }
+    @media(max-width:600px) { .order-brand { padding-top:12px; } .order-brand .hero-title, html[lang="en"] .order-brand .hero-title { font-size:21px; } .order-brand .hero-subtitle { font-size:18px; margin-top:2px; } .order-back { margin-bottom:10px; } .payment-card-heading { align-items:flex-start; } }
 
     /* Keep the complete order form visible in a normal Windows browser viewport. */
     @media (min-width:761px) {
@@ -186,18 +198,18 @@
       html[lang="en"] body.order-page .order-brand .hero-title { font-size:23px; }
       body.order-page .order-brand .hero-subtitle { margin-top:1px; font-size:18px; }
       body.order-page .order-section { width:100%; padding:0 22px 12px; }
-      body.order-page .order-back { margin-bottom:5px; padding:3px 0; }
+      body.order-page .order-back { margin-bottom:5px; padding:5px 11px; }
       body.order-page .order-shell { gap:16px; }
       body.order-page .order-card { padding:18px 22px; }
+      body.order-page .order-form-stack { gap:14px; }
       body.order-page .summary-card { top:12px; padding:18px; }
-      body.order-page .section-heading { margin-bottom:12px; }
-      body.order-page .section-heading h2 { font-size:23px; }
-      body.order-page .section-heading p { margin-top:3px; font-size:14px; }
+      body.order-page .information-card h2 { margin:0 0 12px; font-size:23px; }
+      body.order-page .payment-card-heading { margin-bottom:9px; }
+      body.order-page .payment-card-heading h2 { font-size:19px; }
       body.order-page .form-section + .form-section { margin-top:14px; padding-top:13px; }
       body.order-page .form-section h3 { margin-bottom:9px; font-size:17px; }
       body.order-page .fields { gap:10px; }
       body.order-page .field { gap:4px; }
-      body.order-page .order-payment-section .payment-mode-picker { margin-bottom:9px; }
       body.order-page .order-payment-section .demo-fields { grid-template-columns:1fr 1fr 1.25fr; gap:8px 10px; }
       body.order-page .order-payment-section .demo-fields input,
       body.order-page .order-payment-section .ifield-frame { height:40px; min-height:40px; max-height:40px; }
@@ -224,8 +236,10 @@
       body.order-page .support-contacts a { min-height:30px; padding:5px 3px; font-size:12px; line-height:1.35; }
     }
     .hero-copy, .hero .order-cta, .hero .trust-line { display:none; }
-    .order-back { display:block; width:fit-content; margin:0 0 16px; color:var(--accent); font-weight:700; text-decoration:none; padding:8px 0; }
-    .order-back:hover { text-decoration:underline; }
+    .order-back { display:inline-flex; align-items:center; gap:8px; width:fit-content; min-height:40px; margin:0 0 16px; padding:8px 13px; border:1px solid var(--line); border-radius:9px; background:var(--surface); color:var(--accent); box-shadow:0 3px 10px rgba(32,60,54,.06); font-size:14px; font-weight:700; text-decoration:none; transition:background .16s ease,border-color .16s ease,transform .16s ease; }
+    .order-back:hover { border-color:var(--gold); background:var(--gold-soft); transform:translateY(-1px); }
+    .order-back-icon { font-size:18px; line-height:1; }
+    html[dir="rtl"] .order-back-icon { transform:scaleX(-1); }
   
     /* Flyer palette: warm ivory, deep green and restrained gold details. */
     :root { --gold:#a6854f; --gold-soft:#f0eee4; }
@@ -325,55 +339,51 @@
       </div>
     </header>
     <section class="order-section open" id="orderSection" aria-labelledby="orderHeading">
-      <a class="order-back" href="/" data-ui="← Back to home">← Back to home</a>
+      <a class="order-back" href="/"><span class="order-back-icon" aria-hidden="true">←</span><span data-ui="Back to home">Back to home</span></a>
       <p class="availability-message" id="availabilityMessage" role="status" hidden></p>
       <div class="order-shell">
-        <form class="order-card" id="sampleOrderForm">
-          <div class="section-heading"><h2 id="orderHeading" data-copy="orderTitle">Order your kaparos</h2><p class="checkout-removed" data-copy="orderDescription" hidden>Enter your information and review the order before payment.</p></div>
-          <div class="form-section">
-            <h3 data-ui="Your information">Your information</h3>
+        <form class="order-form-stack" id="sampleOrderForm">
+          <section class="order-card information-card">
+            <h2 id="orderHeading" data-ui="Your information">Your information</h2>
             <div class="fields">
-              <div class="field full"><label for="customerName" data-ui="Full name">Full name</label><input id="customerName" dir="auto" autocomplete="off" placeholder="" required /></div>
-              <div class="field"><label for="customerPhone" data-ui="Phone number">Phone number</label><input id="customerPhone" dir="ltr" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="" pattern="[0-9() +.-]{10,20}" required /></div>
-              <div class="field"><label for="customerEmail" data-ui="Email">Email</label><input id="customerEmail" dir="ltr" type="email" autocomplete="off" placeholder="" required /></div>
-            </div>
-          </div>
-          <div class="form-section">
-            <h3 data-ui="Your order">Your order</h3>
-            <div class="fields">
-              <div class="field">
-                <label data-ui="Number of kaparos">Number of kaparos</label>
-                <div class="quantity-control"><button class="quantity-button" id="decreaseQuantity" type="button" aria-label="Remove one kaparos" data-ui-aria="Remove one kaparos">−</button><output class="quantity-value" id="quantityValue" aria-live="polite">1</output><button class="quantity-button" id="increaseQuantity" type="button" aria-label="Add one kaparos" data-ui-aria="Add one kaparos">+</button></div>
+              <div class="field full"><label for="customerName"><span data-ui="Full name">Full name</span><span class="required-mark" aria-hidden="true">*</span></label><input id="customerName" dir="auto" autocomplete="off" placeholder="" required /></div>
+              <div class="field"><label for="customerPhone"><span data-ui="Phone number">Phone number</span><span class="required-mark" aria-hidden="true">*</span></label><input id="customerPhone" dir="ltr" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="" pattern="[0-9() +.-]{10,20}" required /></div>
+              <div class="field"><label for="customerEmail"><span data-ui="Email">Email</span><span class="required-mark" aria-hidden="true">*</span></label><input id="customerEmail" dir="ltr" type="email" autocomplete="off" placeholder="" required /></div>
+              <div class="field full order-note-field">
+                <label for="customerNote"><span data-ui="Note">Note</span><span class="required-mark" aria-hidden="true">*</span></label>
+                <textarea id="customerNote" maxlength="500" data-ui-placeholder="Add a note for your order" required></textarea>
               </div>
             </div>
-          </div>
-          <div class="form-section order-payment-section">
-            <h3 data-ui="Payment">Payment</h3>
-            <div class="payment-mode-picker" role="group" aria-label="Checkout mode">
-              <button type="button" class="payment-mode-button selected" id="livePaymentMode" aria-pressed="true">Pay by card</button>
-              <button type="button" class="payment-mode-button" id="demoPaymentMode" aria-pressed="false">Demo</button>
+            <div class="quantity-section">
+              <label data-ui="Amount of chickens">Amount of chickens</label>
+              <div class="quantity-control"><button class="quantity-button" id="decreaseQuantity" type="button" aria-label="Remove one kaparos" data-ui-aria="Remove one kaparos">−</button><output class="quantity-value" id="quantityValue" aria-live="polite">1</output><button class="quantity-button" id="increaseQuantity" type="button" aria-label="Add one kaparos" data-ui-aria="Add one kaparos">+</button></div>
+            </div>
+          </section>
+          <section class="order-card payment-card order-payment-section">
+            <div class="payment-card-heading">
+              <h2 data-ui="Payment information">Payment information</h2>
+              <div class="payment-mode-picker" role="group" aria-label="Checkout mode">
+                <button type="button" class="payment-mode-button" id="livePaymentMode" aria-pressed="true" data-ui="Use real payment" hidden>Use real payment</button>
+                <button type="button" class="payment-mode-button" id="demoPaymentMode" aria-pressed="false" data-ui="Demo">Demo</button>
+              </div>
             </div>
             <div class="demo-fields" lang="en" dir="ltr" data-fixed-language="en">
-              <div class="field full payment-field" id="liveCardNumberField"><label data-ui="Card number">Card number</label><iframe class="ifield-frame" title="Card number" height="40" scrolling="no" frameborder="0" data-ifields-id="card-number" data-ifields-placeholder="Card number" src="https://cdn.cardknox.com/ifields/3.5.2607.1401/ifield.htm"></iframe><input name="xCardNum" data-ifields-id="card-number-token" type="hidden" id="solaCardToken" /></div>
-              <div class="field full payment-field" id="demoCardNumberField" hidden><label for="demoCardNumber" data-ui="Card number">Card number</label><input id="demoCardNumber" inputmode="numeric" autocomplete="off" maxlength="19" placeholder="" /></div>
-              <div class="field"><label for="demoExpiry" data-ui="Expiration">Expiration</label><input id="demoExpiry" inputmode="numeric" autocomplete="cc-exp" maxlength="5" placeholder="MM/YY" pattern="(0[1-9]|1[0-2])/[0-9]{2}" required /></div>
-              <div class="field payment-field" id="liveCvvField"><label data-ui="CVV">CVV</label><iframe class="ifield-frame" title="CVV" height="40" scrolling="no" frameborder="0" data-ifields-id="cvv" data-ifields-placeholder="CVV" src="https://cdn.cardknox.com/ifields/3.5.2607.1401/ifield.htm"></iframe><input name="xCVV" data-ifields-id="cvv-token" type="hidden" id="solaCvvToken" /></div>
-              <div class="field payment-field" id="demoCvvField" hidden><label for="demoCvv" data-ui="CVV">CVV</label><input id="demoCvv" type="password" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="" pattern="[0-9]{3,4}" /></div>
-              <div class="field"><label for="demoZip" data-ui="Billing ZIP code">Billing ZIP code</label><input id="demoZip" inputmode="numeric" autocomplete="postal-code" maxlength="10" placeholder="" pattern="[0-9-]{5,10}" required /></div>
+              <div class="field full payment-field" id="liveCardNumberField"><label><span data-ui="Card number">Card number</span><span class="required-mark" aria-hidden="true">*</span></label><iframe class="ifield-frame" title="Card number" height="40" scrolling="no" frameborder="0" data-ifields-id="card-number" data-ifields-placeholder="Card number" src="https://cdn.cardknox.com/ifields/3.5.2607.1401/ifield.htm"></iframe><input name="xCardNum" data-ifields-id="card-number-token" type="hidden" id="solaCardToken" /></div>
+              <div class="field full payment-field" id="demoCardNumberField" hidden><label for="demoCardNumber"><span data-ui="Card number">Card number</span><span class="required-mark" aria-hidden="true">*</span></label><input id="demoCardNumber" inputmode="numeric" autocomplete="off" maxlength="19" placeholder="" /></div>
+              <div class="field"><label for="demoExpiry"><span data-ui="Expiration">Expiration</span><span class="required-mark" aria-hidden="true">*</span></label><input id="demoExpiry" inputmode="numeric" autocomplete="cc-exp" maxlength="5" placeholder="MM/YY" pattern="(0[1-9]|1[0-2])/[0-9]{2}" required /></div>
+              <div class="field payment-field" id="liveCvvField"><label><span data-ui="CVV">CVV</span><span class="required-mark" aria-hidden="true">*</span></label><iframe class="ifield-frame" title="CVV" height="40" scrolling="no" frameborder="0" data-ifields-id="cvv" data-ifields-placeholder="CVV" src="https://cdn.cardknox.com/ifields/3.5.2607.1401/ifield.htm"></iframe><input name="xCVV" data-ifields-id="cvv-token" type="hidden" id="solaCvvToken" /></div>
+              <div class="field payment-field" id="demoCvvField" hidden><label for="demoCvv"><span data-ui="CVV">CVV</span><span class="required-mark" aria-hidden="true">*</span></label><input id="demoCvv" type="password" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="" pattern="[0-9]{3,4}" /></div>
+              <div class="field"><label for="demoZip"><span data-ui="Billing ZIP code">Billing ZIP code</span><span class="required-mark" aria-hidden="true">*</span></label><input id="demoZip" inputmode="numeric" autocomplete="postal-code" maxlength="10" placeholder="" pattern="[0-9-]{5,10}" required /></div>
               <label class="ifields-error" data-ifields-id="card-data-error"></label>
             </div>
             <p class="demo-payment-error" id="demoPaymentError" role="alert"></p>
-            <p class="demo-secure-line" id="paymentSecurityLine">🔒 Card details are tokenized securely by Sola</p>
-          </div>
-          <div class="field full order-note-field">
-            <label for="customerNote" data-ui="Note (optional)">Note (optional)</label>
-            <textarea id="customerNote" maxlength="500" data-ui-placeholder="Add a note for your order"></textarea>
-          </div>
-          <section class="buyer-terms" id="buyerTerms" aria-labelledby="buyerTermsHeading" hidden>
-            <h3 id="buyerTermsHeading" data-copy="termsTitle">Terms</h3>
-            <div class="buyer-terms-text" id="buyerTermsText" data-copy="termsText" tabindex="0"></div>
-            <label class="buyer-terms-accept"><input type="checkbox" id="acceptBuyerTerms" /><span data-copy="termsAcceptLabel">I have read and agree to the terms.</span></label>
-            <p class="buyer-terms-error" id="buyerTermsError" role="alert"></p>
+            <div class="payment-security" id="paymentSecurityLine"><span id="paymentSecurityText">Payment secured by</span><img id="solaSecurityLogo" src="/assets/sola-logo.png" alt="Sola" /></div>
+            <section class="buyer-terms" id="buyerTerms" aria-labelledby="buyerTermsHeading" hidden>
+              <h3 id="buyerTermsHeading" data-copy="termsTitle">Terms</h3>
+              <div class="buyer-terms-text" id="buyerTermsText" data-copy="termsText" tabindex="0"></div>
+              <label class="buyer-terms-accept"><input type="checkbox" id="acceptBuyerTerms" /><span data-copy="termsAcceptLabel">I have read and agree to the terms.</span></label>
+              <p class="buyer-terms-error" id="buyerTermsError" role="alert"></p>
+            </section>
           </section>
         </form>
         <aside class="summary-card" aria-label="Order summary" data-ui-aria="Order summary">
@@ -546,6 +556,8 @@
     const demoPaymentMode = document.getElementById('demoPaymentMode');
     const solaCardToken = document.getElementById('solaCardToken');
     const solaCvvToken = document.getElementById('solaCvvToken');
+    const paymentSecurityText = document.getElementById('paymentSecurityText');
+    const solaSecurityLogo = document.getElementById('solaSecurityLogo');
     const demoPaymentError = document.getElementById('demoPaymentError');
     const ticketActionStatus = document.getElementById('ticketActionStatus');
     const printOnlineTicket = document.getElementById('printOnlineTicket');
@@ -642,17 +654,20 @@
     function setPaymentMode(nextMode) {
       paymentMode = nextMode === 'demo' || !livePaymentsReady() ? 'demo' : 'live';
       const live = paymentMode === 'live';
-      livePaymentMode.classList.toggle('selected', live);
-      demoPaymentMode.classList.toggle('selected', !live);
+      livePaymentMode.disabled = !livePaymentsReady();
+      demoPaymentMode.disabled = checkoutChecking;
       livePaymentMode.setAttribute('aria-pressed', String(live));
       demoPaymentMode.setAttribute('aria-pressed', String(!live));
+      livePaymentMode.hidden = live;
+      demoPaymentMode.hidden = !live;
       document.getElementById('liveCardNumberField').hidden = !live;
       document.getElementById('liveCvvField').hidden = !live;
       document.getElementById('demoCardNumberField').hidden = live;
       document.getElementById('demoCvvField').hidden = live;
       demoCardNumber.required = !live;
       demoCvv.required = !live;
-      document.getElementById('paymentSecurityLine').textContent = live ? '🔒 Card details are tokenized securely by Sola' : '🔒 Test mode · No real transaction';
+      paymentSecurityText.textContent = live ? 'Payment secured by' : 'Test mode · No real transaction';
+      solaSecurityLogo.hidden = !live;
       demoPaymentError.textContent = '';
       solaCardToken.value = '';
       solaCvvToken.value = '';
