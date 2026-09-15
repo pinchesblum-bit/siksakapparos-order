@@ -524,7 +524,6 @@
     const summaryQuantity = document.getElementById('summaryQuantity');
     const summaryUnitPrice = document.getElementById('summaryUnitPrice');
     const summaryTotal = document.getElementById('summaryTotal');
-    const paymentOptions = document.getElementById('paymentOptions');
     const checkoutButton = document.querySelector('.checkout-button');
     const availabilityMessage = document.getElementById('availabilityMessage');
     const sampleOrderForm = document.getElementById('sampleOrderForm');
@@ -567,24 +566,6 @@
       document.getElementById('decreaseQuantity').disabled = checkoutChecking || quantity <= 1;
       document.getElementById('increaseQuantity').disabled = checkoutChecking || config.orderingEnabled === false || quantity >= maximum;
     }
-    function renderChoices() {
-      paymentOptions.innerHTML = '';
-      config.paymentChoices.forEach((label, index) => {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'payment-option' + (index === 0 ? ' selected' : '');
-        button.setAttribute('aria-pressed', String(index === 0));
-        button.textContent = BuyingLanguages.ui(label);
-        button.addEventListener('click', () => {
-          paymentOptions.querySelectorAll('.payment-option').forEach(option => {
-            const selected = option === button;
-            option.classList.toggle('selected', selected);
-            option.setAttribute('aria-pressed', String(selected));
-          });
-        });
-        paymentOptions.appendChild(button);
-      });
-    }
     function applyConfig(next) {
       config = { ...DEFAULT_PUBLIC_CONFIG, ...(next || {}) };
       config.pickupTimes = Array.isArray(config.pickupTimes) && config.pickupTimes.length ? config.pickupTimes : DEFAULT_PUBLIC_CONFIG.pickupTimes;
@@ -605,7 +586,6 @@
       availabilityMessage.textContent = config.orderingEnabled === false
         ? 'Online ordering is currently closed.'
         : 'Online orders are currently sold out.';
-      renderChoices();
       [printOnlineTicket, emailOnlineTicket, textOnlineTicket].forEach(button => {
         button.hidden = config.printTicketsEnabled === false;
       });
