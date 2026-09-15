@@ -60,8 +60,8 @@ html[dir="rtl"] .order-card, html[dir="rtl"] .summary-card { direction: rtl; }
  .trust-item { display:flex; flex:1 1 auto; justify-content:center; width:auto; max-width:100%; margin-top:0; text-align:center; gap:6px; }
  .trust-item--minyanim [data-copy="benefitPayment"] { white-space:nowrap; overflow-wrap:normal; }
  .trust-item--minyanim { order:2; }
- .trust-item--mikvah { order:1; }
- .trust-item--shoychet { order:3; flex:0 0 100%; }
+ .trust-item--shoychet { order:1; }
+ .trust-item--mikvah { order:3; flex:0 0 100%; }
  html[lang="yi"] .trust-item { direction:rtl; }
  .trust-item .trust-icon { display:inline-flex; flex:0 0 26px; width:26px; height:26px; margin-inline-end:0; font-size:20px; }
  .trust-item .buying-symbol { width:26px; height:26px; }
