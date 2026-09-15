@@ -768,18 +768,19 @@
         const result = await publicOrderRequest({ action:isDemo ? 'create-demo-order' : 'create-live-order', orderKey:checkoutSession.orderKey, orderToken:checkoutSession.orderToken, ...details, ...payment, pickupTime:'' });
         showDemoApproval(result.sale, checkoutSession.orderToken);
       } catch (error) {
-        demoPaymentError.textContent = error.message || 'The order could not be completed.';
+        const paymentMessage = error.message || 'The order could not be completed.';
         if (/price changed/i.test(error.message || '')) await loadPublicConfig();
         if (error.code === 'TERMS_CHANGED' || error.code === 'TERMS_UNAVAILABLE') {
           await loadPublicConfig(); BuyingCheckout.validate();
         }
+        demoPaymentError.textContent = paymentMessage;
+        demoPaymentError.scrollIntoView?.({ behavior:'smooth', block:'center' });
       } finally {
         checkoutChecking = false;
         checkoutButton.removeAttribute('aria-busy');
         checkoutButton.disabled = config.orderingEnabled === false || Number(config.inventory || 0) < 1;
         livePaymentMode.disabled = !livePaymentsReady();
         demoPaymentMode.disabled = false;
-        setPaymentMode(paymentMode);
         updateSummary();
       }
     }
