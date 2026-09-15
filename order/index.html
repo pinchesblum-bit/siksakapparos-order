@@ -56,8 +56,9 @@
     .field { display:grid; gap:7px; }
     .field.full { grid-column:1 / -1; }
     label { color:#203c36; font-size:13px; font-weight:800; }
-    input,select { width:100%; min-height:48px; padding:12px 13px; border:1px solid #d4c6ac; border-radius:12px; outline:none; background:#fff; color:var(--ink); font-size:16px; }
-    input:focus,select:focus { border-color:#203c36; box-shadow:0 0 0 3px rgba(32,60,54,.12); }
+    input,select,textarea { width:100%; min-height:48px; padding:12px 13px; border:1px solid #d4c6ac; border-radius:12px; outline:none; background:#fff; color:var(--ink); font:inherit; font-size:16px; }
+    textarea { min-height:82px; line-height:1.45; resize:vertical; }
+    input:focus,select:focus,textarea:focus { border-color:#203c36; box-shadow:0 0 0 3px rgba(32,60,54,.12); }
     .order-card.validation-attempted .fields input:invalid { border-color:#a23939; box-shadow:0 0 0 2px rgba(162,57,57,.12); }
     .quantity-control { display:grid; grid-template-columns:48px minmax(64px,1fr) 48px; gap:9px; }
     .quantity-button { min-height:48px; border:1px solid var(--line); border-radius:12px; background:#fff; color:var(--accent); font-size:22px; font-weight:850; }
@@ -65,6 +66,7 @@
     .payment-options { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
     .payment-option { min-height:50px; padding:11px 14px; border:1px solid var(--line); border-radius:12px; background:#fff; color:var(--ink); font-weight:800; }
     .payment-option.selected { border-color:var(--accent); background:var(--accent-soft); color:var(--accent-dark); box-shadow:0 0 0 2px rgba(32,60,54,.09); }
+    .order-note-field { margin-top:14px; }
     .summary-card h2 { margin:0 0 17px; font-size:21px; }
     .summary-row,.summary-total { display:flex; align-items:baseline; justify-content:space-between; gap:14px; }
     .summary-row { padding:12px 0; border-bottom:1px solid var(--line); }
@@ -93,7 +95,8 @@
       .fields { gap:11px; }
       .field { gap:5px; }
       label { font-size:13px; }
-      input,select { min-height:44px; padding:9px 11px; font-size:16px; }
+      input,select,textarea { min-height:44px; padding:9px 11px; font-size:16px; }
+      textarea { min-height:72px; }
       .quantity-control { grid-template-columns:44px minmax(64px,1fr) 44px; gap:8px; }
       .quantity-button,.quantity-value { min-height:44px; }
       .quantity-button { font-size:20px; }
@@ -199,7 +202,9 @@
       body.order-page .order-payment-section .demo-fields input,
       body.order-page .order-payment-section .ifield-frame { height:40px; min-height:40px; max-height:40px; }
       body.order-page input,
-      body.order-page select { min-height:40px; padding:8px 11px; font-size:15px; }
+      body.order-page select,
+      body.order-page textarea { min-height:40px; padding:8px 11px; font-size:15px; }
+      body.order-page textarea { min-height:62px; }
       body.order-page .quantity-control { grid-template-columns:40px minmax(64px,1fr) 40px; gap:8px; }
       body.order-page .quantity-button,
       body.order-page .quantity-value { min-height:40px; }
@@ -359,6 +364,10 @@
             </div>
             <p class="demo-payment-error" id="demoPaymentError" role="alert"></p>
             <p class="demo-secure-line" id="paymentSecurityLine">🔒 Card details are tokenized securely by Sola</p>
+          </div>
+          <div class="field full order-note-field">
+            <label for="customerNote" data-ui="Note (optional)">Note (optional)</label>
+            <textarea id="customerNote" maxlength="500" data-ui-placeholder="Add a note for your order"></textarea>
           </div>
           <section class="buyer-terms" id="buyerTerms" aria-labelledby="buyerTermsHeading" hidden>
             <h3 id="buyerTermsHeading" data-copy="termsTitle">Terms</h3>
@@ -741,6 +750,7 @@
           fullName: document.getElementById('customerName').value.trim(),
           phone: BuyingCheckout.phoneDigits(document.getElementById('customerPhone').value),
           email: document.getElementById('customerEmail').value.trim(),
+          note: document.getElementById('customerNote').value.trim(),
           quantity,
           expectedPrice: Number((quantity * Number(config.price || 0)).toFixed(2)),
           ...BuyingCheckout.acceptancePayload()

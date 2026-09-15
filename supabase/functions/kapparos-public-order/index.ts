@@ -64,6 +64,9 @@ async function stateRow() {
 function cleanName(value: unknown) {
   return String(value || '').trim().replace(/\s+/g, ' ').slice(0, 120);
 }
+function cleanNote(value: unknown) {
+  return String(value || '').trim().replace(/\r\n?/g, '\n').slice(0, 500);
+}
 function cleanPickup(value: unknown) {
   return String(value || '').trim().replace(/\s+/g, ' ').slice(0, 120);
 }
@@ -157,6 +160,7 @@ async function createOrder(body: any, live = false) {
   const fullName = cleanName(body.fullName);
   const phone = String(body.phone || '').replace(/\D/g, '');
   const email = String(body.email || '').trim().toLowerCase().slice(0, 200);
+  const customerNote = cleanNote(body.note);
   const quantity = Math.floor(Number(body.quantity));
   const orderKey = String(body.orderKey || '').trim().slice(0, 120);
   const orderToken = String(body.orderToken || '').trim();
@@ -232,7 +236,7 @@ async function createOrder(body: any, live = false) {
     plannedPaymentDate: '',
     geschlagen: false,
     customFields: {},
-    notes: 'Online sale',
+    notes: customerNote ? 'Online sale\nNote: ' + customerNote : 'Online sale',
     isOnlineSale: true,
     isDemoSale: !live,
     ...(sola ? {solaRefNum:sola.refNum, solaAuthCode:sola.authCode, solaMaskedCard:sola.maskedCard, solaCardType:sola.cardType} : {}),

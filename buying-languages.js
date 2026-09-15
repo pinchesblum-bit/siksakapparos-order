@@ -17,6 +17,8 @@
   "Full name": "פולער נאמען",
   "Phone number": "טעלעפאן נומער",
   "Email": "אימעיל",
+  "Note (optional)": "נאטיץ (אפציאנאל)",
+  "Add a note for your order": "לייגט צו א נאטיץ פאר אייער באשטעלונג",
   "Your order": "אייער באשטעלונג",
   "Number of kaparos": "וויפיל כפרות",
   "Payment": "באצאלונג",
@@ -153,6 +155,7 @@
     }
     document.querySelectorAll('[data-ui]').forEach(element => { element.textContent = ui(element.dataset.ui, element); });
     document.querySelectorAll('[data-ui-aria]').forEach(element => element.setAttribute('aria-label', ui(element.dataset.uiAria, element)));
+    document.querySelectorAll('[data-ui-placeholder]').forEach(element => element.setAttribute('placeholder', ui(element.dataset.uiPlaceholder, element)));
     // These nodes contain app-generated messages, never customer-entered text.
     for (const id of ['availabilityMessage', 'checkoutAvailabilityError', 'ticketActionStatus', 'demoPaymentError']) {
       const element = document.getElementById(id);
