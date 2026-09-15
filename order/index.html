@@ -58,8 +58,8 @@
     .field { display:grid; gap:7px; }
     .field.full { grid-column:1 / -1; }
     label { color:#203c36; font-size:13px; font-weight:800; }
-    input,select,textarea { width:100%; min-height:48px; padding:12px 13px; border:1px solid #d4c6ac; border-radius:12px; outline:none; background:#fff; color:var(--ink); font:inherit; font-size:16px; }
-    textarea { min-height:82px; line-height:1.45; resize:vertical; }
+    input,select,textarea { width:100%; min-height:44px; padding:9px 12px; border:1px solid #d4c6ac; border-radius:12px; outline:none; background:#fff; color:var(--ink); font:inherit; font-size:16px; }
+    textarea { line-height:1.45; }
     input:focus,select:focus,textarea:focus { border-color:#203c36; box-shadow:0 0 0 3px rgba(32,60,54,.12); }
     .order-form-stack.validation-attempted input:invalid,
     .order-form-stack.validation-attempted textarea:invalid { border-color:#a23939; box-shadow:0 0 0 2px rgba(162,57,57,.12); }
@@ -73,7 +73,12 @@
     .payment-option { min-height:50px; padding:11px 14px; border:1px solid var(--line); border-radius:12px; background:#fff; color:var(--ink); font-weight:800; }
     .payment-option.selected { border-color:var(--accent); background:var(--accent-soft); color:var(--accent-dark); box-shadow:0 0 0 2px rgba(32,60,54,.09); }
     .order-note-field { margin-top:0; }
+    .order-note-field textarea { height:44px; min-height:44px; max-height:132px; overflow-y:hidden; resize:none; }
     .summary-card h2 { margin:0 0 17px; font-size:21px; }
+    .summary-card .buyer-terms { margin:0 0 17px; padding:0 0 16px; border-top:0; border-bottom:1px solid var(--line); }
+    .summary-card .buyer-terms h3 { margin:0 0 9px; font-size:17px; color:var(--accent); }
+    .summary-card .buyer-terms-text { max-height:150px; padding:10px 11px; background:rgba(255,255,255,.68); font-size:13px; line-height:1.5; }
+    .summary-card .buyer-terms-accept { gap:8px; padding:10px 0 2px; color:var(--accent); font-size:13px; line-height:1.45; }
     .summary-row,.summary-total { display:flex; align-items:baseline; justify-content:space-between; gap:14px; }
     .summary-row { padding:12px 0; border-bottom:1px solid var(--line); }
     .summary-row span:first-child { color:var(--muted); }
@@ -103,16 +108,14 @@
       .fields { gap:11px; }
       .field { gap:5px; }
       label { font-size:13px; }
-      input,select,textarea { min-height:44px; padding:9px 11px; font-size:16px; }
-      textarea { min-height:72px; }
+      input,select,textarea { min-height:42px; padding:8px 11px; font-size:16px; }
+      .order-note-field textarea { height:42px; min-height:42px; max-height:140px; }
       .quantity-control { grid-template-columns:44px minmax(64px,1fr) 44px; gap:8px; }
       .quantity-button,.quantity-value { min-height:44px; }
       .quantity-button { font-size:20px; }
       .quantity-value { font-size:17px; }
-      .payment-card .buyer-terms { margin-top:20px; padding-top:18px; }
-      .payment-card .buyer-terms h3 { margin-bottom:10px; font-size:17px; }
-      .payment-card .buyer-terms-text { max-height:220px; padding:11px; font-size:15px; line-height:1.55; }
-      .payment-card .buyer-terms-accept { gap:8px; padding:12px 0 4px; font-size:14px; line-height:1.45; }
+      .summary-card .buyer-terms { margin-bottom:14px; padding-bottom:13px; }
+      .summary-card .buyer-terms-text { max-height:180px; }
       .summary-card h2 { margin-bottom:13px; font-size:19px; }
       .summary-row { padding:9px 0; }
       .summary-total { padding:14px 0 16px; font-size:18px; }
@@ -212,18 +215,18 @@
       body.order-page .field { gap:4px; }
       body.order-page .order-payment-section .demo-fields { grid-template-columns:1fr 1fr 1.25fr; gap:8px 10px; }
       body.order-page .order-payment-section .demo-fields input,
-      body.order-page .order-payment-section .ifield-frame { height:40px; min-height:40px; max-height:40px; }
+      body.order-page .order-payment-section .ifield-frame { height:36px; min-height:36px; max-height:36px; }
       body.order-page input,
       body.order-page select,
-      body.order-page textarea { min-height:40px; padding:8px 11px; font-size:15px; }
-      body.order-page textarea { min-height:62px; }
-      body.order-page .quantity-control { grid-template-columns:40px minmax(64px,1fr) 40px; gap:8px; }
+      body.order-page textarea { min-height:36px; padding:6px 10px; font-size:15px; }
+      body.order-page .order-note-field textarea { height:36px; min-height:36px; max-height:108px; }
+      body.order-page .quantity-control { grid-template-columns:36px minmax(64px,1fr) 36px; gap:8px; }
       body.order-page .quantity-button,
-      body.order-page .quantity-value { min-height:40px; }
-      body.order-page .buyer-terms { margin-top:14px; padding-top:12px; }
-      body.order-page .buyer-terms h3 { margin-bottom:7px; font-size:17px; }
-      body.order-page .buyer-terms-text { max-height:108px; padding:9px 11px; font-size:14px; line-height:1.45; }
-      body.order-page .buyer-terms-accept { gap:9px; padding:9px 0 2px; font-size:14px; line-height:1.4; }
+      body.order-page .quantity-value { min-height:36px; }
+      body.order-page .summary-card .buyer-terms { margin:0 0 13px; padding:0 0 12px; }
+      body.order-page .summary-card .buyer-terms h3 { margin-bottom:6px; font-size:16px; }
+      body.order-page .summary-card .buyer-terms-text { max-height:96px; padding:8px 9px; font-size:12px; line-height:1.4; }
+      body.order-page .summary-card .buyer-terms-accept { gap:7px; padding:7px 0 1px; font-size:12px; line-height:1.35; }
       body.order-page .buyer-terms-accept input[type="checkbox"] { flex-basis:19px; width:19px; height:19px; min-height:19px; }
       body.order-page .summary-card h2 { margin-bottom:11px; font-size:19px; }
       body.order-page .summary-row { padding:9px 0; }
@@ -350,8 +353,8 @@
               <div class="field"><label for="customerPhone"><span data-ui="Phone number">Phone number</span><span class="required-mark" aria-hidden="true">*</span></label><input id="customerPhone" dir="ltr" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="" pattern="[0-9() +.-]{10,20}" required /></div>
               <div class="field"><label for="customerEmail"><span data-ui="Email">Email</span><span class="required-mark" aria-hidden="true">*</span></label><input id="customerEmail" dir="ltr" type="email" autocomplete="off" placeholder="" required /></div>
               <div class="field full order-note-field">
-                <label for="customerNote"><span data-ui="Note">Note</span><span class="required-mark" aria-hidden="true">*</span></label>
-                <textarea id="customerNote" maxlength="500" data-ui-placeholder="Add a note for your order" required></textarea>
+                <label for="customerNote" data-ui="Note">Note</label>
+                <textarea id="customerNote" rows="1" maxlength="500" data-ui-placeholder="Add a note for your order"></textarea>
               </div>
             </div>
             <div class="quantity-section">
@@ -377,22 +380,21 @@
               <label class="ifields-error" data-ifields-id="card-data-error"></label>
             </div>
             <p class="demo-payment-error" id="demoPaymentError" role="alert"></p>
-            <div class="payment-security" id="paymentSecurityLine"><span id="paymentSecurityText">Payment secured by</span><img id="solaSecurityLogo" src="/assets/sola-logo.png" alt="Sola" /></div>
-            <section class="buyer-terms" id="buyerTerms" aria-labelledby="buyerTermsHeading" hidden>
-              <h3 id="buyerTermsHeading" data-copy="termsTitle">Terms</h3>
-              <div class="buyer-terms-text" id="buyerTermsText" data-copy="termsText" tabindex="0"></div>
-              <label class="buyer-terms-accept"><input type="checkbox" id="acceptBuyerTerms" /><span data-copy="termsAcceptLabel">I have read and agree to the terms.</span></label>
-              <p class="buyer-terms-error" id="buyerTermsError" role="alert"></p>
-            </section>
           </section>
         </form>
         <aside class="summary-card" aria-label="Order summary" data-ui-aria="Order summary">
+          <section class="buyer-terms" id="buyerTerms" aria-labelledby="buyerTermsHeading" hidden>
+            <h3 id="buyerTermsHeading" data-copy="termsTitle">Terms</h3>
+            <div class="buyer-terms-text" id="buyerTermsText" data-copy="termsText" tabindex="0"></div>
+            <label class="buyer-terms-accept"><input type="checkbox" id="acceptBuyerTerms" /><span data-copy="termsAcceptLabel">I have read and agree to the terms.</span></label>
+            <p class="buyer-terms-error" id="buyerTermsError" role="alert"></p>
+          </section>
           <h2 data-ui="Order summary">Order summary</h2>
           <div class="summary-row"><span data-ui="Kaparos">Kaparos</span><strong><span id="summaryQuantity">1</span> × <span id="summaryUnitPrice">$18</span></strong></div>
           <div class="summary-total"><span data-ui="Total">Total</span><span id="summaryTotal">$18.00</span></div>
           <p id="checkoutAvailabilityError" class="buyer-terms-error checkout-availability-error" role="alert" hidden></p>
           <button type="submit" form="sampleOrderForm" class="checkout-button" id="checkoutButton" data-ui="Pay">Pay</button>
-          <p class="secure-note" data-ui="🔒 Secure checkout">🔒 Secure checkout</p>
+          <div class="payment-security" id="paymentSecurityLine"><span id="paymentSecurityText">Payment secured by</span><img id="solaSecurityLogo" src="/assets/sola-logo.png" alt="Sola" /></div>
           <p class="ticket-note checkout-removed" id="customerConfirmationText" data-copy="confirmationText" hidden>After checkout, choose Print Ticket, Email Ticket, or Text Ticket.</p>
         </aside>
       </div>
@@ -554,6 +556,7 @@
     const demoZip = document.getElementById('demoZip');
     const livePaymentMode = document.getElementById('livePaymentMode');
     const demoPaymentMode = document.getElementById('demoPaymentMode');
+    const customerNote = document.getElementById('customerNote');
     const solaCardToken = document.getElementById('solaCardToken');
     const solaCvvToken = document.getElementById('solaCvvToken');
     const paymentSecurityText = document.getElementById('paymentSecurityText');
@@ -681,6 +684,12 @@
       solaCardToken.value = '';
       solaCvvToken.value = '';
       demoPaymentError.textContent = '';
+    }
+    function resizeCustomerNote() {
+      customerNote.style.height = 'auto';
+      const maximum = Number.parseFloat(getComputedStyle(customerNote).maxHeight) || 132;
+      customerNote.style.height = Math.min(customerNote.scrollHeight, maximum) + 'px';
+      customerNote.style.overflowY = customerNote.scrollHeight > maximum ? 'auto' : 'hidden';
     }
     function tokenizeLiveCard() {
       return new Promise((resolve, reject) => {
@@ -1019,6 +1028,7 @@
       const digits = demoExpiry.value.replace(/\D/g, '').slice(0,4);
       demoExpiry.value = digits.length > 2 ? digits.slice(0,2) + '/' + digits.slice(2) : digits;
     });
+    customerNote.addEventListener('input', resizeCustomerNote);
     livePaymentMode.addEventListener('click', () => {
       if (livePaymentMode.disabled || checkoutChecking) return;
       paymentModeChosen = true; setPaymentMode('live');
