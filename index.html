@@ -159,6 +159,13 @@
     .demo-ticket,.demo-order-line,.availability-message { border-radius:8px; }
     .demo-ticket > strong,.demo-ticket > b,.summary-total,.summary-row strong { font-variant-numeric:tabular-nums; }
     @media (max-width:760px) { .hero-copy { font-size:16px; } }
+    @media (min-width:761px) {
+      body > main { display:flex; flex-direction:column; min-height:100vh; }
+      body .buying-support-footer { width:100%; max-width:none; min-height:38px; margin:auto 0 0; padding:3px 18px; gap:3px 15px; font-size:12px; line-height:1.35; }
+      body .buying-support-footer > p { white-space:nowrap; }
+      body .support-contacts { gap:3px 13px; }
+      body .support-contacts a { min-height:30px; padding:5px 3px; font-size:12px; line-height:1.35; }
+    }
 
     body.preview-locked > main, body.preview-locked > .demo-checkout-backdrop, body.preview-locked > .demo-checkout-modal, body.preview-locked #demoCheckoutModal { display:none !important; }
     body.preview-loading > main, body.preview-loading > .language-switcher, body.preview-loading > .preview-gate, body.preview-loading > .preview-exit, body.preview-loading > .buying-support-footer { display:none !important; }
