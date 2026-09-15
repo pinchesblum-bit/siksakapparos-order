@@ -77,8 +77,9 @@
     .summary-card h2 { margin:0 0 17px; font-size:21px; }
     .summary-card .buyer-terms { margin:0 0 17px; padding:0 0 16px; border-top:0; border-bottom:1px solid var(--line); }
     .summary-card .buyer-terms h3 { margin:0 0 9px; font-size:17px; color:var(--accent); }
-    .summary-card .buyer-terms-text { max-height:150px; padding:10px 11px; background:rgba(255,255,255,.68); font-size:13px; line-height:1.5; }
-    .summary-card .buyer-terms-accept { gap:8px; padding:10px 0 2px; color:var(--accent); font-size:13px; line-height:1.45; }
+    .summary-card .buyer-terms-text { max-height:none; overflow:visible; padding:10px 11px; background:rgba(255,255,255,.68); font-size:13px; line-height:1.5; }
+    .summary-card .buyer-terms-accept { align-items:center; gap:8px; padding:10px 0 2px; color:var(--accent); font-size:13px; line-height:1.45; }
+    .summary-card .buyer-terms-accept input[type="checkbox"] { margin:0; }
     .summary-row,.summary-total { display:flex; align-items:baseline; justify-content:space-between; gap:14px; }
     .summary-row { padding:12px 0; border-bottom:1px solid var(--line); }
     .summary-row span:first-child { color:var(--muted); }
@@ -115,7 +116,7 @@
       .quantity-button { font-size:20px; }
       .quantity-value { font-size:17px; }
       .summary-card .buyer-terms { margin-bottom:14px; padding-bottom:13px; }
-      .summary-card .buyer-terms-text { max-height:180px; }
+      .summary-card .buyer-terms-text { max-height:none; }
       .summary-card h2 { margin-bottom:13px; font-size:19px; }
       .summary-row { padding:9px 0; }
       .summary-total { padding:14px 0 16px; font-size:18px; }
@@ -225,9 +226,9 @@
       body.order-page .quantity-value { min-height:36px; }
       body.order-page .summary-card .buyer-terms { margin:0 0 13px; padding:0 0 12px; }
       body.order-page .summary-card .buyer-terms h3 { margin-bottom:6px; font-size:16px; }
-      body.order-page .summary-card .buyer-terms-text { max-height:96px; padding:8px 9px; font-size:12px; line-height:1.4; }
-      body.order-page .summary-card .buyer-terms-accept { gap:7px; padding:7px 0 1px; font-size:12px; line-height:1.35; }
-      body.order-page .buyer-terms-accept input[type="checkbox"] { flex-basis:19px; width:19px; height:19px; min-height:19px; }
+      body.order-page .summary-card .buyer-terms-text { max-height:none; padding:8px 9px; font-size:12px; line-height:1.4; }
+      body.order-page .summary-card .buyer-terms-accept { align-items:center; gap:7px; padding:7px 0 1px; font-size:12px; line-height:1.35; }
+      body.order-page .buyer-terms-accept input[type="checkbox"] { flex-basis:19px; width:19px; height:19px; min-height:19px; margin:0; }
       body.order-page .summary-card h2 { margin-bottom:11px; font-size:19px; }
       body.order-page .summary-row { padding:9px 0; }
       body.order-page .summary-total { padding:13px 0 14px; font-size:18px; }
