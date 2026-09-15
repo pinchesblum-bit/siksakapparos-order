@@ -250,7 +250,7 @@
     <section class="order-section" id="orderSection" aria-labelledby="orderHeading">
       <div class="order-shell">
         <form class="order-card" id="sampleOrderForm">
-          <div class="section-heading"><h2 id="orderHeading" data-copy="orderTitle">Order your kaparos</h2><p data-copy="orderDescription">Enter your information and review the order before payment.</p></div>
+          <div class="section-heading"><h2 id="orderHeading" data-copy="orderTitle">Order your kaparos</h2><p data-copy="orderDescription" hidden>Enter your information and review the order before payment.</p></div>
           <div class="form-section">
             <h3 data-ui="Your information">Your information</h3>
             <div class="fields">
@@ -268,7 +268,7 @@
               </div>
             </div>
           </div>
-          <div class="form-section">
+          <div class="form-section" hidden>
             <h3 data-ui="Payment">Payment</h3>
             <div class="payment-options" id="paymentOptions" role="group" aria-label="Payment method" data-ui-aria="Payment method"><button type="button" class="payment-option selected" aria-pressed="true" data-ui="Credit card">Credit card</button></div>
           </div>
@@ -286,7 +286,7 @@
           <p id="checkoutAvailabilityError" class="buyer-terms-error checkout-availability-error" role="alert" hidden></p>
           <button type="button" class="checkout-button" id="checkoutButton" data-ui="Continue to payment">Continue to payment</button>
           <p class="secure-note" data-ui="🔒 Secure checkout">🔒 Secure checkout</p>
-          <p class="ticket-note" id="customerConfirmationText" data-copy="confirmationText">After checkout, choose Print Ticket, Email Ticket, or Text Ticket.</p>
+          <p class="ticket-note" id="customerConfirmationText" data-copy="confirmationText" hidden>After checkout, choose Print Ticket, Email Ticket, or Text Ticket.</p>
         </aside>
       </div>
     </section>
