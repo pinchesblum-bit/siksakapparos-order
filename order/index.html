@@ -12,6 +12,7 @@
     gtag('js', new Date());
     gtag('config', 'G-277RWT6BZ0');
   </script>
+  <script src="https://cdn.cardknox.com/ifields/3.5.2607.1401/ifields.min.js"></script>
   <link rel="icon" type="image/png" sizes="256x256" href="/favicon.png?v=20260915-2" />
   <link rel="apple-touch-icon" href="/favicon.png?v=20260915-2" />
   <title>פנים מאירות סיקסא — Order Kaparos</title>
@@ -130,8 +131,14 @@
     .demo-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .demo-fields .full { grid-column: 1/-1; }
     .demo-fields label { display: block; margin-bottom: 6px; font-size: 14px; font-weight: 750; }
-    .demo-fields input { width: 100%; min-height: 46px; padding: 10px 12px; border: 1px solid #d4c6ac; border-radius: 11px; background: #fff; color: #203c36; font-size: 16px; }
-    .demo-fields input:focus { outline: 3px solid rgba(32,60,54,.14); border-color: #203c36; }
+    .demo-fields input, .ifield-frame { width: 100%; min-height: 46px; padding: 10px 12px; border: 1px solid #d4c6ac; border-radius: 11px; background: #fff; color: #203c36; font-size: 16px; }
+    .demo-fields input:focus, .ifield-frame:focus-within { outline: 3px solid rgba(32,60,54,.14); border-color: #203c36; }
+    .ifield-frame { display:block; padding:0; overflow:hidden; }
+    .payment-mode-picker { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:16px 0; padding:4px; border:1px solid #d4c6ac; border-radius:12px; background:#f0eee4; }
+    .payment-mode-button { min-height:40px; border:0; border-radius:8px; background:transparent; color:#203c36; font-weight:800; cursor:pointer; }
+    .payment-mode-button.selected { background:#fff; box-shadow:0 2px 8px rgba(32,60,54,.12); }
+    .payment-mode-button:disabled { cursor:not-allowed; opacity:.5; }
+    .ifields-error { display:block; min-height:0; margin-top:5px; color:#a23939; font-size:13px; font-weight:700; }
     .demo-test-hint { margin-top: 6px; color: #626b63; font-size: 12px; }
     .demo-payment-error { min-height: 21px; margin: 12px 0 4px; color: #a23939; font-size: 14px; font-weight: 700; }
     .demo-pay-button, .demo-done-button { width: 100%; min-height: 52px; border: 0; border-radius: 13px; background: #203c36; color: #fff; font-size: 16px; font-weight: 850; cursor: pointer; }
@@ -220,7 +227,7 @@
     .trust-line { font-size:14px; font-weight:500; }
     .trust-icon { background:var(--gold-soft); }
     label { font-size:14px; font-weight:700; }
-    input,select,.quantity-button,.quantity-value,.payment-option,.demo-fields input,.ticket-action-button { border-radius:8px; }
+    input,select,.quantity-button,.quantity-value,.payment-option,.demo-fields input,.ifield-frame,.ticket-action-button { border-radius:8px; }
     .demo-card-preview { background:var(--accent); border:1px solid var(--gold); border-radius:12px; }
     .demo-pay-button:hover,.demo-done-button:hover { background:var(--accent-dark); }
     button:focus-visible,.order-back:focus-visible { outline:3px solid rgba(32,60,54,.25); outline-offset:3px; }
@@ -357,25 +364,32 @@
     <section class="demo-checkout-modal" role="dialog" aria-modal="true" aria-labelledby="demoCheckoutTitle">
       <button type="button" class="demo-close-button" id="closeDemoCheckout" aria-label="Close checkout" data-ui-aria="Close checkout">×</button>
       <form id="demoPaymentForm">
-        <div class="demo-checkout-heading"><span class="demo-badge" data-ui="DEMO CHECKOUT">DEMO CHECKOUT</span><h2 id="demoCheckoutTitle" data-ui="Secure card payment">Secure card payment</h2><p data-ui="This is a test payment. No card will be charged.">This is a test payment. No card will be charged.</p></div>
+        <div class="demo-checkout-heading"><span class="demo-badge" id="paymentModeBadge">SECURE CHECKOUT</span><h2 id="demoCheckoutTitle" data-ui="Secure card payment">Secure card payment</h2><p id="paymentModeDescription">Your card will be charged securely by Sola.</p></div>
         <div class="demo-order-line"><span data-ui="Order total">Order total</span><strong id="demoPaymentTotal">$36.00</strong></div>
+        <div class="payment-mode-picker" role="group" aria-label="Checkout mode">
+          <button type="button" class="payment-mode-button selected" id="livePaymentMode" aria-pressed="true">Pay by card</button>
+          <button type="button" class="payment-mode-button" id="demoPaymentMode" aria-pressed="false">Demo</button>
+        </div>
         <div class="demo-card-preview" aria-hidden="true"><span class="demo-card-chip"></span><span class="demo-card-number-preview" id="demoCardPreview">•••• •••• •••• ••••</span><span class="demo-card-brand">VISA</span></div>
         <div class="demo-fields">
           <div class="field full"><label for="demoCardName" data-ui="Name on card">Name on card</label><input id="demoCardName" autocomplete="off" required /></div>
-          <div class="field full"><label for="demoCardNumber" data-ui="Card number">Card number</label><input id="demoCardNumber" inputmode="numeric" autocomplete="off" maxlength="19" placeholder="" required /></div>
+          <div class="field full" id="liveCardNumberField"><label data-ui="Card number">Card number</label><iframe class="ifield-frame" title="Card number" data-ifields-id="card-number" data-ifields-placeholder="Card number" src="https://cdn.cardknox.com/ifields/3.5.2607.1401/ifield.htm"></iframe><input name="xCardNum" data-ifields-id="card-number-token" type="hidden" id="solaCardToken" /></div>
+          <div class="field full" id="demoCardNumberField" hidden><label for="demoCardNumber" data-ui="Card number">Card number</label><input id="demoCardNumber" inputmode="numeric" autocomplete="off" maxlength="19" placeholder="" /></div>
           <div class="field"><label for="demoExpiry" data-ui="Expiration">Expiration</label><input id="demoExpiry" inputmode="numeric" autocomplete="off" maxlength="5" placeholder="" pattern="(0[1-9]|1[0-2])/[0-9]{2}" required /></div>
-          <div class="field"><label for="demoCvv" data-ui="CVV">CVV</label><input id="demoCvv" type="password" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="" pattern="[0-9]{3,4}" required /></div>
+          <div class="field" id="liveCvvField"><label data-ui="CVV">CVV</label><iframe class="ifield-frame" title="CVV" data-ifields-id="cvv" data-ifields-placeholder="CVV" src="https://cdn.cardknox.com/ifields/3.5.2607.1401/ifield.htm"></iframe><input name="xCVV" data-ifields-id="cvv-token" type="hidden" id="solaCvvToken" /></div>
+          <div class="field" id="demoCvvField" hidden><label for="demoCvv" data-ui="CVV">CVV</label><input id="demoCvv" type="password" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="" pattern="[0-9]{3,4}" /></div>
           <div class="field full"><label for="demoZip" data-ui="Billing ZIP code">Billing ZIP code</label><input id="demoZip" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="" pattern="[0-9-]{5,10}" required /></div>
         </div>
+        <label class="ifields-error" data-ifields-id="card-data-error"></label>
         <p class="demo-payment-error" id="demoPaymentError" role="alert"></p>
-        <button type="submit" class="demo-pay-button" id="demoPayButton"><span data-ui="Pay">Pay</span> <span id="demoPayAmount">$36.00</span> <span data-ui="— Demo">— Demo</span></button>
-        <p class="demo-secure-line" data-ui="🔒 Test mode · No real transaction">🔒 Test mode · No real transaction</p>
+        <button type="submit" class="demo-pay-button" id="demoPayButton"><span data-ui="Pay">Pay</span> <span id="demoPayAmount">$36.00</span></button>
+        <p class="demo-secure-line" id="paymentSecurityLine">🔒 Card details are tokenized securely by Sola</p>
       </form>
       <div class="demo-success" id="demoSuccess" hidden>
-        <div class="demo-success-icon" aria-hidden="true">✓</div><span class="demo-badge" data-ui="DEMO APPROVED">DEMO APPROVED</span><h2 data-ui="Payment approved">Payment approved</h2>
+        <div class="demo-success-icon" aria-hidden="true">✓</div><span class="demo-badge" id="approvalBadge">APPROVED</span><h2 data-ui="Payment approved">Payment approved</h2>
         <p id="demoSuccessMessage">Your demo order is complete.</p>
-        <div class="demo-ticket" id="publicTicket"><span data-ui="Online demo ticket">Online demo ticket</span><strong id="demoTicketNumber">0000000000</strong><div><span id="demoTicketQuantity">2 כפרות</span></div><b id="demoTicketTotal">$36.00</b></div>
-        <p class="demo-no-save" data-ui="No card was charged. This test order is recorded as a paid online sale in the admin website and reports.">No card was charged. This test order is recorded as a paid online sale in the admin website and reports.</p>
+        <div class="demo-ticket" id="publicTicket"><span id="onlineTicketLabel">Online ticket</span><strong id="demoTicketNumber">0000000000</strong><div><span id="demoTicketQuantity">2 כפרות</span></div><b id="demoTicketTotal">$36.00</b></div>
+        <p class="demo-no-save" id="paymentResultNote">Your payment was approved and your order was recorded.</p>
         <p class="ticket-action-status" id="ticketActionStatus" role="status"></p>
         <div class="ticket-actions">
           <button type="button" class="ticket-action-button" id="printOnlineTicket" data-ui="Print Ticket">Print Ticket</button>
@@ -519,6 +533,12 @@
     const demoCardName = document.getElementById('demoCardName');
     const demoCardNumber = document.getElementById('demoCardNumber');
     const demoExpiry = document.getElementById('demoExpiry');
+    const demoCvv = document.getElementById('demoCvv');
+    const demoZip = document.getElementById('demoZip');
+    const livePaymentMode = document.getElementById('livePaymentMode');
+    const demoPaymentMode = document.getElementById('demoPaymentMode');
+    const solaCardToken = document.getElementById('solaCardToken');
+    const solaCvvToken = document.getElementById('solaCvvToken');
     const demoPayButton = document.getElementById('demoPayButton');
     const demoPaymentError = document.getElementById('demoPaymentError');
     const ticketActionStatus = document.getElementById('ticketActionStatus');
@@ -529,6 +549,8 @@
     let quantity = 1;
     let checkoutChecking = false;
     let completedOnlineOrder = null;
+    let paymentMode = 'live';
+    let ifieldsInitialized = false;
     const CHECKOUT_SESSION_KEY = 'kapparosCheckoutSessionV1';
     const COMPLETED_TICKET_KEY = 'kapparosCompletedTicketV1';
 
@@ -567,6 +589,9 @@
       config = { ...DEFAULT_PUBLIC_CONFIG, ...(next || {}) };
       config.pickupTimes = Array.isArray(config.pickupTimes) && config.pickupTimes.length ? config.pickupTimes : DEFAULT_PUBLIC_CONFIG.pickupTimes;
       config.paymentChoices = ['Credit card'];
+      initializeIfields();
+      livePaymentMode.disabled = !livePaymentsReady();
+      if (!livePaymentsReady() && paymentMode === 'live') paymentMode = 'demo';
       document.getElementById('publicPageTitle').textContent = config.title;
       document.getElementById('publicPageSubtitle').textContent = config.subtitle;
       document.title = config.title + ' - ' + config.subtitle;
@@ -592,11 +617,53 @@
     document.addEventListener('buying-language-change', () => {
       if (!completedOnlineOrder) return;
       const sale = completedOnlineOrder;
-      document.getElementById('demoSuccessMessage').textContent = 'Thank you, ' + sale.fullName + '. Your demo order is complete.';
+      document.getElementById('demoSuccessMessage').textContent = 'Thank you, ' + sale.fullName + '. Your ' + (sale.isDemoSale ? 'demo ' : '') + 'order is complete.';
       document.getElementById('demoTicketQuantity').textContent = sale.quantity + (sale.quantity === 1 ? ' kaparah' : ' kaparos');
     });
     function formatCardNumber(value) {
       return value.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim();
+    }
+    function livePaymentsReady() {
+      return Boolean(config.payments?.live && config.payments?.ifieldsKey && typeof window.setAccount === 'function' && typeof window.getTokens === 'function');
+    }
+    function initializeIfields() {
+      if (!livePaymentsReady() || ifieldsInitialized) return;
+      window.setAccount(config.payments.ifieldsKey, 'Siksakapparos', '1.0.0');
+      ifieldsInitialized = true;
+    }
+    function setPaymentMode(nextMode) {
+      paymentMode = nextMode === 'demo' || !livePaymentsReady() ? 'demo' : 'live';
+      const live = paymentMode === 'live';
+      livePaymentMode.classList.toggle('selected', live);
+      demoPaymentMode.classList.toggle('selected', !live);
+      livePaymentMode.setAttribute('aria-pressed', String(live));
+      demoPaymentMode.setAttribute('aria-pressed', String(!live));
+      document.getElementById('liveCardNumberField').hidden = !live;
+      document.getElementById('liveCvvField').hidden = !live;
+      document.getElementById('demoCardNumberField').hidden = live;
+      document.getElementById('demoCvvField').hidden = live;
+      demoCardNumber.required = !live;
+      demoCvv.required = !live;
+      document.getElementById('paymentModeBadge').textContent = live ? 'SECURE CHECKOUT' : 'DEMO CHECKOUT';
+      document.getElementById('paymentModeDescription').textContent = live ? 'Your card will be charged securely by Sola.' : 'This is a test payment. No card will be charged.';
+      document.getElementById('paymentSecurityLine').textContent = live ? '🔒 Card details are tokenized securely by Sola' : '🔒 Test mode · No real transaction';
+      demoPayButton.innerHTML = '<span data-ui="Pay">' + BuyingLanguages.payment('Pay') + '</span> <span id="demoPayAmount">' + money(quantity * Number(config.price || 0)) + '</span>' + (live ? '' : ' <span data-ui="— Demo">— Demo</span>');
+      demoPaymentError.textContent = '';
+      solaCardToken.value = '';
+      solaCvvToken.value = '';
+    }
+    function tokenizeLiveCard() {
+      return new Promise((resolve, reject) => {
+        solaCardToken.value = '';
+        solaCvvToken.value = '';
+        window.getTokens(() => {
+          if (!solaCardToken.value || !solaCvvToken.value) {
+            reject(new Error('Card details could not be secured. Please check the card number and CVV.'));
+            return;
+          }
+          resolve({ cardToken: solaCardToken.value, cvvToken: solaCvvToken.value });
+        }, () => reject(new Error('Please check the card number and CVV and try again.')), 30000);
+      });
     }
     function secureRandomHex(bytes = 24) {
       const values = crypto.getRandomValues(new Uint8Array(bytes));
@@ -657,6 +724,7 @@
         completedOnlineOrder = null;
         demoPaymentForm.reset();
         demoCardName.value = '';
+        setPaymentMode(livePaymentsReady() ? 'live' : 'demo');
         demoPaymentError.textContent = '';
         ticketActionStatus.textContent = '';
         ticketActionStatus.classList.remove('error');
@@ -695,10 +763,15 @@
       sessionStorage.setItem(COMPLETED_TICKET_KEY, JSON.stringify(completedOnlineOrder));
       demoPaymentForm.hidden = true;
       demoSuccess.hidden = false;
-      document.getElementById('demoSuccessMessage').textContent = 'Thank you, ' + sale.fullName + '. Your demo order is complete.';
+      document.getElementById('approvalBadge').textContent = sale.isDemoSale ? 'DEMO APPROVED' : 'APPROVED';
+      document.getElementById('onlineTicketLabel').textContent = sale.isDemoSale ? 'Online demo ticket' : 'Online ticket';
+      document.getElementById('demoSuccessMessage').textContent = 'Thank you, ' + sale.fullName + '. Your ' + (sale.isDemoSale ? 'demo ' : '') + 'order is complete.';
       document.getElementById('demoTicketNumber').textContent = sale.ticketId;
       document.getElementById('demoTicketQuantity').textContent = sale.quantity + (sale.quantity === 1 ? ' kaparah' : ' kaparos');
       document.getElementById('demoTicketTotal').textContent = money(sale.price);
+      document.getElementById('paymentResultNote').textContent = sale.isDemoSale
+        ? 'No card was charged. This test order is recorded as a paid online sale in the admin website and reports.'
+        : 'Your card was charged successfully and your order was recorded.';
       ticketActionStatus.textContent = BuyingLanguages.payment(config.printTicketsEnabled === false ? 'Ticket delivery is currently unavailable.' : 'Choose how you would like to receive your ticket.');
       if (!restoring) {
         config.inventory = Math.max(0, Number(sale.remainingInventory || 0));
@@ -884,21 +957,28 @@
       const digits = demoExpiry.value.replace(/\D/g, '').slice(0,4);
       demoExpiry.value = digits.length > 2 ? digits.slice(0,2) + '/' + digits.slice(2) : digits;
     });
+    livePaymentMode.addEventListener('click', () => { if (!livePaymentMode.disabled && !demoPayButton.disabled) setPaymentMode('live'); });
+    demoPaymentMode.addEventListener('click', () => { if (!demoPayButton.disabled) setPaymentMode('demo'); });
     demoPaymentForm.addEventListener('submit', async event => {
       event.preventDefault();
       demoPaymentError.textContent = '';
-      const cardDigits = demoCardNumber.value.replace(/\D/g, '');
-      if (cardDigits !== '4111111111111111') {
-        demoCardNumber.setCustomValidity('Use the demo card number 4111 1111 1111 1111.');
-        demoCardNumber.reportValidity();
-        demoPaymentError.textContent = BuyingLanguages.payment('This demo accepts only the test card shown above.');
-        return;
+      const isDemo = paymentMode === 'demo';
+      if (isDemo) {
+        const cardDigits = demoCardNumber.value.replace(/\D/g, '');
+        if (cardDigits !== '4111111111111111') {
+          demoCardNumber.setCustomValidity('Use the demo card number 4111 1111 1111 1111.');
+          demoCardNumber.reportValidity();
+          demoPaymentError.textContent = BuyingLanguages.payment('This demo accepts only the test card shown above.');
+          return;
+        }
       }
       demoCardNumber.setCustomValidity('');
       if (!BuyingCheckout.validate()) { closeDemoCheckout(); return; }
       if (!demoPaymentForm.reportValidity()) return;
       demoPayButton.disabled = true;
-      demoPayButton.textContent = BuyingLanguages.payment('Processing demo payment…');
+      livePaymentMode.disabled = true;
+      demoPaymentMode.disabled = true;
+      demoPayButton.textContent = isDemo ? BuyingLanguages.payment('Processing demo payment…') : 'Processing secure payment…';
       const details = {
         fullName: document.getElementById('customerName').value.trim(),
         phone: BuyingCheckout.phoneDigits(document.getElementById('customerPhone').value),
@@ -915,8 +995,21 @@
         sessionStorage.setItem(CHECKOUT_SESSION_KEY, JSON.stringify(checkoutSession));
       }
       try {
-        await new Promise(resolve => setTimeout(resolve, 650));
-        const result = await publicOrderRequest({ action:'create-demo-order', orderKey:checkoutSession.orderKey, orderToken:checkoutSession.orderToken, ...details, pickupTime:'' });
+        let payment = {};
+        if (isDemo) {
+          await new Promise(resolve => setTimeout(resolve, 650));
+        } else {
+          const tokens = await tokenizeLiveCard();
+          const expiration = demoExpiry.value.replace(/\D/g, '');
+          payment = {
+            cardToken: tokens.cardToken,
+            cvvToken: tokens.cvvToken,
+            expiration,
+            cardholderName: demoCardName.value.trim(),
+            billingZip: demoZip.value.trim()
+          };
+        }
+        const result = await publicOrderRequest({ action:isDemo ? 'create-demo-order' : 'create-live-order', orderKey:checkoutSession.orderKey, orderToken:checkoutSession.orderToken, ...details, ...payment, pickupTime:'' });
         showDemoApproval(result.sale, checkoutSession.orderToken);
       } catch (error) {
         demoPaymentError.textContent = error.message;
@@ -926,7 +1019,9 @@
         }
       } finally {
         demoPayButton.disabled = false;
-        demoPayButton.innerHTML = '<span data-ui="Pay">' + BuyingLanguages.payment('Pay') + '</span> <span id="demoPayAmount">' + money(quantity * Number(config.price || 0)) + '</span> <span data-ui="— Demo">' + BuyingLanguages.payment('— Demo') + '</span>';
+        livePaymentMode.disabled = !livePaymentsReady();
+        demoPaymentMode.disabled = false;
+        setPaymentMode(paymentMode);
       }
     });
     printOnlineTicket.addEventListener('click', printCompletedTicket);
