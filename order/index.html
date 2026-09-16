@@ -172,6 +172,13 @@
     .payment-security { display:flex; align-items:center; justify-content:center; gap:9px; min-height:34px; margin:9px 0 0; color:#626b63; font-size:12px; text-align:center; }
     .payment-security img { display:block; width:auto; height:14px; object-fit:contain; }
     .payment-security img[hidden] { display:none !important; }
+    /* Keep these controls in their natural direction without mirroring the rest of the Yiddish page. */
+    .order-back { direction:ltr; }
+    .order-back [data-ui] { direction:rtl; unicode-bidi:isolate; }
+    html[lang="en"] .order-back [data-ui] { direction:ltr; }
+    .order-payment-section .demo-fields,
+    .order-payment-section .demo-fields .field { direction:ltr; text-align:left; }
+    .payment-security { direction:ltr; unicode-bidi:isolate; }
     .demo-success { text-align: center; }
     .demo-success-icon { width: 64px; height: 64px; display: grid; place-items: center; margin: 0 auto 15px; border-radius: 50%; background: #e2f2e5; color: #2f6d3a; font-size: 35px; font-weight: 900; }
     .demo-ticket { display: grid; gap: 8px; margin: 23px 0 16px; padding: 20px; border: 1px solid #d4c6ac; border-radius: 16px; background: #f0eee4; text-align: left; }
@@ -239,7 +246,6 @@
     .order-back { display:inline-flex; align-items:center; gap:8px; width:fit-content; min-height:40px; margin:0 0 16px; padding:8px 13px; border:1px solid var(--line); border-radius:9px; background:var(--surface); color:var(--accent); box-shadow:0 3px 10px rgba(32,60,54,.06); font-size:14px; font-weight:700; text-decoration:none; transition:background .16s ease,border-color .16s ease,transform .16s ease; }
     .order-back:hover { border-color:var(--gold); background:var(--gold-soft); transform:translateY(-1px); }
     .order-back-icon { font-size:18px; line-height:1; }
-    html[dir="rtl"] .order-back-icon { transform:scaleX(-1); }
   
     /* Flyer palette: warm ivory, deep green and restrained gold details. */
     :root { --gold:#a6854f; --gold-soft:#f0eee4; }
@@ -339,7 +345,7 @@
       </div>
     </header>
     <section class="order-section open" id="orderSection" aria-labelledby="orderHeading">
-      <a class="order-back" href="/"><span class="order-back-icon" aria-hidden="true">←</span><span data-ui="Back to home">Back to home</span></a>
+      <a class="order-back" href="/"><span class="order-back-icon" aria-hidden="true">←</span><span data-ui="Back to home" dir="auto">Back to home</span></a>
       <p class="availability-message" id="availabilityMessage" role="status" hidden></p>
       <div class="order-shell">
         <form class="order-form-stack" id="sampleOrderForm">
@@ -390,7 +396,7 @@
           <div class="summary-total"><span data-ui="Total">Total</span><span id="summaryTotal">$18.00</span></div>
           <p id="checkoutAvailabilityError" class="buyer-terms-error checkout-availability-error" role="alert" hidden></p>
           <button type="submit" form="sampleOrderForm" class="checkout-button" id="checkoutButton" data-ui="Pay">Pay</button>
-          <div class="payment-security" id="paymentSecurityLine"><span id="paymentSecurityText">Payment secured by</span><img id="solaSecurityLogo" src="/assets/sola-logo.png?v=20260916-1" alt="Sola" /></div>
+          <div class="payment-security" id="paymentSecurityLine" lang="en" dir="ltr" data-fixed-language="en"><span id="paymentSecurityText">Payment secured by</span><img id="solaSecurityLogo" src="/assets/sola-logo.png?v=20260916-1" alt="Sola" /></div>
           <p class="ticket-note checkout-removed" id="customerConfirmationText" data-copy="confirmationText" hidden>After checkout, choose Print Ticket, Email Ticket, or Text Ticket.</p>
         </aside>
       </div>
