@@ -373,17 +373,11 @@
           <section class="order-card payment-card order-payment-section">
             <div class="payment-card-heading">
               <h2 data-ui="Payment information">Payment information</h2>
-              <div class="payment-mode-picker" role="group" aria-label="Checkout mode">
-                <button type="button" class="payment-mode-button" id="livePaymentMode" aria-pressed="true" data-ui="Use real payment" hidden>Use real payment</button>
-                <button type="button" class="payment-mode-button" id="demoPaymentMode" aria-pressed="false" data-ui="Demo">Demo</button>
-              </div>
             </div>
             <div class="demo-fields" lang="en" dir="ltr" data-fixed-language="en">
               <div class="field full payment-field" id="liveCardNumberField"><label><span data-ui="Card number">Card number</span><span class="required-mark" aria-hidden="true">*</span></label><iframe class="ifield-frame" title="Card number" height="40" scrolling="no" frameborder="0" data-ifields-id="card-number" data-ifields-placeholder="Card number" src="https://cdn.cardknox.com/ifields/3.5.2607.1401/ifield.htm"></iframe><input name="xCardNum" data-ifields-id="card-number-token" type="hidden" id="solaCardToken" /></div>
-              <div class="field full payment-field" id="demoCardNumberField" hidden><label for="demoCardNumber"><span data-ui="Card number">Card number</span><span class="required-mark" aria-hidden="true">*</span></label><input id="demoCardNumber" inputmode="numeric" autocomplete="off" maxlength="19" placeholder="" /></div>
               <div class="field"><label for="demoExpiry"><span data-ui="Expiration">Expiration</span><span class="required-mark" aria-hidden="true">*</span></label><input id="demoExpiry" inputmode="numeric" autocomplete="cc-exp" maxlength="5" placeholder="MM/YY" pattern="(0[1-9]|1[0-2])/[0-9]{2}" required /></div>
               <div class="field payment-field" id="liveCvvField"><label><span data-ui="CVV">CVV</span><span class="required-mark" aria-hidden="true">*</span></label><iframe class="ifield-frame" title="CVV" height="40" scrolling="no" frameborder="0" data-ifields-id="cvv" data-ifields-placeholder="CVV" src="https://cdn.cardknox.com/ifields/3.5.2607.1401/ifield.htm"></iframe><input name="xCVV" data-ifields-id="cvv-token" type="hidden" id="solaCvvToken" /></div>
-              <div class="field payment-field" id="demoCvvField" hidden><label for="demoCvv"><span data-ui="CVV">CVV</span><span class="required-mark" aria-hidden="true">*</span></label><input id="demoCvv" type="password" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="" pattern="[0-9]{3,4}" /></div>
               <div class="field"><label for="demoZip"><span data-ui="Billing ZIP code">Billing ZIP code</span><span class="required-mark" aria-hidden="true">*</span></label><input id="demoZip" inputmode="numeric" autocomplete="postal-code" maxlength="10" placeholder="" pattern="[0-9-]{5,10}" required /></div>
               <label class="ifields-error" data-ifields-id="card-data-error"></label>
             </div>
@@ -416,7 +410,7 @@
       <button type="button" class="demo-close-button" id="closeDemoCheckout" aria-label="Close checkout" data-ui-aria="Close checkout">×</button>
       <div class="demo-success" id="demoSuccess" hidden>
         <div class="demo-success-icon" aria-hidden="true">✓</div><span class="demo-badge" id="approvalBadge">APPROVED</span><h2 id="demoCheckoutTitle" data-ui="Payment approved">Payment approved</h2>
-        <p id="demoSuccessMessage">Your demo order is complete.</p>
+        <p id="demoSuccessMessage">Your order is complete.</p>
         <div class="demo-ticket" id="publicTicket"><span id="onlineTicketLabel">Online ticket</span><strong id="demoTicketNumber">0000000000</strong><div><span id="demoTicketQuantity">2 כפרות</span></div><b id="demoTicketTotal">$36.00</b></div>
         <p class="demo-no-save" id="paymentResultNote">Your payment was approved and your order was recorded.</p>
         <p class="ticket-action-status" id="ticketActionStatus" role="status"></p>
@@ -557,12 +551,8 @@
     const sampleOrderForm = document.getElementById('sampleOrderForm');
     const demoCheckoutModal = document.getElementById('demoCheckoutModal');
     const demoSuccess = document.getElementById('demoSuccess');
-    const demoCardNumber = document.getElementById('demoCardNumber');
     const demoExpiry = document.getElementById('demoExpiry');
-    const demoCvv = document.getElementById('demoCvv');
     const demoZip = document.getElementById('demoZip');
-    const livePaymentMode = document.getElementById('livePaymentMode');
-    const demoPaymentMode = document.getElementById('demoPaymentMode');
     const customerNote = document.getElementById('customerNote');
     const solaCardToken = document.getElementById('solaCardToken');
     const solaCvvToken = document.getElementById('solaCvvToken');
@@ -577,8 +567,6 @@
     let quantity = 1;
     let checkoutChecking = false;
     let completedOnlineOrder = null;
-    let paymentMode = 'live';
-    let paymentModeChosen = false;
     let ifieldsInitialized = false;
     const CHECKOUT_SESSION_KEY = 'kapparosCheckoutSessionV1';
     const COMPLETED_TICKET_KEY = 'kapparosCompletedTicketV1';
@@ -593,7 +581,7 @@
       summaryQuantity.textContent = quantity;
       summaryUnitPrice.textContent = money(config.price);
       summaryTotal.textContent = money(quantity * Number(config.price || 0));
-      if (!checkoutChecking) checkoutButton.textContent = (paymentMode === 'demo' ? 'Demo — ' : 'Pay ') + money(quantity * Number(config.price || 0));
+      if (!checkoutChecking) checkoutButton.textContent = 'Pay ' + money(quantity * Number(config.price || 0));
       document.getElementById('decreaseQuantity').disabled = checkoutChecking || quantity <= 1;
       document.getElementById('increaseQuantity').disabled = checkoutChecking || config.orderingEnabled === false || quantity >= maximum;
     }
@@ -602,8 +590,7 @@
       config.pickupTimes = Array.isArray(config.pickupTimes) && config.pickupTimes.length ? config.pickupTimes : DEFAULT_PUBLIC_CONFIG.pickupTimes;
       config.paymentChoices = ['Credit card'];
       initializeIfields();
-      if (!paymentModeChosen) paymentMode = livePaymentsReady() ? 'live' : 'demo';
-      setPaymentMode(paymentMode);
+      configureLivePayment();
       document.getElementById('publicPageTitle').textContent = config.title;
       document.getElementById('publicPageSubtitle').textContent = config.subtitle;
       document.title = config.title + ' - ' + config.subtitle;
@@ -612,7 +599,7 @@
       const available = Math.max(0, Math.floor(Number(config.inventory || 0)));
       const closed = config.orderingEnabled === false || available === 0;
       if (orderButton) { orderButton.disabled = closed; orderButton.classList.toggle('ordering-unavailable', closed); }
-      checkoutButton.disabled = checkoutChecking || closed;
+      checkoutButton.disabled = checkoutChecking || closed || !livePaymentsReady();
       availabilityMessage.hidden = !closed;
       availabilityMessage.textContent = config.orderingEnabled === false
         ? 'Online ordering is currently closed.'
@@ -628,7 +615,7 @@
     document.addEventListener('buying-language-change', () => {
       if (!completedOnlineOrder) return;
       const sale = completedOnlineOrder;
-      document.getElementById('demoSuccessMessage').textContent = 'Thank you, ' + sale.fullName + '. Your ' + (sale.isDemoSale ? 'demo ' : '') + 'order is complete.';
+      document.getElementById('demoSuccessMessage').textContent = 'Thank you, ' + sale.fullName + '. Your order is complete.';
       document.getElementById('demoTicketQuantity').textContent = sale.quantity + (sale.quantity === 1 ? ' kaparah' : ' kaparos');
     });
     function formatCardNumber(value) {
@@ -661,32 +648,19 @@
       if (typeof window.enableAutoFormatting === 'function') window.enableAutoFormatting(' ');
       ifieldsInitialized = true;
     }
-    function setPaymentMode(nextMode) {
-      paymentMode = nextMode === 'demo' || !livePaymentsReady() ? 'demo' : 'live';
-      const live = paymentMode === 'live';
-      livePaymentMode.disabled = !livePaymentsReady();
-      demoPaymentMode.disabled = checkoutChecking;
-      livePaymentMode.setAttribute('aria-pressed', String(live));
-      demoPaymentMode.setAttribute('aria-pressed', String(!live));
-      livePaymentMode.hidden = live;
-      demoPaymentMode.hidden = !live;
-      document.getElementById('liveCardNumberField').hidden = !live;
-      document.getElementById('liveCvvField').hidden = !live;
-      document.getElementById('demoCardNumberField').hidden = live;
-      document.getElementById('demoCvvField').hidden = live;
-      demoCardNumber.required = !live;
-      demoCvv.required = !live;
-      paymentSecurityText.textContent = live ? 'Payment secured by' : 'Test mode · No real transaction';
-      solaSecurityLogo.hidden = !live;
-      demoPaymentError.textContent = '';
+    function configureLivePayment() {
+      const ready = livePaymentsReady();
+      document.getElementById('liveCardNumberField').hidden = false;
+      document.getElementById('liveCvvField').hidden = false;
+      paymentSecurityText.textContent = 'Payment secured by';
+      solaSecurityLogo.hidden = false;
+      demoPaymentError.textContent = ready ? '' : 'Secure card payments are temporarily unavailable.';
       solaCardToken.value = '';
       solaCvvToken.value = '';
       updateSummary();
     }
     function clearPaymentDetails() {
-      demoCardNumber.value = '';
       demoExpiry.value = '';
-      demoCvv.value = '';
       demoZip.value = '';
       solaCardToken.value = '';
       solaCvvToken.value = '';
@@ -743,7 +717,7 @@
       checkoutStockMessage();
       checkoutButton.disabled = true;
       checkoutButton.setAttribute('aria-busy', 'true');
-      checkoutButton.textContent = paymentMode === 'demo' ? 'Processing demo payment…' : 'Processing secure payment…';
+      checkoutButton.textContent = 'Processing secure payment…';
       updateSummary();
       try {
         // Read only: stock is checked before opening payment. The existing
@@ -766,17 +740,9 @@
           checkoutStockMessage('The price changed. Please review the updated total before continuing.'); return;
         }
         if (!BuyingCheckout.validateCustomerDetails() || !sampleOrderForm.reportValidity() || !BuyingCheckout.validate()) return;
-        const isDemo = paymentMode === 'demo';
-        if (isDemo) {
-          const cardDigits = demoCardNumber.value.replace(/\D/g, '');
-          if (cardDigits !== '4111111111111111') {
-            demoCardNumber.setCustomValidity('Use the demo card number 4111 1111 1111 1111.');
-            demoCardNumber.reportValidity();
-            demoPaymentError.textContent = BuyingLanguages.payment('This demo accepts only the test card shown above.');
-            return;
-          }
+        if (!livePaymentsReady()) {
+          throw new Error('Secure card payments are temporarily unavailable.');
         }
-        demoCardNumber.setCustomValidity('');
         const details = {
           fullName: document.getElementById('customerName').value.trim(),
           phone: BuyingCheckout.phoneDigits(document.getElementById('customerPhone').value),
@@ -793,20 +759,15 @@
           checkoutSession = { fingerprint, orderKey: crypto.randomUUID ? crypto.randomUUID() : secureRandomHex(20), orderToken: secureRandomHex(32) };
           sessionStorage.setItem(CHECKOUT_SESSION_KEY, JSON.stringify(checkoutSession));
         }
-        let payment = {};
-        if (isDemo) {
-          await new Promise(resolve => setTimeout(resolve, 650));
-        } else {
-          const tokens = await tokenizeLiveCard();
-          payment = {
-            cardToken: tokens.cardToken,
-            cvvToken: tokens.cvvToken,
-            expiration: demoExpiry.value.replace(/\D/g, ''),
-            cardholderName: details.fullName,
-            billingZip: demoZip.value.trim()
-          };
-        }
-        const result = await publicOrderRequest({ action:isDemo ? 'create-demo-order' : 'create-live-order', orderKey:checkoutSession.orderKey, orderToken:checkoutSession.orderToken, ...details, ...payment, pickupTime:'' });
+        const tokens = await tokenizeLiveCard();
+        const payment = {
+          cardToken: tokens.cardToken,
+          cvvToken: tokens.cvvToken,
+          expiration: demoExpiry.value.replace(/\D/g, ''),
+          cardholderName: details.fullName,
+          billingZip: demoZip.value.trim()
+        };
+        const result = await publicOrderRequest({ action:'create-live-order', orderKey:checkoutSession.orderKey, orderToken:checkoutSession.orderToken, ...details, ...payment, pickupTime:'' });
         showDemoApproval(result.sale, checkoutSession.orderToken);
         await sendCompletedTicket('send-ticket', emailOnlineTicket);
       } catch (error) {
@@ -820,9 +781,7 @@
       } finally {
         checkoutChecking = false;
         checkoutButton.removeAttribute('aria-busy');
-        checkoutButton.disabled = config.orderingEnabled === false || Number(config.inventory || 0) < 1;
-        livePaymentMode.disabled = !livePaymentsReady();
-        demoPaymentMode.disabled = false;
+        checkoutButton.disabled = config.orderingEnabled === false || Number(config.inventory || 0) < 1 || !livePaymentsReady();
         updateSummary();
       }
     }
@@ -844,15 +803,13 @@
       demoCheckoutModal.classList.add('open');
       demoCheckoutModal.setAttribute('aria-hidden', 'false');
       document.body.classList.add('demo-checkout-open');
-      document.getElementById('approvalBadge').textContent = sale.isDemoSale ? 'DEMO APPROVED' : 'APPROVED';
-      document.getElementById('onlineTicketLabel').textContent = sale.isDemoSale ? 'Online demo ticket' : 'Online ticket';
-      document.getElementById('demoSuccessMessage').textContent = 'Thank you, ' + sale.fullName + '. Your ' + (sale.isDemoSale ? 'demo ' : '') + 'order is complete.';
+      document.getElementById('approvalBadge').textContent = 'APPROVED';
+      document.getElementById('onlineTicketLabel').textContent = 'Online ticket';
+      document.getElementById('demoSuccessMessage').textContent = 'Thank you, ' + sale.fullName + '. Your order is complete.';
       document.getElementById('demoTicketNumber').textContent = sale.ticketId;
       document.getElementById('demoTicketQuantity').textContent = sale.quantity + (sale.quantity === 1 ? ' kaparah' : ' kaparos');
       document.getElementById('demoTicketTotal').textContent = money(sale.price);
-      document.getElementById('paymentResultNote').textContent = sale.isDemoSale
-        ? 'No card was charged. This test order is recorded as a paid online sale in the admin website and reports.'
-        : 'Your card was charged successfully and your order was recorded.';
+      document.getElementById('paymentResultNote').textContent = 'Your card was charged successfully and your order was recorded.';
       ticketActionStatus.textContent = BuyingLanguages.payment(config.printTicketsEnabled === false ? 'Ticket delivery is currently unavailable.' : 'Choose how you would like to receive your ticket.');
       if (!restoring) {
         config.inventory = Math.max(0, Number(sale.remainingInventory || 0));
@@ -950,7 +907,7 @@
         if (action === 'send-ticket') payload.pdfBase64 = await ticketPdfBase64();
         await publicOrderRequest(payload);
         ticketActionStatus.textContent = action === 'send-ticket'
-          ? 'Ticket emailed to ' + completedOnlineOrder.email + '.'
+          ? 'Your ticket was emailed to ' + completedOnlineOrder.email + '. If it does not appear in your inbox shortly, please check your Spam or Junk folder.'
           : 'Ticket text queued for ' + completedOnlineOrder.phone.replace(/^(\d{3})(\d{3})(\d{4})$/,'$1-$2-$3') + '.';
         button.dataset.sent = 'true';
         completedOnlineOrder.sentChannels = { ...(completedOnlineOrder.sentChannels || {}), [action]: true };
@@ -1028,23 +985,11 @@
     });
     demoCheckoutModal.addEventListener('click', event => { if (event.target === demoCheckoutModal) closeDemoCheckout(); });
     document.addEventListener('keydown', event => { if (event.key === 'Escape' && demoCheckoutModal.classList.contains('open')) closeDemoCheckout(); });
-    demoCardNumber.addEventListener('input', () => {
-      demoCardNumber.value = formatCardNumber(demoCardNumber.value);
-      demoCardNumber.setCustomValidity('');
-    });
     demoExpiry.addEventListener('input', () => {
       const digits = demoExpiry.value.replace(/\D/g, '').slice(0,4);
       demoExpiry.value = digits.length > 2 ? digits.slice(0,2) + '/' + digits.slice(2) : digits;
     });
     customerNote.addEventListener('input', resizeCustomerNote);
-    livePaymentMode.addEventListener('click', () => {
-      if (livePaymentMode.disabled || checkoutChecking) return;
-      paymentModeChosen = true; setPaymentMode('live');
-    });
-    demoPaymentMode.addEventListener('click', () => {
-      if (checkoutChecking) return;
-      paymentModeChosen = true; setPaymentMode('demo');
-    });
     printOnlineTicket.addEventListener('click', printCompletedTicket);
     emailOnlineTicket.addEventListener('click', () => sendCompletedTicket('send-ticket', emailOnlineTicket));
     textOnlineTicket.addEventListener('click', () => sendCompletedTicket('send-ticket-text', textOnlineTicket));
