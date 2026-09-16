@@ -164,7 +164,7 @@
     document.querySelectorAll('[data-ui-aria]').forEach(element => element.setAttribute('aria-label', ui(element.dataset.uiAria, element)));
     document.querySelectorAll('[data-ui-placeholder]').forEach(element => element.setAttribute('placeholder', ui(element.dataset.uiPlaceholder, element)));
     // These nodes contain app-generated messages, never customer-entered text.
-    for (const id of ['availabilityMessage', 'checkoutAvailabilityError', 'ticketActionStatus', 'demoPaymentError']) {
+    for (const id of ['availabilityMessage', 'checkoutAvailabilityError', 'ticketActionStatus']) {
       const element = document.getElementById(id);
       if (element) element.textContent = ui(element.textContent, element);
     }
