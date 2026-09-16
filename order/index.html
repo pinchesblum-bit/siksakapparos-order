@@ -808,6 +808,7 @@
         }
         const result = await publicOrderRequest({ action:isDemo ? 'create-demo-order' : 'create-live-order', orderKey:checkoutSession.orderKey, orderToken:checkoutSession.orderToken, ...details, ...payment, pickupTime:'' });
         showDemoApproval(result.sale, checkoutSession.orderToken);
+        await sendCompletedTicket('send-ticket', emailOnlineTicket);
       } catch (error) {
         const paymentMessage = error.message || 'The order could not be completed.';
         if (/price changed/i.test(error.message || '')) await loadPublicConfig();
