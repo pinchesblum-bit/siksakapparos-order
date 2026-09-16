@@ -63,6 +63,8 @@
     input:focus,select:focus,textarea:focus { border-color:#203c36; box-shadow:0 0 0 3px rgba(32,60,54,.12); }
     .order-form-stack.validation-attempted input:invalid,
     .order-form-stack.validation-attempted textarea:invalid { border-color:#a23939; box-shadow:0 0 0 2px rgba(162,57,57,.12); }
+    .field.has-error > label { color:#a23939; }
+    .field.has-error > input { border-color:#a23939; box-shadow:0 0 0 2px rgba(162,57,57,.12); }
     .required-mark { margin-inline-start:3px; color:#b52f2f; font-weight:900; }
     .quantity-section { margin-top:16px; padding-top:15px; border-top:1px solid var(--line); }
     .quantity-section > label { display:block; margin-bottom:8px; }
@@ -170,7 +172,7 @@
     .ticket-action-status.error { color:#9d342d !important; }
     .demo-pay-button:disabled { cursor: wait; opacity: .7; }
     .payment-security { display:flex; align-items:center; justify-content:center; gap:9px; min-height:34px; margin:9px 0 0; color:#626b63; font-size:12px; text-align:center; }
-    .payment-security img { display:block; width:auto; height:14px; object-fit:contain; }
+    .payment-security img { display:block; width:auto; height:11px; object-fit:contain; }
     .payment-security img[hidden] { display:none !important; }
     /* Keep these controls in their natural direction without mirroring the rest of the Yiddish page. */
     .order-back { direction:ltr; }
@@ -360,7 +362,7 @@
               <div class="field"><label for="customerEmail"><span data-ui="Email">Email</span><span class="required-mark" aria-hidden="true">*</span></label><input id="customerEmail" dir="ltr" type="email" autocomplete="off" placeholder="" required /></div>
               <div class="field full order-note-field">
                 <label for="customerNote" data-ui="Note">Note</label>
-                <textarea id="customerNote" rows="1" maxlength="500" data-ui-placeholder="Add a note for your order"></textarea>
+                <textarea id="customerNote" rows="1" maxlength="500"></textarea>
               </div>
             </div>
             <div class="quantity-section">
@@ -431,8 +433,8 @@
   <script src="/buying-visit.js?v=20260914-13"></script>
   <script src="/buying-content.js?v=20260914-2"></script>
   <script src="/buying-presentation.js?v=20260914-8"></script>
-  <script src="/buying-languages.js?v=20260916-1"></script>
-  <script src="/buying-checkout.js?v=20260916-1"></script>
+  <script src="/buying-languages.js?v=20260916-2"></script>
+  <script src="/buying-checkout.js?v=20260916-2"></script>
   <script src="/ticket-design.js?v=20260915-2"></script>
   <script>
     const PUBLIC_CONFIG_API = 'https://tugsxxafeaqbqonrruqt.supabase.co/functions/v1/kapparos-public-config';

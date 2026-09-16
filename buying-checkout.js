@@ -26,7 +26,11 @@
     const fields = ['customerName', 'customerPhone', 'customerEmail'].map(id => document.getElementById(id));
     form.classList.add('validation-attempted');
     const firstInvalid = fields.find(field => !field.checkValidity());
-    fields.forEach(field => field.setAttribute('aria-invalid', String(!field.checkValidity())));
+    fields.forEach(field => {
+      const invalid = !field.checkValidity();
+      field.setAttribute('aria-invalid', String(invalid));
+      field.closest('.field')?.classList.toggle('has-error', invalid);
+    });
     if (!firstInvalid) return true;
     firstInvalid.reportValidity();
     return false;
@@ -37,7 +41,11 @@
   phone.addEventListener('blur', () => { const digits = phoneDigits(phone.value); if (digits.length === 10) phone.value = copy.phone(digits).label; });
   ['customerName', 'customerPhone', 'customerEmail'].forEach(id => {
     const field = document.getElementById(id);
-    field.addEventListener('input', () => field.setAttribute('aria-invalid', String(!field.checkValidity())));
+    field.addEventListener('input', () => {
+      const invalid = !field.checkValidity();
+      field.setAttribute('aria-invalid', String(invalid));
+      field.closest('.field')?.classList.toggle('has-error', invalid);
+    });
   });
   document.addEventListener('buying-language-change', render);
   root.BuyingCheckout = {apply, render, validate, validateCustomerDetails, acceptancePayload, phoneDigits};

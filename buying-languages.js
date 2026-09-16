@@ -94,10 +94,10 @@
   "Close checkout": "פארמאכט די באצאלונג"
 };
   const reverseWords = Object.fromEntries(Object.entries(uiWords).map(([en, yi]) => [yi, en]));
-  let language = 'yi', settings = {}, locked = true;
+  let language = 'en', settings = {}, locked = true;
   // These public headings and minyan labels keep the owner's source wording in both languages.
   const sourceLanguageFields = new Set(['title', 'subtitle', 'venue', 'benefitPayment']);
-  try { language = localStorage.getItem('kapparosBuyingLanguageV1') === 'en' ? 'en' : 'yi'; } catch (_) {}
+  try { language = localStorage.getItem('kapparosBuyingLanguageV2') === 'yi' ? 'yi' : 'en'; } catch (_) {}
   function payment(text) {
     const original = reverseWords[text] || text;
     const field = copy.fields.find(field => field.ui === original);
@@ -206,7 +206,7 @@
   function apply(next, isLocked = false) { settings = next || {}; locked = isLocked; render(); }
   function choose(next) {
     language = next === 'en' ? 'en' : 'yi';
-    try { localStorage.setItem('kapparosBuyingLanguageV1', language); } catch (_) {}
+    try { localStorage.setItem('kapparosBuyingLanguageV2', language); } catch (_) {}
     render();
   }
   document.querySelectorAll('[data-language]').forEach(button => button.addEventListener('click', () => choose(button.dataset.language)));
