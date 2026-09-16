@@ -157,7 +157,12 @@
     .ifield-frame { display:block; height:46px; min-height:46px; max-height:46px; padding:0; overflow:hidden; }
     .ifields-error { display:block; min-height:0; margin-top:5px; color:#a23939; font-size:13px; font-weight:700; }
     .demo-test-hint { margin-top: 6px; color: #626b63; font-size: 12px; }
-    .demo-payment-error { min-height: 21px; margin: 12px 0 4px; color: #a23939; font-size: 14px; font-weight: 700; }
+    .payment-status { display:grid; grid-template-columns:30px 1fr; gap:10px; align-items:start; margin:14px 0 4px; padding:12px 13px; border:1px solid #e2b9b5; border-radius:11px; background:#fff4f2; color:#7f2d28; direction:ltr; text-align:left; }
+    .payment-status[hidden] { display:none !important; }
+    .payment-status-icon { display:grid; place-items:center; width:26px; height:26px; border-radius:50%; background:#a23939; color:#fff; font-size:16px; font-weight:900; line-height:1; }
+    .payment-status-copy { min-width:0; }
+    .payment-status-title { display:block; margin:0 0 2px; color:#7f2d28; font-size:14px; font-weight:900; line-height:1.3; }
+    .payment-status-message { display:block; color:#6f3b37; font-size:13px; font-weight:650; line-height:1.45; }
     .demo-pay-button, .demo-done-button { width: 100%; min-height: 52px; border: 0; border-radius: 13px; background: #203c36; color: #fff; font-size: 16px; font-weight: 850; cursor: pointer; }
     .ticket-actions { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin:0 0 10px; }
     .ticket-action-button { min-height:46px; padding:9px 10px; border:1px solid #d4c6ac; border-radius:12px; background:#fff; color:#203c36; font-size:14px; font-weight:850; cursor:pointer; }
@@ -374,9 +379,15 @@
               <div class="field"><label for="demoExpiry"><span data-ui="Expiration">Expiration</span><span class="required-mark" aria-hidden="true">*</span></label><input id="demoExpiry" inputmode="numeric" autocomplete="cc-exp" maxlength="5" placeholder="MM/YY" pattern="(0[1-9]|1[0-2])/[0-9]{2}" required /></div>
               <div class="field payment-field" id="liveCvvField"><label><span data-ui="CVV">CVV</span><span class="required-mark" aria-hidden="true">*</span></label><iframe class="ifield-frame" title="CVV" height="40" scrolling="no" frameborder="0" data-ifields-id="cvv" data-ifields-placeholder="CVV" src="https://cdn.cardknox.com/ifields/3.5.2607.1401/ifield.htm"></iframe><input name="xCVV" data-ifields-id="cvv-token" type="hidden" id="solaCvvToken" /></div>
               <div class="field"><label for="demoZip"><span data-ui="Billing ZIP code">Billing ZIP code</span><span class="required-mark" aria-hidden="true">*</span></label><input id="demoZip" inputmode="numeric" autocomplete="postal-code" maxlength="10" placeholder="" pattern="[0-9-]{5,10}" required /></div>
-              <label class="ifields-error" data-ifields-id="card-data-error"></label>
+              <label class="ifields-error" data-ifields-id="card-data-error" role="alert" aria-live="polite"></label>
             </div>
-            <p class="demo-payment-error" id="demoPaymentError" role="alert"></p>
+            <div class="payment-status" id="demoPaymentError" role="alert" aria-live="assertive" hidden>
+              <span class="payment-status-icon" aria-hidden="true">!</span>
+              <span class="payment-status-copy">
+                <strong class="payment-status-title" id="paymentStatusTitle"></strong>
+                <span class="payment-status-message" id="paymentStatusMessage"></span>
+              </span>
+            </div>
           </section>
         </form>
         <aside class="summary-card" aria-label="Order summary" data-ui-aria="Order summary">
@@ -554,6 +565,8 @@
     const paymentSecurityText = document.getElementById('paymentSecurityText');
     const solaSecurityLogo = document.getElementById('solaSecurityLogo');
     const demoPaymentError = document.getElementById('demoPaymentError');
+    const paymentStatusTitle = document.getElementById('paymentStatusTitle');
+    const paymentStatusMessage = document.getElementById('paymentStatusMessage');
     const ticketActionStatus = document.getElementById('ticketActionStatus');
     const printOnlineTicket = document.getElementById('printOnlineTicket');
     const emailOnlineTicket = document.getElementById('emailOnlineTicket');
@@ -643,13 +656,58 @@
       if (typeof window.enableAutoFormatting === 'function') window.enableAutoFormatting(' ');
       ifieldsInitialized = true;
     }
+    function paymentStatusCopy(error = {}) {
+      const code = String(error.code || '');
+      const status = Number(error.status || 0);
+      const message = String(error.message || '');
+      if (code === 'PAYMENT_DETAILS_INVALID' || /card details|card number|cvv|billing zip|secured/i.test(message)) {
+        return {
+          title: 'Check your card details',
+          message: 'Review the card number, expiration date, CVV, and billing ZIP code, then try again.'
+        };
+      }
+      if (code === 'PAYMENT_DECLINED' || status === 402) {
+        return {
+          title: 'Card declined',
+          message: 'Your card was not approved. Please try another card or contact your card issuer.'
+        };
+      }
+      if (code === 'PAYMENT_REVIEW_REQUIRED' || code === 'PAYMENT_UNVERIFIED') {
+        return {
+          title: 'Payment needs review',
+          message: 'Do not submit another payment. Please contact us so we can verify the transaction.'
+        };
+      }
+      if (code === 'PAYMENT_UNAVAILABLE' || status === 502 || status === 503 || /temporarily unavailable|processor could not be reached/i.test(message)) {
+        return {
+          title: 'Payment service unavailable',
+          message: 'We could not connect to the payment service. No charge was made. Please wait a moment and try again.'
+        };
+      }
+      return {
+        title: 'Payment could not be completed',
+        message: message || 'Please review your information and try again.'
+      };
+    }
+    function clearPaymentStatus() {
+      paymentStatusTitle.textContent = '';
+      paymentStatusMessage.textContent = '';
+      demoPaymentError.hidden = true;
+    }
+    function showPaymentStatus(error) {
+      const copy = paymentStatusCopy(error);
+      paymentStatusTitle.textContent = copy.title;
+      paymentStatusMessage.textContent = copy.message;
+      demoPaymentError.hidden = false;
+    }
     function configureLivePayment() {
       const ready = livePaymentsReady();
       document.getElementById('liveCardNumberField').hidden = false;
       document.getElementById('liveCvvField').hidden = false;
       paymentSecurityText.textContent = 'Payment secured by';
       solaSecurityLogo.hidden = false;
-      demoPaymentError.textContent = ready ? '' : 'Secure card payments are temporarily unavailable.';
+      if (ready) clearPaymentStatus();
+      else showPaymentStatus({ code:'PAYMENT_UNAVAILABLE' });
       solaCardToken.value = '';
       solaCvvToken.value = '';
       updateSummary();
@@ -659,7 +717,7 @@
       demoZip.value = '';
       solaCardToken.value = '';
       solaCvvToken.value = '';
-      demoPaymentError.textContent = '';
+      clearPaymentStatus();
     }
     function resizeCustomerNote() {
       customerNote.style.height = 'auto';
@@ -673,11 +731,11 @@
         solaCvvToken.value = '';
         window.getTokens(() => {
           if (!solaCardToken.value || !solaCvvToken.value) {
-            reject(new Error('Card details could not be secured. Please check the card number and CVV.'));
+            reject(Object.assign(new Error('Card details could not be secured.'), { code:'PAYMENT_DETAILS_INVALID' }));
             return;
           }
           resolve({ cardToken: solaCardToken.value, cvvToken: solaCvvToken.value });
-        }, () => reject(new Error('Please check the card number and CVV and try again.')), 30000);
+        }, () => reject(Object.assign(new Error('Please check the card number and CVV.'), { code:'PAYMENT_DETAILS_INVALID' })), 30000);
       });
     }
     function secureRandomHex(bytes = 24) {
@@ -692,7 +750,7 @@
       });
       const result = await response.json().catch(() => ({}));
       if (result.code === 'PREVIEW_LOGIN_REQUIRED') showPreviewGate('Please log in again to continue.');
-      if (!response.ok) throw Object.assign(new Error(result.error || 'The order could not be completed.'), { status: response.status, code: result.code });
+      if (!response.ok) throw Object.assign(new Error(result.error || 'The order could not be completed.'), { status: response.status, code: result.code, detail: result.detail });
       return result;
     }
     function checkoutStockMessage(message = '') {
@@ -710,6 +768,7 @@
       const requestedQuantity = quantity, reviewedPrice = Number(config.price || 0), accessVersion = visitVersion;
       checkoutChecking = true;
       checkoutStockMessage();
+      clearPaymentStatus();
       checkoutButton.disabled = true;
       checkoutButton.setAttribute('aria-busy', 'true');
       checkoutButton.textContent = 'Processing secure payment…';
@@ -766,12 +825,11 @@
         showDemoApproval(result.sale, checkoutSession.orderToken);
         await sendCompletedTicket('send-ticket', emailOnlineTicket);
       } catch (error) {
-        const paymentMessage = error.message || 'The order could not be completed.';
         if (/price changed/i.test(error.message || '')) await loadPublicConfig();
         if (error.code === 'TERMS_CHANGED' || error.code === 'TERMS_UNAVAILABLE') {
           await loadPublicConfig(); BuyingCheckout.validate();
         }
-        demoPaymentError.textContent = paymentMessage;
+        showPaymentStatus(error);
         demoPaymentError.scrollIntoView?.({ behavior:'smooth', block:'center' });
       } finally {
         checkoutChecking = false;
@@ -983,7 +1041,9 @@
     demoExpiry.addEventListener('input', () => {
       const digits = demoExpiry.value.replace(/\D/g, '').slice(0,4);
       demoExpiry.value = digits.length > 2 ? digits.slice(0,2) + '/' + digits.slice(2) : digits;
+      clearPaymentStatus();
     });
+    demoZip.addEventListener('input', clearPaymentStatus);
     customerNote.addEventListener('input', resizeCustomerNote);
     printOnlineTicket.addEventListener('click', printCompletedTicket);
     emailOnlineTicket.addEventListener('click', () => sendCompletedTicket('send-ticket', emailOnlineTicket));
