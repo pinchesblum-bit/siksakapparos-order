@@ -179,6 +179,9 @@
     .order-payment-section .demo-fields,
     .order-payment-section .demo-fields .field { direction:ltr; text-align:left; }
     .payment-security { direction:ltr; unicode-bidi:isolate; }
+    html[lang="yi"] .order-payment-section .demo-fields label { direction:ltr; text-align:right; }
+    html[lang="yi"] .payment-security { direction:rtl; }
+    .payment-security span { direction:ltr; unicode-bidi:isolate; }
     .demo-success { text-align: center; }
     .demo-success-icon { width: 64px; height: 64px; display: grid; place-items: center; margin: 0 auto 15px; border-radius: 50%; background: #e2f2e5; color: #2f6d3a; font-size: 35px; font-weight: 900; }
     .demo-ticket { display: grid; gap: 8px; margin: 23px 0 16px; padding: 20px; border: 1px solid #d4c6ac; border-radius: 16px; background: #f0eee4; text-align: left; }
@@ -243,7 +246,7 @@
       body.order-page .support-contacts a { min-height:30px; padding:5px 3px; font-size:12px; line-height:1.35; }
     }
     .hero-copy, .hero .order-cta, .hero .trust-line { display:none; }
-    .order-back { display:inline-flex; align-items:center; gap:8px; width:fit-content; min-height:40px; margin:0 0 16px; padding:8px 13px; border:1px solid var(--line); border-radius:9px; background:var(--surface); color:var(--accent); box-shadow:0 3px 10px rgba(32,60,54,.06); font-size:14px; font-weight:700; text-decoration:none; transition:background .16s ease,border-color .16s ease,transform .16s ease; }
+    .order-back { display:flex; align-items:center; gap:8px; width:fit-content; min-height:40px; margin:0 auto 16px 0; padding:8px 13px; border:1px solid var(--line); border-radius:9px; background:var(--surface); color:var(--accent); box-shadow:0 3px 10px rgba(32,60,54,.06); font-size:14px; font-weight:700; text-decoration:none; transition:background .16s ease,border-color .16s ease,transform .16s ease; }
     .order-back:hover { border-color:var(--gold); background:var(--gold-soft); transform:translateY(-1px); }
     .order-back-icon { font-size:18px; line-height:1; }
   
@@ -396,7 +399,7 @@
           <div class="summary-total"><span data-ui="Total">Total</span><span id="summaryTotal">$18.00</span></div>
           <p id="checkoutAvailabilityError" class="buyer-terms-error checkout-availability-error" role="alert" hidden></p>
           <button type="submit" form="sampleOrderForm" class="checkout-button" id="checkoutButton" data-ui="Pay">Pay</button>
-          <div class="payment-security" id="paymentSecurityLine" lang="en" dir="ltr" data-fixed-language="en"><span id="paymentSecurityText">Payment secured by</span><img id="solaSecurityLogo" src="/assets/sola-logo.png?v=20260916-1" alt="Sola" /></div>
+          <div class="payment-security" id="paymentSecurityLine" lang="en" data-fixed-language="en"><span id="paymentSecurityText">Payment secured by</span><img id="solaSecurityLogo" src="/assets/sola-logo.png?v=20260916-1" alt="Sola" /></div>
           <p class="ticket-note checkout-removed" id="customerConfirmationText" data-copy="confirmationText" hidden>After checkout, choose Print Ticket, Email Ticket, or Text Ticket.</p>
         </aside>
       </div>
