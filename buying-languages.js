@@ -11,6 +11,7 @@
     "Please read and accept the terms before continuing.": "ביטע לייענט און באשטעטיגט די תנאים פאר איר גייט ווייטער.",
     "Ordering is unavailable while the terms are being updated.": "מען קען צייטווייליג נישט באשטעלן בשעת די תנאים ווערן דערהיינטיגט.",
     "The terms changed. Please review and accept them again.": "די תנאים זענען געטוישט געווארן. ביטע לייענט און באשטעטיגט זיי נאכאמאל.",
+  "Important notice": "קלארשטעלונג",
   "Pay": "באצאלט",
   "— Demo": "— דעמא",
   "Your information": "אייערע פרטים",
