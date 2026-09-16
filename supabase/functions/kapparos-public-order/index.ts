@@ -349,7 +349,7 @@ Deno.serve(async (req: Request) => {
     const current = await stateRow();
     if (!(await hasBuyingAccess(req, current?.settings || {}, SERVICE_KEY))) return json(origin, {error:'Log in to preview the website.',code:'PREVIEW_LOGIN_REQUIRED'}, 401);
     const action = String(body.action || '');
-    if (action === 'create-demo-order') return json(origin, { ok: true, sale: await createOrder(body, false) });
+    if (action === 'create-demo-order') return json(origin, { error: 'Demo checkout is no longer available.' }, 410);
     if (action === 'create-live-order') return json(origin, { ok: true, sale: await createOrder(body, true) });
     if (action === 'send-ticket') return json(origin, { ok: true, ...(await deliver(body, 'send-ticket')) });
     if (action === 'send-ticket-text') return json(origin, { ok: true, ...(await deliver(body, 'send-ticket-text')) });
