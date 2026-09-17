@@ -30,7 +30,7 @@
     const settings = latest && Date.now() - verifiedAt < 15000 ? latest : null;
     write(HANDOFF, JSON.stringify({path:destination, at:Date.now(), token:read(TOKEN), settings, verifiedAt}));
     leavingInternally = true;
-    root.location.assign(destination === '/order/' ? destination + '?v=20260917-1' : destination);
+    root.location.assign(destination === '/order/' ? destination + '?v=20260917-2' : destination);
   }
   function forget() {
     clearCheckout(); remove(HANDOFF); remove(ACTIVE); latest = null; verifiedAt = 0;
