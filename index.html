@@ -364,7 +364,7 @@
   <script src="buying-presentation.js?v=20260914-8"></script>
   <script src="buying-languages.js?v=20260916-2"></script>
   <script src="buying-checkout.js?v=20260916-2"></script>
-  <script src="ticket-design.js?v=20260915-2"></script>
+  <script src="ticket-design.js?v=20260917-1"></script>
   <script>
     const PUBLIC_CONFIG_API = 'https://tugsxxafeaqbqonrruqt.supabase.co/functions/v1/kapparos-public-config';
     const PUBLIC_ORDER_API = 'https://tugsxxafeaqbqonrruqt.supabase.co/functions/v1/kapparos-public-order';
@@ -716,26 +716,43 @@
       const chunks = [];
       const offsets = [0];
       let length = 0;
-      const add = value => { const bytes = typeof value === 'string' ? encoder.encode(value) : value; chunks.push(bytes); length += bytes.length; };
-      const addObject = (number, value) => { offsets[number] = length; add(number + ' 0 obj\n' + value + '\nendobj\n'); };
-      const pageWidth = 612, pageHeight = 792, margin = 32;
-      const scale = Math.min((pageWidth - margin * 2) / imageWidth, (pageHeight - margin * 2) / imageHeight);
-      const drawWidth = imageWidth * scale, drawHeight = imageHeight * scale;
-      const drawing = 'q\n' + drawWidth.toFixed(2) + ' 0 0 ' + drawHeight.toFixed(2) + ' ' + ((pageWidth-drawWidth)/2).toFixed(2) + ' ' + ((pageHeight-drawHeight)/2).toFixed(2) + ' cm\n/Im0 Do\nQ';
+      const add = value => {
+        const bytes = typeof value === 'string' ? encoder.encode(value) : value;
+        chunks.push(bytes);
+        length += bytes.length;
+      };
+      const addObject = (number, value) => {
+        offsets[number] = length;
+        add(`${number} 0 obj\n${value}\nendobj\n`);
+      };
+      const pageWidth = 612;
+      const pageHeight = 792;
+      const halfHeight = pageHeight / 2;
+      const horizontalMargin = 24;
+      const verticalMargin = 18;
+      const scale = Math.min((pageWidth - horizontalMargin * 2) / imageWidth, (halfHeight - verticalMargin * 2) / imageHeight);
+      const drawWidth = imageWidth * scale;
+      const drawHeight = imageHeight * scale;
+      const drawX = (pageWidth - drawWidth) / 2;
+      const drawY = halfHeight + (halfHeight - drawHeight) / 2;
+      const drawing = `q\n${drawWidth.toFixed(2)} 0 0 ${drawHeight.toFixed(2)} ${drawX.toFixed(2)} ${drawY.toFixed(2)} cm\n/Im0 Do\nQ`;
+
       add('%PDF-1.4\n%âãÏÓ\n');
       addObject(1, '<< /Type /Catalog /Pages 2 0 R >>');
       addObject(2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
-      addObject(3, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>');
+      addObject(3, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>`);
       offsets[4] = length;
-      add('4 0 obj\n<< /Type /XObject /Subtype /Image /Width ' + imageWidth + ' /Height ' + imageHeight + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + jpegBytes.length + ' >>\nstream\n');
-      add(jpegBytes); add('\nendstream\nendobj\n');
-      addObject(5, '<< /Length ' + encoder.encode(drawing).length + ' >>\nstream\n' + drawing + '\nendstream');
+      add(`4 0 obj\n<< /Type /XObject /Subtype /Image /Width ${imageWidth} /Height ${imageHeight} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpegBytes.length} >>\nstream\n`);
+      add(jpegBytes);
+      add('\nendstream\nendobj\n');
+      addObject(5, `<< /Length ${encoder.encode(drawing).length} >>\nstream\n${drawing}\nendstream`);
       const xrefOffset = length;
       add('xref\n0 6\n0000000000 65535 f \n');
-      for (let index=1; index<=5; index+=1) add(String(offsets[index]).padStart(10,'0') + ' 00000 n \n');
-      add('trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n' + xrefOffset + '\n%%EOF');
-      return new Blob(chunks, { type:'application/pdf' });
+      for (let index = 1; index <= 5; index += 1) add(`${String(offsets[index]).padStart(10, '0')} 00000 n \n`);
+      add(`trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`);
+      return new Blob(chunks, { type: 'application/pdf' });
     }
+
     function ticketTemplate(value, sale) {
       return String(value || '').replace(/\{([a-z_]+)\}/g, (match, key) => ({
         title:config.title, subtitle:config.subtitle, brand:config.title, name:sale.fullName,
