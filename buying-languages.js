@@ -213,3 +213,18 @@
   root.BuyingLanguages = {apply, render, ui, payment, lock() { locked = true; render(); }, get language() { return document.documentElement.lang; }};
   render();
 })(globalThis);
+
+
+/* Homepage title hierarchy: keep the editable main title clearly larger than its subtitle. */
+(() => {
+  const style = document.createElement('style');
+  style.textContent = `
+    body:not(.order-page) .hero-title { font-size:clamp(40px,7.2vw,66px) !important; }
+    body:not(.order-page) .hero-subtitle { font-size:clamp(22px,3.6vw,32px) !important; }
+    @media (max-width:420px) {
+      body:not(.order-page) .hero-title { font-size:36px !important; }
+      body:not(.order-page) .hero-subtitle { font-size:22px !important; }
+    }
+  `;
+  document.head.appendChild(style);
+})();
