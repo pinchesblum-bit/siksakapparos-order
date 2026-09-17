@@ -23,7 +23,7 @@
   "Add a note for your order": "לייגט צו א נאטיץ פאר אייער באשטעלונג",
   "Your order": "אייער באשטעלונג",
   "Number of Kapures": "וויפיל כפרות",
-  "Amount of chickens": "וויפיל כפרות",
+  "Amount of Kapures": "וויפיל כפרות",
   "Payment": "באצאלונג",
   "Payment information": "באצאלונגס אינפארמאציע",
   "Credit card": "קרעדיט קארד",
