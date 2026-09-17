@@ -64,6 +64,16 @@
     .quantity-control { display:grid; grid-template-columns:48px minmax(64px,1fr) 48px; gap:9px; }
     .quantity-button { min-height:48px; border:1px solid var(--line); border-radius:12px; background:#fff; color:var(--accent); font-size:22px; font-weight:850; }
     .quantity-value { display:grid; place-items:center; min-height:48px; border:1px solid var(--line); border-radius:12px; background:#f0eee4; font-size:18px; font-weight:850; font-variant-numeric:tabular-nums; }
+    .checkout-quantity-section { display:flex; align-items:center; justify-content:space-between; gap:18px; margin-top:22px; padding-top:22px; border-top:1px solid var(--line); }
+    .checkout-quantity-label { margin:0; color:#203c36; font-size:15px; font-weight:800; }
+    .checkout-quantity-control.quantity-control { flex:0 0 auto; display:grid; grid-template-columns:52px 62px 52px; gap:0; min-height:52px; overflow:hidden; border:1px solid var(--line); border-radius:999px; background:#fff; box-shadow:0 3px 10px rgba(32,60,54,.04); }
+    .checkout-quantity-control .quantity-button,.checkout-quantity-control .quantity-value { min-height:50px; border:0; border-radius:0; background:transparent; }
+    .checkout-quantity-control .quantity-button:hover { background:var(--accent-soft); }
+    .checkout-quantity-control .quantity-button:disabled { cursor:not-allowed; opacity:.4; }
+    @media (max-width:420px) {
+      .checkout-quantity-section { gap:12px; }
+      .checkout-quantity-control.quantity-control { grid-template-columns:46px 52px 46px; }
+    }
     .payment-options { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
     .payment-option { min-height:50px; padding:11px 14px; border:1px solid var(--line); border-radius:12px; background:#fff; color:var(--ink); font-weight:800; }
     .payment-option.selected { border-color:var(--accent); background:var(--accent-soft); color:var(--accent-dark); box-shadow:0 0 0 2px rgba(32,60,54,.09); }
@@ -280,15 +290,6 @@
               <div class="field"><label for="customerEmail" data-ui="Email">Email</label><input id="customerEmail" dir="ltr" type="email" autocomplete="off" placeholder="" required /></div>
             </div>
           </div>
-          <div class="form-section">
-            <h3 data-ui="Your order">Your order</h3>
-            <div class="fields">
-              <div class="field">
-                <label data-ui="Number of kaparos">Number of kaparos</label>
-                <div class="quantity-control"><button class="quantity-button" id="decreaseQuantity" type="button" aria-label="Remove one kaparos" data-ui-aria="Remove one kaparos">−</button><output class="quantity-value" id="quantityValue" aria-live="polite">1</output><button class="quantity-button" id="increaseQuantity" type="button" aria-label="Add one kaparos" data-ui-aria="Add one kaparos">+</button></div>
-              </div>
-            </div>
-          </div>
           <div class="form-section checkout-removed" hidden>
             <h3 data-ui="Payment">Payment</h3>
             <div class="payment-options" id="paymentOptions" role="group" aria-label="Payment method" data-ui-aria="Payment method"><button type="button" class="payment-option selected" aria-pressed="true" data-ui="Credit card">Credit card</button></div>
@@ -298,6 +299,15 @@
             <div class="buyer-terms-text" id="buyerTermsText" data-copy="termsText" tabindex="0"></div>
             <p class="buyer-terms-error" id="buyerTermsError" role="alert"></p>
           </section>
+
+          <div class="checkout-quantity-section" aria-labelledby="checkoutQuantityLabel">
+            <label class="checkout-quantity-label" id="checkoutQuantityLabel" data-ui="Number of kaparos">Number of kaparos</label>
+            <div class="checkout-quantity-control quantity-control" role="group" aria-labelledby="checkoutQuantityLabel">
+              <button class="quantity-button" id="decreaseQuantity" type="button" aria-label="Remove one kaparos" data-ui-aria="Remove one kaparos">−</button>
+              <output class="quantity-value" id="quantityValue" aria-live="polite">1</output>
+              <button class="quantity-button" id="increaseQuantity" type="button" aria-label="Add one kaparos" data-ui-aria="Add one kaparos">+</button>
+            </div>
+          </div>
         </form>
         <aside class="summary-card" aria-label="Order summary" data-ui-aria="Order summary">
           <h2 data-ui="Order summary">Order summary</h2>
