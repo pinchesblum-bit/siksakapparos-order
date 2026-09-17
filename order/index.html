@@ -79,7 +79,13 @@
     .summary-card h2 { margin:0 0 17px; font-size:21px; }
     .summary-card .buyer-terms { margin:0 0 17px; padding:0 0 16px; border-top:0; border-bottom:1px solid var(--line); }
     .summary-card .buyer-terms h3 { margin:0 0 9px; font-size:17px; color:var(--accent); }
-    .summary-card .buyer-terms-text { max-height:none; overflow:visible; padding:10px 11px; background:rgba(255,255,255,.68); font-size:13px; line-height:1.5; }
+    .summary-card .buyer-terms-text { max-height:none; overflow:visible; padding:0; background:transparent; font-size:13px; line-height:1.5; }
+    .summary-card .quantity-section { display:flex; align-items:center; justify-content:space-between; gap:14px; margin:0 0 17px; padding:0 0 16px; border-top:0; border-bottom:1px solid var(--line); }
+    .summary-card .quantity-section > label { margin:0; font-size:14px; }
+    .summary-card .quantity-control { display:grid; grid-template-columns:42px 54px 42px; gap:0; flex:0 0 auto; overflow:hidden; border:1px solid var(--line); border-radius:999px; background:#fff; }
+    .summary-card .quantity-button,.summary-card .quantity-value { min-height:42px; border:0; border-radius:0; background:transparent; }
+    .summary-card .quantity-button:hover:not(:disabled) { background:var(--accent-soft); }
+    .summary-card .quantity-value { border-inline:1px solid var(--line); }
     .summary-row,.summary-total { display:flex; align-items:baseline; justify-content:space-between; gap:14px; }
     .summary-row { padding:12px 0; border-bottom:1px solid var(--line); }
     .summary-row span:first-child { color:var(--muted); }
@@ -236,7 +242,8 @@
       body.order-page .quantity-value { min-height:36px; }
       body.order-page .summary-card .buyer-terms { margin:0 0 13px; padding:0 0 12px; }
       body.order-page .summary-card .buyer-terms h3 { margin-bottom:6px; font-size:16px; }
-      body.order-page .summary-card .buyer-terms-text { max-height:none; padding:8px 9px; font-size:12px; line-height:1.4; }
+      body.order-page .summary-card .buyer-terms-text { max-height:none; padding:0; font-size:12px; line-height:1.4; }
+      body.order-page .summary-card .quantity-control { grid-template-columns:36px 48px 36px; }
       body.order-page .summary-card h2 { margin-bottom:11px; font-size:19px; }
       body.order-page .summary-row { padding:9px 0; }
       body.order-page .summary-total { padding:13px 0 14px; font-size:18px; }
@@ -365,10 +372,6 @@
                 <textarea id="customerNote" rows="1" maxlength="500"></textarea>
               </div>
             </div>
-            <div class="quantity-section">
-              <label data-ui="Amount of chickens">Amount of chickens</label>
-              <div class="quantity-control"><button class="quantity-button" id="decreaseQuantity" type="button" aria-label="Remove one Kapureh" data-ui-aria="Remove one Kapureh">−</button><output class="quantity-value" id="quantityValue" aria-live="polite">1</output><button class="quantity-button" id="increaseQuantity" type="button" aria-label="Add one Kapureh" data-ui-aria="Add one Kapureh">+</button></div>
-            </div>
           </section>
           <section class="order-card payment-card order-payment-section">
             <div class="payment-card-heading">
@@ -396,6 +399,10 @@
             <div class="buyer-terms-text" id="buyerTermsText" data-copy="termsText" tabindex="0"></div>
             <p class="buyer-terms-error" id="buyerTermsError" role="alert"></p>
           </section>
+          <div class="quantity-section summary-quantity-section">
+            <label data-ui="Amount of Kapures">Amount of Kapures</label>
+            <div class="quantity-control"><button class="quantity-button" id="decreaseQuantity" type="button" aria-label="Remove one Kapureh" data-ui-aria="Remove one Kapureh">−</button><output class="quantity-value" id="quantityValue" aria-live="polite">1</output><button class="quantity-button" id="increaseQuantity" type="button" aria-label="Add one Kapureh" data-ui-aria="Add one Kapureh">+</button></div>
+          </div>
           <h2 data-ui="Order summary">Order summary</h2>
           <div class="summary-row"><span data-ui="Kapures">Kapures</span><strong><span id="summaryQuantity">1</span> × <span id="summaryUnitPrice">$18</span></strong></div>
           <div class="summary-total"><span data-ui="Total">Total</span><span id="summaryTotal">$18.00</span></div>
@@ -422,7 +429,7 @@
         <p class="ticket-action-status" id="ticketActionStatus" role="status"></p>
         <div class="ticket-actions">
           <button type="button" class="ticket-action-button" id="printOnlineTicket" data-ui="Print Ticket">Print Ticket</button>
-          <button type="button" class="ticket-action-button" id="emailOnlineTicket" data-ui="Email Ticket">Email Ticket</button>
+          <button type="button" class="ticket-action-button" id="emailOnlineTicket" data-ui="Email Ticket" hidden aria-hidden="true" tabindex="-1">Email Ticket</button>
           <button type="button" class="ticket-action-button" id="textOnlineTicket" data-ui="Text Ticket">Text Ticket</button>
         </div>
         <button type="button" class="demo-done-button" id="demoDoneButton" data-ui="Done">Done</button>
@@ -433,7 +440,7 @@
   <script src="/buying-visit.js?v=20260914-13"></script>
   <script src="/buying-content.js?v=20260914-2"></script>
   <script src="/buying-presentation.js?v=20260914-8"></script>
-  <script src="/buying-languages.js?v=20260916-3"></script>
+  <script src="/buying-languages.js?v=20260917-1"></script>
   <script src="/buying-checkout.js?v=20260916-2"></script>
   <script src="/ticket-design.js?v=20260915-2"></script>
   <script>
@@ -612,9 +619,10 @@
       availabilityMessage.textContent = config.orderingEnabled === false
         ? 'Online ordering is currently closed.'
         : 'Online orders are currently sold out.';
-      [printOnlineTicket, emailOnlineTicket, textOnlineTicket].forEach(button => {
+      [printOnlineTicket, textOnlineTicket].forEach(button => {
         button.hidden = config.printTicketsEnabled === false;
       });
+      emailOnlineTicket.hidden = true;
       ticketActionStatus.textContent = config.printTicketsEnabled === false ? 'Ticket delivery is currently unavailable.' : ticketActionStatus.textContent;
       updateSummary();
       BuyingLanguages.apply(config, document.body.classList.contains('preview-locked'));
@@ -863,7 +871,13 @@
       document.getElementById('demoTicketQuantity').textContent = sale.quantity + (sale.quantity === 1 ? ' Kapureh' : ' Kapures');
       document.getElementById('demoTicketTotal').textContent = money(sale.price);
       document.getElementById('paymentResultNote').textContent = 'Your card was charged successfully and your order was recorded.';
-      ticketActionStatus.textContent = BuyingLanguages.payment(config.printTicketsEnabled === false ? 'Ticket delivery is currently unavailable.' : 'Choose how you would like to receive your ticket.');
+      const emailAlreadySent = Boolean(sale.sentChannels?.['send-ticket']);
+      ticketActionStatus.classList.remove('error');
+      ticketActionStatus.textContent = BuyingLanguages.payment(config.printTicketsEnabled === false
+        ? 'Ticket delivery is currently unavailable.'
+        : emailAlreadySent
+          ? 'Your receipt and ticket have been sent to ' + sale.email + '. Please check your inbox and Spam or Junk folder.'
+          : 'Your receipt and ticket are being sent to your email…');
       if (!restoring) {
         config.inventory = Math.max(0, Number(sale.remainingInventory || 0));
         BuyingVisit.verified(config);
@@ -954,20 +968,22 @@
       if (!completedOnlineOrder || button.disabled || config.printTicketsEnabled === false) return;
       button.disabled = true;
       ticketActionStatus.classList.remove('error');
-      ticketActionStatus.textContent = BuyingLanguages.payment(action === 'send-ticket' ? 'Preparing and emailing your ticket…' : 'Sending your ticket by text…');
+      ticketActionStatus.textContent = BuyingLanguages.payment(action === 'send-ticket' ? 'Preparing and emailing your receipt and ticket…' : 'Sending your ticket by text…');
       try {
         const payload = { action, saleId:completedOnlineOrder.id, orderToken:completedOnlineOrder.orderToken };
         if (action === 'send-ticket') payload.pdfBase64 = await ticketPdfBase64();
         await publicOrderRequest(payload);
         ticketActionStatus.textContent = action === 'send-ticket'
-          ? 'Your ticket was emailed to ' + completedOnlineOrder.email + '. If it does not appear in your inbox shortly, please check your Spam or Junk folder.'
+          ? 'Your receipt and ticket have been sent to ' + completedOnlineOrder.email + '. Please check your inbox and Spam or Junk folder.'
           : 'Ticket text queued for ' + completedOnlineOrder.phone.replace(/^(\d{3})(\d{3})(\d{4})$/,'$1-$2-$3') + '.';
         button.dataset.sent = 'true';
         completedOnlineOrder.sentChannels = { ...(completedOnlineOrder.sentChannels || {}), [action]: true };
         sessionStorage.setItem(COMPLETED_TICKET_KEY, JSON.stringify(completedOnlineOrder));
       } catch (error) {
         ticketActionStatus.classList.add('error');
-        ticketActionStatus.textContent = error.message;
+        ticketActionStatus.textContent = action === 'send-ticket'
+          ? 'We could not send your receipt and ticket by email. Please contact siksakapparos@gmail.com for assistance.'
+          : error.message;
       } finally {
         button.disabled = button.dataset.sent === 'true';
       }
